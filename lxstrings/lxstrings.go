@@ -113,6 +113,20 @@ func IsNotBlank(s string) bool {
 	return !IsBlank(s)
 }
 
+// Index returns the index of the first occurrence of substr in s, or -1 if not found.
+func Index(s, substr string) int {
+	return strings.Index(s, substr)
+}
+
+// IndexIgnoreCase returns the index of the first occurrence of substr in s, ignoring case, or -1 if not found.
+func IndexIgnoreCase(s, substr string) int {
+	sLower := strings.ToLower(s)
+	substrLower := strings.ToLower(substr)
+	return strings.Index(sLower, substrLower)
+}
+
+
+
 // Equals checks if two strings are equal.
 func Equals(s1, s2 string) bool {
 	return s1 == s2

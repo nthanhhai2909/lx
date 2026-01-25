@@ -360,6 +360,56 @@ func TestNotEqualsIgnoreCase(t *testing.T) {
 	}
 }
 
+func TestIndex(t *testing.T) {
+	tests := []struct {
+		s, substr string
+		expected  int
+	}{
+		{"hello world", "world", 6},
+		{"hello world", "WORLD", -1},
+		{"golang", "go", 0},
+		{"golang", "lang", 2},
+		{"test", "TEST", -1},
+		{"", "", 0},
+		{"non-empty", "", 0},
+		{"", "non-empty", -1},
+		{"こんにちは世界", "世界", 15},
+		{"😊emoji😊", "emoji", 4},
+	}
+	for _, test := range tests {
+		result := lxstrings.Index(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("Index(%q, %q) = %d; want %d", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+
+func TestIndexIgnoreCase(t *testing.T) {
+	{
+		tests := []struct {
+			s, substr string
+			expected  int
+		}{
+			{"hello world", "WORLD", 6},
+			{"GoLang", "golang", 0},
+			{"TestString", "teststring", 0},
+			{"CaseSensitive", "casesensitive", 0},
+			{"NoMatch", "MATCH", 2},
+			{"", "", 0},
+			{"non-empty", "", 0},
+			{"", "non-empty", -1},
+			{"こんにちは世界", "世界", 15},
+			{"😊Emoji😊", "emoji", 4},
+		}
+		for _, test := range tests {
+			result := lxstrings.IndexIgnoreCase(test.s, test.substr)
+			if result != test.expected {
+				t.Errorf("IndexIgnoreCase(%q, %q) = %d; want %d", test.s, test.substr, result, test.expected)
+			}
+		}
+	}
+}
+
 func TestTrimSpace(t *testing.T) {
 	tests := []struct {
 		input    string
