@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in **langx**
+Thanks for your interest in **lx**
 
 This project aims to provide small, focused, and idiomatic extensions to Go’s standard library. Please read the guidelines below to help keep the codebase clean, consistent, and easy to maintain.
 
@@ -38,8 +38,8 @@ Use short-lived branches with the following prefixes:
 Examples:
 
 ```
-feat/strx-isblank
-fix/slicex-empty-input
+feat/lxstrings-isblank
+fix/lxslices-empty-input
 docs/readme
 ```
 
@@ -50,8 +50,8 @@ docs/readme
 This project follows **Conventional Commits**:
 
 ```
-feat(strx): add IsBlank helper
-fix(slicex): handle nil slices
+feat(lxstrings): add IsBlank helper
+fix(lxslices): handle nil slices
 docs: update README
 chore: update ci config
 ```
