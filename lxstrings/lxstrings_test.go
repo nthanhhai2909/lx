@@ -359,3 +359,24 @@ func TestNotEqualsIgnoreCase(t *testing.T) {
 		}
 	}
 }
+
+func TestTrimSpace(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"   hello world   ", "hello world"},
+		{"\n\tgolang\r\n", "golang"},
+		{" no leading or trailing spaces ", "no leading or trailing spaces"},
+		{"\u200Bzero width space\u200B", "\u200Bzero width space\u200B"},
+		{"😊 emoji 😊", "😊 emoji 😊"},
+		{"      ", ""},
+		{"", ""},
+	}
+	for _, test := range tests {
+		result := lxstrings.TrimSpace(test.input)
+		if result != test.expected {
+			t.Errorf("TrimSpace(%q) = %q; want %q", test.input, result, test.expected)
+		}
+	}
+}

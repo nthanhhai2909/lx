@@ -132,3 +132,8 @@ func EqualsIgnoreCase(s1, s2 string) bool {
 func NotEqualsIgnoreCase(s1, s2 string) bool {
 	return !EqualsIgnoreCase(s1, s2)
 }
+
+// TrimSpace removes leading and trailing whitespace from the string.
+func TrimSpace(s string) string {
+	return strings.TrimSpace(s)
+}
