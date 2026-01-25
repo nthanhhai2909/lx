@@ -354,6 +354,7 @@ func RemoveAny(s string, substrs ...string) string {
 	return result
 }
 
+// RemoveAnyIgnoreCase removes all occurrences of the specified substrings from the string s, ignoring case.
 func RemoveAnyIgnoreCase(s string, substrs ...string) string {
 	result := s
 	for _, substr := range substrs {
