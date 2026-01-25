@@ -160,6 +160,11 @@ func LastIndexIgnoreCase(s, substr string) int {
 	return strings.LastIndex(sLower, substrLower)
 }
 
+// Length returns the length of the string.
+func Length(s string) int {
+	return len(s)
+}
+
 // IndexIgnoreCase returns the index of the first occurrence of substr in s, ignoring case, or -1 if not found.
 func IndexIgnoreCase(s, substr string) int {
 	sLower := strings.ToLower(s)

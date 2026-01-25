@@ -520,6 +520,27 @@ func TestLastIndexIgnoreCase(t *testing.T) {
 	}
 }
 
+func TestLength(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int
+	}{
+		{"hello", 5},
+		{"", 0},
+		{"こんにちは", 15}, // Each Japanese character is 3 bytes in UTF-8
+		{"😊emoji", 9},    // Emoji is 4 bytes, 'emoji' is 5 bytes
+		{" ", 1},
+		{"\n", 1},
+		{"\t", 1},
+	}
+	for _, test := range tests {
+		result := lxstrings.Length(test.input)
+		if result != test.expected {
+			t.Errorf("Length(%q) = %d; want %d", test.input, result, test.expected)
+		}
+	}
+}	
+
 func TestTrimSpace(t *testing.T) {
 	tests := []struct {
 		input    string
