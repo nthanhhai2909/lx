@@ -410,6 +410,55 @@ func TestIndexIgnoreCase(t *testing.T) {
 	}
 }
 
+func TestLastIndex(t *testing.T) {
+	tests := []struct {
+		s, substr string
+		expected  int
+	}{
+		{"hello world world", "world", 12},
+		{"hello world", "WORLD", -1},
+		{"golang golang", "go", 7},
+		{"test test test", "test", 10},
+		{"", "", 0},
+		{"non-empty", "", 9},
+		{"", "non-empty", -1},
+		{"こんにちは世界こんにちは", "こんにちは", 21},
+		{"😊emoji😊emoji😊", "emoji", 13},
+	}
+	for _, test := range tests {
+		result := lxstrings.LastIndex(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("LastIndex(%q, %q) = %d; want %d", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+
+func TestLastIndexIgnoreCase(t *testing.T) {
+	{
+		tests := []struct {
+			s, substr string
+			expected  int
+		}{
+			{"hello world WORLD", "WORLD", 12},
+			{"GoLang goLANG", "golang", 7},
+			{"TestString teststring TESTSTRING", "teststring", 22},
+			{"CaseSensitive CASESENSITIVE", "casesensitive", 14},
+			{"NoMatch MATCH NOMATCH", "MATCH", 16},
+			{"", "", 0},
+			{"non-empty", "", 9},
+			{"", "non-empty", -1},
+			{"こんにちは世界こんにちは", "こんにちは", 21},
+			{"😊Emoji😊emoji😊", "emoji", 13},
+		}
+		for _, test := range tests {
+			result := lxstrings.LastIndexIgnoreCase(test.s, test.substr)
+			if result != test.expected {
+				t.Errorf("LastIndexIgnoreCase(%q, %q) = %d; want %d", test.s, test.substr, result, test.expected)
+			}
+		}
+	}
+}
+
 func TestTrimSpace(t *testing.T) {
 	tests := []struct {
 		input    string

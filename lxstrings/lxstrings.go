@@ -118,6 +118,18 @@ func Index(s, substr string) int {
 	return strings.Index(s, substr)
 }
 
+// LastIndex returns the index of the last occurrence of substr in s, or -1 if not found.
+func LastIndex(s, substr string) int {
+	return strings.LastIndex(s, substr)
+}
+
+// LastIndexIgnoreCase returns the index of the last occurrence of substr in s, ignoring case, or -1 if not found.
+func LastIndexIgnoreCase(s, substr string) int {
+	sLower := strings.ToLower(s)
+	substrLower := strings.ToLower(substr)
+	return strings.LastIndex(sLower, substrLower)
+}
+
 // IndexIgnoreCase returns the index of the first occurrence of substr in s, ignoring case, or -1 if not found.
 func IndexIgnoreCase(s, substr string) int {
 	sLower := strings.ToLower(s)
