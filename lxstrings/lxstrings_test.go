@@ -115,6 +115,54 @@ func TestCompareIgnoreCase(t *testing.T) {
 	}
 }
 
+func TestContains(t *testing.T) {
+	tests := []struct {
+		s, substr string
+		expected  bool
+	}{
+		{"hello world", "world", true},
+		{"hello world", "WORLD", false},
+		{"golang", "go", true},
+		{"golang", "lang", true},
+		{"test", "TEST", false},
+		{"", "", true},
+		{"non-empty", "", true},
+		{"", "non-empty", false},
+		{"こんにちは世界", "世界", true},
+		{"😊emoji😊", "emoji", true},
+	}
+	for _, test := range tests {
+		result := lxstrings.Contains(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("Contains(%q, %q) = %v; want %v", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+
+func TestContainsIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s, substr string
+		expected  bool
+	}{
+		{"hello world", "WORLD", true},
+		{"GoLang", "golang", true},
+		{"TestString", "teststring", true},
+		{"CaseSensitive", "casesensitive", true},
+		{"NoMatch", "MATCH", true},
+		{"", "", true},
+		{"non-empty", "", true},
+		{"", "non-empty", false},
+		{"こんにちは世界", "世界", true},
+		{"😊Emoji😊", "emoji", true},
+	}
+	for _, test := range tests {
+		result := lxstrings.ContainsIgnoreCase(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("ContainsIgnoreCase(%q, %q) = %v; want %v", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+
 func TestIsEmpty(t *testing.T) {
 	tests := []struct {
 		input    string

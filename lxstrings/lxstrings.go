@@ -54,6 +54,18 @@ func Compare(s1, s2 string) int {
 	return strings.Compare(s1, s2)
 }
 
+// Contains checks if the substring is present in the string.
+func Contains(s, substr string) bool {
+	return strings.Contains(s, substr)
+}
+
+// ContainsIgnoreCase checks if the substring is present in the string, ignoring case.
+func ContainsIgnoreCase(s, substr string) bool {
+	sLower := strings.ToLower(s)
+	substrLower := strings.ToLower(substr)
+	return strings.Contains(sLower, substrLower)
+}
+
 // CompareIgnoreCase compares two strings lexicographically, ignoring case.
 // It returns an integer comparing two strings lexicographically, ignoring case.
 // The result will be 0 if s1 == s2, -1 if s1 < s2, and +1 if s1 > s2.
