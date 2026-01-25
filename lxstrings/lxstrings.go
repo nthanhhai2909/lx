@@ -113,6 +113,36 @@ func IsNotBlank(s string) bool {
 	return !IsBlank(s)
 }
 
+// IsAlpha checks if the given string contains only alphabetic characters.
+func IsAlpha(s string) bool {
+	for _, r := range s {
+		if !unicode.IsLetter(r) {
+			return false
+		}
+	}
+	return len(s) > 0
+}
+
+// IsNumeric checks if the given string contains only numeric characters.
+func IsNumeric(s string) bool {
+	for _, r := range s {
+		if !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return len(s) > 0
+}
+
+// IsAlphaNumeric checks if the given string contains only alphanumeric characters.
+func IsAlphaNumeric(s string) bool {
+	for _, r := range s {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return len(s) > 0
+}
+
 // Index returns the index of the first occurrence of substr in s, or -1 if not found.
 func Index(s, substr string) int {
 	return strings.Index(s, substr)

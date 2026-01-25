@@ -278,6 +278,67 @@ func TestIsNotBlank(t *testing.T) {
 	}
 }
 
+func TestIsAlpha(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"hello", true},
+		{"HelloWorld", true},
+		{"hello123", false},
+		{"123", false},
+		{"", false},
+		{"こんにちは", true},
+		{"😊emoji", false},
+	}
+	for _, test := range tests {
+		result := lxstrings.IsAlpha(test.input)
+		if result != test.expected {
+			t.Errorf("IsAlpha(%q) = %v; want %v", test.input, result, test.expected)
+		}
+	}
+}
+
+func TestIsNumeric(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"12345", true},
+		{"00123", true},
+		{"123abc", false},
+		{"abc", false},
+		{"", false},
+		{"１２３４５", true}, // Full-width digits
+		{"😊123", false},
+	}
+	for _, test := range tests {
+		result := lxstrings.IsNumeric(test.input)
+		if result != test.expected {
+			t.Errorf("IsNumeric(%q) = %v; want %v", test.input, result, test.expected)
+		}
+	}
+}
+
+func TestIsAlphaNumeric(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{{"hello123", true},
+		{"HelloWorld", true},
+		{"12345", true},
+		{"hello!", false},
+		{"", false},
+		{"こんにちは123", true},
+		{"😊emoji123", false},
+	}
+	for _, test := range tests {
+		result := lxstrings.IsAlphaNumeric(test.input)
+		if result != test.expected {
+			t.Errorf("IsAlphaNumeric(%q) = %v; want %v", test.input, result, test.expected)
+		}
+	}
+}
 func TestEquals(t *testing.T) {
 	tests := []struct {
 		s1, s2   string
