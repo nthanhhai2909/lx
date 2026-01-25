@@ -33,7 +33,6 @@ func TestAbbreviate(t *testing.T) {
 	}
 }
 
-
 func TestCapitalize(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -62,6 +61,56 @@ func TestCapitalize(t *testing.T) {
 		result := lxstrings.Capitalize(test.input)
 		if result != test.expected {
 			t.Errorf("Capitalize(%q) = %q; want %q", test.input, result, test.expected)
+		}
+	}
+}
+
+func TestCompare(t *testing.T) {
+	tests := []struct {
+		s1, s2   string
+		expected int
+	}{
+		{"apple", "banana", -1},
+		{"banana", "apple", 1},
+		{"cherry", "cherry", 0},
+		{"", "", 0},
+		{"a", "A", 1},
+		{"A", "a", -1},
+		{"abc", "abcd", -1},
+		{"abcd", "abc", 1},
+		{"こんにちは", "こんばんは", -1},
+		{"😊", "😊", 0},
+		{"😊", "😢", -1},
+		{"😢", "😊", 1},
+	}
+	for _, test := range tests {
+		result := lxstrings.Compare(test.s1, test.s2)
+		if result != test.expected {
+			t.Errorf("Compare(%q, %q) = %d; want %d", test.s1, test.s2, result, test.expected)
+		}
+	}
+}
+
+func TestCompareIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s1, s2   string
+		expected int
+	}{
+		{"apple", "BANANA", -1},
+		{"BANANA", "apple", 1},
+		{"cherry", "CHERRY", 0},
+		{"", "", 0},
+		{"a", "A", 0},
+		{"A", "a", 0},
+		{"abc", "ABCD", -1},
+		{"ABCD", "abc", 1},
+		{"GoLang", "golang", 0},
+		{"HELLO", "hello", 0},
+	}
+	for _, test := range tests {
+		result := lxstrings.CompareIgnoreCase(test.s1, test.s2)
+		if result != test.expected {
+			t.Errorf("CompareIgnoreCase(%q, %q) = %d; want %d", test.s1, test.s2, result, test.expected)
 		}
 	}
 }

@@ -47,6 +47,22 @@ func Capitalize(s string) string {
 	return string(runes)
 }
 
+// Compare compares two strings lexicographically.
+// It returns an integer comparing two strings lexicographically.
+// The result will be 0 if s1 == s2, -1 if s1 < s2, and +1 if s1 > s2.
+func Compare(s1, s2 string) int {
+	return strings.Compare(s1, s2)
+}
+
+// CompareIgnoreCase compares two strings lexicographically, ignoring case.
+// It returns an integer comparing two strings lexicographically, ignoring case.
+// The result will be 0 if s1 == s2, -1 if s1 < s2, and +1 if s1 > s2.
+func CompareIgnoreCase(s1, s2 string) int {
+	s1Lower := strings.ToLower(s1)
+	s2Lower := strings.ToLower(s2)
+	return strings.Compare(s1Lower, s2Lower)
+}
+
 // IsEmpty checks if the given string is empty.
 func IsEmpty(s string) bool {
 	return len(s) == 0
