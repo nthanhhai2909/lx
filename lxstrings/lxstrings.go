@@ -78,7 +78,6 @@ func ContainsAny(s string, chars ...rune) bool {
 	return false
 }
 
-
 // CompareIgnoreCase compares two strings lexicographically, ignoring case.
 // It returns an integer comparing two strings lexicographically, ignoring case.
 // The result will be 0 if s1 == s2, -1 if s1 < s2, and +1 if s1 > s2.
@@ -237,7 +236,6 @@ func Repeat(s string, count int) string {
 	return strings.Repeat(s, count)
 }
 
-
 // StartBy checks if the string starts with the specified prefix.
 func StartBy(s, prefix string) bool {
 	return strings.HasPrefix(s, prefix)
@@ -303,4 +301,63 @@ func EndByAnyIgnoreCase(s string, suffixes ...string) bool {
 		}
 	}
 	return false
+}
+
+// Replace replaces occurrences of old with new in the string s, up to n times.
+// If n is -1, all occurrences are replaced.
+func Replace(s, old, new string, n int) string {
+	return strings.Replace(s, old, new, n)
+}
+
+// ReplaceAll replaces all occurrences of old with new in the string s.
+func ReplaceAll(s, old, new string) string {
+	return strings.ReplaceAll(s, old, new)
+}
+
+// Remove removes all occurrences of substr from the string s.
+func Remove(s, substr string) string {
+	return strings.ReplaceAll(s, substr, "")
+}
+
+func RemoveIgnoreCase(s, substr string) string {
+	if substr == "" {
+		return s
+	}
+
+	lowerS := strings.ToLower(s)
+	lowerSub := strings.ToLower(substr)
+
+	var b strings.Builder
+	i := 0
+
+	for {
+		j := Index(lowerS[i:], lowerSub)
+		if j < 0 {
+			b.WriteString(s[i:])
+			break
+		}
+
+		j += i
+		b.WriteString(s[i:j])
+		i = j + len(substr)
+	}
+
+	return b.String()
+}
+
+// RemoveAny removes all occurrences of the specified substrings from the string s.
+func RemoveAny(s string, substrs ...string) string {
+	result := s
+	for _, substr := range substrs {
+		result = Remove(result, substr)
+	}
+	return result
+}
+
+func RemoveAnyIgnoreCase(s string, substrs ...string) string {
+	result := s
+	for _, substr := range substrs {
+		result = RemoveIgnoreCase(result, substr)
+	}
+	return result
 }

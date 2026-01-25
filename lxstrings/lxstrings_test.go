@@ -528,7 +528,7 @@ func TestLength(t *testing.T) {
 		{"hello", 5},
 		{"", 0},
 		{"こんにちは", 15}, // Each Japanese character is 3 bytes in UTF-8
-		{"😊emoji", 9},    // Emoji is 4 bytes, 'emoji' is 5 bytes
+		{"😊emoji", 9}, // Emoji is 4 bytes, 'emoji' is 5 bytes
 		{" ", 1},
 		{"\n", 1},
 		{"\t", 1},
@@ -539,7 +539,7 @@ func TestLength(t *testing.T) {
 			t.Errorf("Length(%q) = %d; want %d", test.input, result, test.expected)
 		}
 	}
-}	
+}
 
 func TestLowerCase(t *testing.T) {
 	tests := []struct {
@@ -603,7 +603,6 @@ func TestTrimSpace(t *testing.T) {
 		}
 	}
 }
-
 
 func TestTrim(t *testing.T) {
 	tests := []struct {
@@ -791,7 +790,7 @@ func TestStartByIgnoreCase(t *testing.T) {
 		if result != test.expected {
 			t.Errorf("StartByIgnoreCase(%q, %q) = %v; want %v", test.s, test.prefix, result, test.expected)
 		}
-	}	
+	}
 }
 
 func TestStartByAny(t *testing.T) {
@@ -933,6 +932,136 @@ func TestEndByAnyIgnoreCase(t *testing.T) {
 		result := lxstrings.EndByAnyIgnoreCase(test.s, test.suffixes...)
 		if result != test.expected {
 			t.Errorf("EndByAnyIgnoreCase(%q, %v) = %v; want %v", test.s, test.suffixes, result, test.expected)
+		}
+	}
+}
+
+func TestReplace(t *testing.T) {
+	tests := []struct {
+		s        string
+		old      string
+		new      string
+		n        int
+		expected string
+	}{
+		{"hello world", "world", "gopher", -1, "hello gopher"},
+		{"golang golang", "go", "GO", 1, "GOlang golang"},
+		{"test test test", "test", "exam", 2, "exam exam test"},
+		{"no match here", "xyz", "abc", -1, "no match here"},
+		{"", "anything", "something", -1, ""},
+		{"😊emoji😊emoji😊", "emoji", "EMOJI", 2, "😊EMOJI😊EMOJI😊"},
+	}
+	for _, test := range tests {
+		result := lxstrings.Replace(test.s, test.old, test.new, test.n)
+		if result != test.expected {
+			t.Errorf("Replace(%q, %q, %q, %d) = %q; want %q", test.s, test.old, test.new, test.n, result, test.expected)
+		}
+	}
+}
+
+func TestReplaceAll(t *testing.T) {
+	tests := []struct {
+		s        string
+		old      string
+		new      string
+		expected string
+	}{
+		{"hello world", "world", "gopher", "hello gopher"},
+		{"golang golang", "go", "GO", "GOlang GOlang"},
+		{"test test test", "test", "exam", "exam exam exam"},
+		{"no match here", "xyz", "abc", "no match here"},
+		{"", "anything", "something", ""},
+		{"😊emoji😊emoji😊", "emoji", "EMOJI", "😊EMOJI😊EMOJI😊"},
+	}
+	for _, test := range tests {
+		result := lxstrings.ReplaceAll(test.s, test.old, test.new)
+		if result != test.expected {
+			t.Errorf("ReplaceAll(%q, %q, %q) = %q; want %q", test.s, test.old, test.new, result, test.expected)
+		}
+	}
+}
+
+func TestRemove(t *testing.T) {
+	tests := []struct {
+		s        string
+		substr   string
+		expected string
+	}{
+		{"hello world", "world", "hello "},
+		{"golang golang", "go", "lang lang"},
+		{"test test test", "test", "  "},
+		{"no match here", "xyz", "no match here"},
+		{"", "anything", ""},
+		{"😊emoji😊emoji😊", "emoji", "😊😊😊"},
+	}
+	for _, test := range tests {
+		result := lxstrings.Remove(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("Remove(%q, %q) = %q; want %q", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+
+
+func TestRemoveIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s        string
+		substr   string
+		expected string
+	}{
+		{"hello WORLD", "world", "hello "},
+		{"GoLang golang", "GOLANG", " "},
+		{"Test test TEST", "test", "  "},
+		{"no match here", "XYZ", "no match here"},
+		{"", "ANYTHING", ""},
+		{"😊Emoji😊emoji😊", "EMOJI", "😊😊😊"},
+	}
+	for _, test := range tests {
+		result := lxstrings.RemoveIgnoreCase(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("RemoveIgnoreCase(%q, %q) = %q; want %q", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+
+func TestRemoveAny(t *testing.T) {
+	tests := []struct {
+		s        string
+		substrs  []string
+		expected string
+	}{
+		{"hello world", []string{"hello", "world"}, " "},
+		{"golang golang", []string{"go", "lang"}, " "},
+		{"test test test", []string{"test", "exam"}, "  "},
+		{"no match here", []string{"xyz", "abc"}, "no match here"},
+		{"", []string{"anything", "something"}, ""},
+		{"😊emoji😊emoji😊", []string{"emoji", "EMOJI"}, "😊😊😊"},
+	}
+	for _, test := range tests {
+		result := lxstrings.RemoveAny(test.s, test.substrs...)
+		if result != test.expected {
+			t.Errorf("RemoveAny(%q, %v) = %q; want %q", test.s, test.substrs, result, test.expected)
+		}
+	}
+}
+
+func TestRemoveAnyIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s        string
+		substrs  []string
+		expected string
+	}{
+		{"hello WORLD", []string{"HELLO", "world"}, " "},
+		{"GoLang golang", []string{"GOLANG", "go"}, " "},
+		{"Test test TEST", []string{"TEST", "test"}, "  "},
+		{"no match here", []string{"XYZ", "ABC"}, "no match here"},
+		{"", []string{"ANYTHING", "SOMETHING"}, ""},
+		{"😊Emoji😊emoji😊", []string{"EMOJI", "emoji"}, "😊😊😊"},
+	}
+	for _, test := range tests {
+		result := lxstrings.RemoveAnyIgnoreCase(test.s, test.substrs...)
+		if result != test.expected {
+			t.Errorf("RemoveAnyIgnoreCase(%q, %v) = %q; want %q", test.s, test.substrs, result, test.expected)
 		}
 	}
 }
