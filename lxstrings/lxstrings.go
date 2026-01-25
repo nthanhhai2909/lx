@@ -182,8 +182,6 @@ func IndexIgnoreCase(s, substr string) int {
 	return strings.Index(sLower, substrLower)
 }
 
-
-
 // Equals checks if two strings are equal.
 func Equals(s1, s2 string) bool {
 	return s1 == s2
@@ -207,4 +205,102 @@ func NotEqualsIgnoreCase(s1, s2 string) bool {
 // TrimSpace removes leading and trailing whitespace from the string.
 func TrimSpace(s string) string {
 	return strings.TrimSpace(s)
+}
+
+// Trim removes all leading and trailing characters specified in cutset from the string.
+func Trim(s string, cutset string) string {
+	return strings.Trim(s, cutset)
+}
+
+// TrimLeft removes all leading characters specified in cutset from the string.
+func TrimLeft(s string, cutset string) string {
+	return strings.TrimLeft(s, cutset)
+}
+
+// TrimRight removes all trailing characters specified in cutset from the string.
+func TrimRight(s string, cutset string) string {
+	return strings.TrimRight(s, cutset)
+}
+
+// Split splits the string by the specified separator and returns a slice of substrings.
+func Split(s, sep string) []string {
+	return strings.Split(s, sep)
+}
+
+// Join joins a slice of strings into a single string with the specified separator.
+func Join(elems []string, sep string) string {
+	return strings.Join(elems, sep)
+}
+
+// Repeat returns a new string consisting of count copies of the string s.
+func Repeat(s string, count int) string {
+	return strings.Repeat(s, count)
+}
+
+
+// StartBy checks if the string starts with the specified prefix.
+func StartBy(s, prefix string) bool {
+	return strings.HasPrefix(s, prefix)
+}
+
+// StartByIgnoreCase checks if the string starts with the specified prefix, ignoring case.
+func StartByIgnoreCase(s, prefix string) bool {
+	sLower := strings.ToLower(s)
+	prefixLower := strings.ToLower(prefix)
+	return strings.HasPrefix(sLower, prefixLower)
+}
+
+// StartByAny checks if the string starts with any of the specified prefixes.
+func StartByAny(s string, prefixes ...string) bool {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(s, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+func StartByAnyIgnoreCase(s string, prefixes ...string) bool {
+	sLower := strings.ToLower(s)
+	for _, prefix := range prefixes {
+		prefixLower := strings.ToLower(prefix)
+		if strings.HasPrefix(sLower, prefixLower) {
+			return true
+		}
+	}
+	return false
+}
+
+// EndBy checks if the string ends with the specified suffix.
+func EndBy(s, suffix string) bool {
+	return strings.HasSuffix(s, suffix)
+}
+
+// EndByIgnoreCase checks if the string ends with the specified suffix, ignoring case.
+func EndByIgnoreCase(s, suffix string) bool {
+	sLower := strings.ToLower(s)
+	suffixLower := strings.ToLower(suffix)
+	return strings.HasSuffix(sLower, suffixLower)
+}
+
+// EndByAny checks if the string ends with any of the specified suffixes.
+func EndByAny(s string, suffixes ...string) bool {
+	for _, suffix := range suffixes {
+		if strings.HasSuffix(s, suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+// EndByAnyIgnoreCase checks if the string ends with any of the specified suffixes, ignoring case.
+func EndByAnyIgnoreCase(s string, suffixes ...string) bool {
+	sLower := strings.ToLower(s)
+	for _, suffix := range suffixes {
+		suffixLower := strings.ToLower(suffix)
+		if strings.HasSuffix(sLower, suffixLower) {
+			return true
+		}
+	}
+	return false
 }

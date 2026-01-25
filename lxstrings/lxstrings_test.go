@@ -603,3 +603,336 @@ func TestTrimSpace(t *testing.T) {
 		}
 	}
 }
+
+
+func TestTrim(t *testing.T) {
+	tests := []struct {
+		input    string
+		cutset   string
+		expected string
+	}{
+		{"---hello---", "-", "hello"},
+		{"***golang***", "*", "golang"},
+		{"   spaced   ", " ", "spaced"},
+		{"!!!exciting!!!", "!", "exciting"},
+		{"😊emoji😊", "😊", "emoji"},
+		{"no trim needed", "xyz", "no trim needed"},
+		{"aaaaaa", "a", ""},
+		{"", "abc", ""},
+	}
+	for _, test := range tests {
+		result := lxstrings.Trim(test.input, test.cutset)
+		if result != test.expected {
+			t.Errorf("Trim(%q, %q) = %q; want %q", test.input, test.cutset, result, test.expected)
+		}
+	}
+}
+
+func TestTrimLeft(t *testing.T) {
+	tests := []struct {
+		input    string
+		cutset   string
+		expected string
+	}{
+		{"---hello---", "-", "hello---"},
+		{"***golang***", "*", "golang***"},
+		{"   spaced   ", " ", "spaced   "},
+		{"!!!exciting!!!", "!", "exciting!!!"},
+		{"😊emoji😊", "😊", "emoji😊"},
+		{"no trim needed", "xyz", "no trim needed"},
+		{"aaaaaa", "a", ""},
+		{"", "abc", ""},
+	}
+	for _, test := range tests {
+		result := lxstrings.TrimLeft(test.input, test.cutset)
+		if result != test.expected {
+			t.Errorf("TrimLeft(%q, %q) = %q; want %q", test.input, test.cutset, result, test.expected)
+		}
+	}
+}
+
+func TestTrimRight(t *testing.T) {
+	tests := []struct {
+		input    string
+		cutset   string
+		expected string
+	}{
+		{"---hello---", "-", "---hello"},
+		{"***golang***", "*", "***golang"},
+		{"   spaced   ", " ", "   spaced"},
+		{"!!!exciting!!!", "!", "!!!exciting"},
+		{"😊emoji😊", "😊", "😊emoji"},
+		{"no trim needed", "xyz", "no trim needed"},
+		{"aaaaaa", "a", ""},
+		{"", "abc", ""},
+	}
+	for _, test := range tests {
+		result := lxstrings.TrimRight(test.input, test.cutset)
+		if result != test.expected {
+			t.Errorf("TrimRight(%q, %q) = %q; want %q", test.input, test.cutset, result, test.expected)
+		}
+	}
+}
+
+func TestSplit(t *testing.T) {
+	tests := []struct {
+		input    string
+		sep      string
+		expected []string
+	}{
+		{"a,b,c", ",", []string{"a", "b", "c"}},
+		{"hello world", " ", []string{"hello", "world"}},
+		{"one;two;three", ";", []string{"one", "two", "three"}},
+		{"no separator", ",", []string{"no separator"}},
+		{"", ",", []string{""}},
+		{"a--b--c", "--", []string{"a", "b", "c"}},
+		{"😊-emoji-😊", "-", []string{"😊", "emoji", "😊"}},
+	}
+	for _, test := range tests {
+		result := lxstrings.Split(test.input, test.sep)
+		if len(result) != len(test.expected) {
+			t.Errorf("Split(%q, %q) = %v; want %v", test.input, test.sep, result, test.expected)
+			continue
+		}
+		for i := range result {
+			if result[i] != test.expected[i] {
+				t.Errorf("Split(%q, %q) = %v; want %v", test.input, test.sep, result, test.expected)
+				break
+			}
+		}
+	}
+}
+
+func TestJoin(t *testing.T) {
+	tests := []struct {
+		input    []string
+		sep      string
+		expected string
+	}{
+		{[]string{"a", "b", "c"}, ",", "a,b,c"},
+		{[]string{"hello", "world"}, " ", "hello world"},
+		{[]string{"one", "two", "three"}, ";", "one;two;three"},
+		{[]string{"no", "separator"}, "", "noseparator"},
+		{[]string{}, ",", ""},
+		{[]string{"😊", "emoji", "😊"}, "-", "😊-emoji-😊"},
+	}
+	for _, test := range tests {
+		result := lxstrings.Join(test.input, test.sep)
+		if result != test.expected {
+			t.Errorf("Join(%v, %q) = %q; want %q", test.input, test.sep, result, test.expected)
+		}
+	}
+}
+
+func TestRepeat(t *testing.T) {
+	tests := []struct {
+		input    string
+		count    int
+		expected string
+	}{
+		{"ha", 3, "hahaha"},
+		{"go", 0, ""},
+		{"!", 5, "!!!!!"},
+		{"😊", 4, "😊😊😊😊"},
+		{"abc", 1, "abc"},
+		{"", 10, ""},
+	}
+	for _, test := range tests {
+		result := lxstrings.Repeat(test.input, test.count)
+		if result != test.expected {
+			t.Errorf("Repeat(%q, %d) = %q; want %q", test.input, test.count, result, test.expected)
+		}
+	}
+}
+
+func TestStartBy(t *testing.T) {
+	tests := []struct {
+		s        string
+		prefix   string
+		expected bool
+	}{
+		{"hello world", "hello", true},
+		{"hello world", "world", false},
+		{"golang", "go", true},
+		{"test", "TEST", false},
+		{"", "", true},
+		{"non-empty", "", true},
+		{"", "non-empty", false},
+		{"こんにちは世界", "こんにちは", true},
+		{"😊emoji😊", "😊", true},
+	}
+	for _, test := range tests {
+		result := lxstrings.StartBy(test.s, test.prefix)
+		if result != test.expected {
+			t.Errorf("StartBy(%q, %q) = %v; want %v", test.s, test.prefix, result, test.expected)
+		}
+	}
+}
+
+func TestStartByIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s        string
+		prefix   string
+		expected bool
+	}{
+		{"hello world", "HELLO", true},
+		{"GoLang", "golang", true},
+		{"TestString", "teststring", true},
+		{"CaseSensitive", "casesensitive", true},
+		{"NoMatch", "MATCH", false},
+		{"", "", true},
+		{"non-empty", "", true},
+		{"", "non-empty", false},
+		{"こんにちは世界", "こんにちは", true},
+		{"😊Emoji😊", "emoji", false},
+	}
+	for _, test := range tests {
+		result := lxstrings.StartByIgnoreCase(test.s, test.prefix)
+		if result != test.expected {
+			t.Errorf("StartByIgnoreCase(%q, %q) = %v; want %v", test.s, test.prefix, result, test.expected)
+		}
+	}	
+}
+
+func TestStartByAny(t *testing.T) {
+	tests := []struct {
+		s        string
+		prefixes []string
+		expected bool
+	}{
+		{"hello world", []string{"hi", "hello"}, true},
+		{"hello world", []string{"world", "planet"}, false},
+		{"golang", []string{"go", "lang"}, true},
+		{"test", []string{"TEST", "exam"}, false},
+		{"", []string{""}, true},
+		{"non-empty", []string{}, false},
+		{"こんにちは世界", []string{"こんにちは", "こんばんは"}, true},
+		{"😊emoji😊", []string{"😊", "😢"}, true},
+	}
+	for _, test := range tests {
+		result := lxstrings.StartByAny(test.s, test.prefixes...)
+		if result != test.expected {
+			t.Errorf("StartByAny(%q, %v) = %v; want %v", test.s, test.prefixes, result, test.expected)
+		}
+	}
+}
+
+func TestStartByAnyIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s        string
+		prefixes []string
+		expected bool
+	}{
+		{"hello world", []string{"HI", "HELLO"}, true},
+		{"GoLang", []string{"WORLD", "PLANET"}, false},
+		{"TestString", []string{"teststring", "exam"}, true},
+		{"CaseSensitive", []string{"CASESENSITIVE", "other"}, true},
+		{"NoMatch", []string{"MATCH", "different"}, false},
+		{"", []string{""}, true},
+		{"non-empty", []string{}, false},
+		{"こんにちは世界", []string{"こんにちは", "こんばんは"}, true},
+		{"😊Emoji😊", []string{"emoji", "😢"}, false},
+	}
+	for _, test := range tests {
+		result := lxstrings.StartByAnyIgnoreCase(test.s, test.prefixes...)
+		if result != test.expected {
+			t.Errorf("StartByAnyIgnoreCase(%q, %v) = %v; want %v", test.s, test.prefixes, result, test.expected)
+		}
+	}
+}
+
+func TestEndBy(t *testing.T) {
+	tests := []struct {
+		s        string
+		suffix   string
+		expected bool
+	}{
+		{"hello world", "world", true},
+		{"hello world", "hello", false},
+		{"golang", "lang", true},
+		{"test", "TEST", false},
+		{"", "", true},
+		{"non-empty", "", true},
+		{"", "non-empty", false},
+		{"こんにちは世界", "世界", true},
+		{"😊emoji😊", "😊", true},
+	}
+	for _, test := range tests {
+		result := lxstrings.EndBy(test.s, test.suffix)
+		if result != test.expected {
+			t.Errorf("EndBy(%q, %q) = %v; want %v", test.s, test.suffix, result, test.expected)
+		}
+	}
+}
+
+func TestEndByIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s        string
+		suffix   string
+		expected bool
+	}{
+		{"hello world", "WORLD", true},
+		{"GoLang", "golang", true},
+		{"TestString", "teststring", true},
+		{"CaseSensitive", "casesensitive", true},
+		{"NoMatch", "MATCH", true},
+		{"", "", true},
+		{"non-empty", "", true},
+		{"", "non-empty", false},
+		{"こんにちは世界", "世界", true},
+		{"😊Emoji😊", "emoji", false},
+	}
+	for _, test := range tests {
+		result := lxstrings.EndByIgnoreCase(test.s, test.suffix)
+		if result != test.expected {
+			t.Errorf("EndByIgnoreCase(%q, %q) = %v; want %v", test.s, test.suffix, result, test.expected)
+		}
+	}
+}
+
+func TestEndByAny(t *testing.T) {
+	tests := []struct {
+		s        string
+		suffixes []string
+		expected bool
+	}{
+		{"hello world", []string{"planet", "world"}, true},
+		{"hello world", []string{"hello", "hi"}, false},
+		{"golang", []string{"lang", "go"}, true},
+		{"test", []string{"TEST", "exam"}, false},
+		{"", []string{""}, true},
+		{"non-empty", []string{}, false},
+		{"こんにちは世界", []string{"こんばんは", "世界"}, true},
+		{"😊emoji😊", []string{"😢", "😊"}, true},
+	}
+	for _, test := range tests {
+		result := lxstrings.EndByAny(test.s, test.suffixes...)
+		if result != test.expected {
+			t.Errorf("EndByAny(%q, %v) = %v; want %v", test.s, test.suffixes, result, test.expected)
+		}
+	}
+}
+
+func TestEndByAnyIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s        string
+		suffixes []string
+		expected bool
+	}{
+		{"hello world", []string{"PLANET", "WORLD"}, true},
+		{"GoLang", []string{"HELLO", "HI"}, false},
+		{"TestString", []string{"teststring", "exam"}, true},
+		{"CaseSensitive", []string{"CASESENSITIVE", "other"}, true},
+		{"NoMatch", []string{"MATCH", "different"}, true},
+		{"", []string{""}, true},
+		{"non-empty", []string{}, false},
+		{"こんにちは世界", []string{"こんばんは", "世界"}, true},
+		{"😊Emoji😊", []string{"emoji", "😢"}, false},
+	}
+	for _, test := range tests {
+		result := lxstrings.EndByAnyIgnoreCase(test.s, test.suffixes...)
+		if result != test.expected {
+			t.Errorf("EndByAnyIgnoreCase(%q, %v) = %v; want %v", test.s, test.suffixes, result, test.expected)
+		}
+	}
+}
