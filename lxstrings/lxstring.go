@@ -36,7 +36,8 @@ func Abbreviate(s string, maxWidth int) string {
 	return string(runes[:maxWidth-3]) + "..."
 }
 
-
+// Capitalize capitalizes the first character of the string.
+// If the string is empty or starts with a non-letter, it is returned unchanged.
 func Capitalize(s string) string {
 	if IsBlank(s) {
 		return s
