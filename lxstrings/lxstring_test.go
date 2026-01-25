@@ -29,3 +29,27 @@ func TestIsEmpty(t *testing.T) {
 		}
 	}
 }
+
+func TestIsNotEmpty(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"", false},
+		{"not empty", true},
+		{" ", true},
+		{"\n", true},
+		{"\t", true},
+		{"hello", true},
+		{"こんにちは", true},
+		{"😊", true},
+		{"\r", true},
+		{"\u200B", true},
+	}
+	for _, test := range tests {
+		result := lxstrings.IsNotEmpty(test.input)
+		if result != test.expected {
+			t.Errorf("IsNotEmpty(%q) = %v; want %v", test.input, result, test.expected)
+		}
+	}
+}
