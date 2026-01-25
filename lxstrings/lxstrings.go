@@ -165,6 +165,16 @@ func Length(s string) int {
 	return len(s)
 }
 
+// LowerCase converts the string to lowercase.
+func LowerCase(s string) string {
+	return strings.ToLower(s)
+}
+
+// UpperCase converts the string to uppercase.
+func UpperCase(s string) string {
+	return strings.ToUpper(s)
+}
+
 // IndexIgnoreCase returns the index of the first occurrence of substr in s, ignoring case, or -1 if not found.
 func IndexIgnoreCase(s, substr string) int {
 	sLower := strings.ToLower(s)

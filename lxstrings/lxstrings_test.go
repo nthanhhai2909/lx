@@ -541,6 +541,48 @@ func TestLength(t *testing.T) {
 	}
 }	
 
+func TestLowerCase(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"HELLO", "hello"},
+		{"Hello World", "hello world"},
+		{"golang", "golang"},
+		{"", ""},
+		{"123ABC", "123abc"},
+		{"こんにちは", "こんにちは"},
+		{"😊EMOJI", "😊emoji"},
+	}
+	for _, test := range tests {
+		result := lxstrings.LowerCase(test.input)
+		if result != test.expected {
+			t.Errorf("LowerCase(%q) = %q; want %q", test.input, result, test.expected)
+		}
+	}
+}
+
+func TestUpperCase(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"hello", "HELLO"},
+		{"Hello World", "HELLO WORLD"},
+		{"GOLANG", "GOLANG"},
+		{"", ""},
+		{"123abc", "123ABC"},
+		{"こんにちは", "こんにちは"},
+		{"😊emoji", "😊EMOJI"},
+	}
+	for _, test := range tests {
+		result := lxstrings.UpperCase(test.input)
+		if result != test.expected {
+			t.Errorf("UpperCase(%q) = %q; want %q", test.input, result, test.expected)
+		}
+	}
+}
+
 func TestTrimSpace(t *testing.T) {
 	tests := []struct {
 		input    string
