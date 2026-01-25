@@ -1,5 +1,7 @@
 package lxstrings
 
+import "strings"
+
 // IsEmpty checks if the given string is empty.
 func IsEmpty(s string) bool {
 	return len(s) == 0
@@ -23,4 +25,24 @@ func IsBlank(s string) bool {
 // IsNotBlank checks if the given string is not blank.
 func IsNotBlank(s string) bool {
 	return !IsBlank(s)
+}
+
+// Equals checks if two strings are equal.
+func Equals(s1, s2 string) bool {
+	return s1 == s2
+}
+
+// NotEquals checks if two strings are not equal.
+func NotEquals(s1, s2 string) bool {
+	return !Equals(s1, s2)
+}
+
+// EqualsIgnoreCase checks if two strings are equal, ignoring case.
+func EqualsIgnoreCase(s1, s2 string) bool {
+	return strings.EqualFold(s1, s2)
+}
+
+// NotEqualsIgnoreCase checks if two strings are not equal, ignoring case.
+func NotEqualsIgnoreCase(s1, s2 string) bool {
+	return !EqualsIgnoreCase(s1, s2)
 }

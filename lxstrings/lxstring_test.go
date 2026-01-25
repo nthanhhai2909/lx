@@ -97,3 +97,85 @@ func TestIsNotBlank(t *testing.T) {
 		}
 	}
 }
+
+func TestEquals(t *testing.T) {
+	tests := []struct {
+		s1, s2   string
+		expected bool
+	}{
+		{"hello", "hello", true},
+		{"hello", "Hello", false},
+		{"", "", true},
+		{"not empty", "", false},
+		{"こんにちは", "こんにちは", true},
+		{"😊", "😊", true},
+		{"test", "test ", false},
+	}
+	for _, test := range tests {
+		result := lxstrings.Equals(test.s1, test.s2)
+		if result != test.expected {
+			t.Errorf("Equals(%q, %q) = %v; want %v", test.s1, test.s2, result, test.expected)
+		}
+	}
+}
+
+func TestNotEquals(t *testing.T) {
+	tests := []struct {
+		s1, s2   string
+		expected bool
+	}{
+		{"hello", "hello", false},
+		{"hello", "Hello", true},
+		{"", "", false},
+		{"not empty", "", true},
+		{"こんにちは", "こんにちは", false},
+		{"😊", "😊", false},
+		{"test", "test ", true},
+	}
+	for _, test := range tests {
+		result := lxstrings.NotEquals(test.s1, test.s2)
+		if result != test.expected {
+			t.Errorf("NotEquals(%q, %q) = %v; want %v", test.s1, test.s2, result, test.expected)
+		}
+	}
+}
+
+func TestEqualsIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s1, s2   string
+		expected bool
+	}{
+		{"hello", "HELLO", true},
+		{"GoLang", "golang", true},
+		{"Test", "test ", false},
+		{"こんにちは", "こんにちは", true},
+		{"😊", "😊", true},
+		{"NotEqual", "Different", false},
+	}
+	for _, test := range tests {
+		result := lxstrings.EqualsIgnoreCase(test.s1, test.s2)
+		if result != test.expected {
+			t.Errorf("EqualsIgnoreCase(%q, %q) = %v; want %v", test.s1, test.s2, result, test.expected)
+		}
+	}
+}
+
+func TestNotEqualsIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s1, s2   string
+		expected bool
+	}{
+		{"hello", "HELLO", false},
+		{"GoLang", "golang", false},
+		{"Test", "test ", true},
+		{"こんにちは", "こんにちは", false},
+		{"😊", "😊", false},
+		{"NotEqual", "Different", true},
+	}
+	for _, test := range tests {
+		result := lxstrings.NotEqualsIgnoreCase(test.s1, test.s2)
+		if result != test.expected {
+			t.Errorf("NotEqualsIgnoreCase(%q, %q) = %v; want %v", test.s1, test.s2, result, test.expected)
+		}
+	}
+}
