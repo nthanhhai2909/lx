@@ -673,6 +673,27 @@ func TestTrimRight(t *testing.T) {
 	}
 }
 
+func TestTruncate(t *testing.T) {
+	tests := []struct {
+		input    string
+		maxWidth int
+		expected string
+	}{
+		{"Hello, World!", 5, "Hello"},
+		{"Hello", 10, "Hello"},
+		{"GoLang", 3, "GoL"},
+		{"Short", 0, ""},
+		{"Exact", 5, "Exact"},
+		{"This is a longer string", 8, "This is "},
+	}
+	for _, test := range tests {
+		result := lxstrings.Truncate(test.input, test.maxWidth)
+		if result != test.expected {
+			t.Errorf("Truncate(%q, %d) = %q; want %q", test.input, test.maxWidth, result, test.expected)
+		}
+	}
+}
+
 func TestSplit(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -1002,7 +1023,6 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-
 func TestRemoveIgnoreCase(t *testing.T) {
 	tests := []struct {
 		s        string
@@ -1062,6 +1082,185 @@ func TestRemoveAnyIgnoreCase(t *testing.T) {
 		result := lxstrings.RemoveAnyIgnoreCase(test.s, test.substrs...)
 		if result != test.expected {
 			t.Errorf("RemoveAnyIgnoreCase(%q, %v) = %q; want %q", test.s, test.substrs, result, test.expected)
+		}
+	}
+}
+
+func TestReverse(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"hello", "olleh"},
+		{"", ""},
+		{"golang", "gnalog"},
+		{"😊emoji", "ijome😊"},
+		{"こんにちは", "はちにんこ"},
+	}
+	for _, test := range tests {
+		result := lxstrings.Reverse(test.input)
+		if result != test.expected {
+			t.Errorf("Reverse(%q) = %q; want %q", test.input, result, test.expected)
+		}
+	}
+}
+
+func TestSubString(t *testing.T) {
+	tests := []struct {
+		s        string
+		start    int
+		end      int
+		expected string
+	}{
+		{"hello world", 0, 5, "hello"},
+		{"golang", 3, 6, "ang"},
+		{"test string", 5, 11, "string"},
+		{"😊emoji😊", 1, 6, "emoji"},
+		{"short", 2, 10, "ort"},
+	}
+	for _, test := range tests {
+		result := lxstrings.SubString(test.s, test.start, test.end)
+		if result != test.expected {
+			t.Errorf("SubString(%q, %d, %d) = %q; want %q", test.s, test.start, test.end, result, test.expected)
+		}
+	}
+}
+
+func TestSubStringBefore(t *testing.T) {
+	tests := []struct {
+		s        string
+		substr   string
+		expected string
+	}{
+		{"hello world", "world", "hello "},
+		{"golang programming", "programming", "golang "},
+		{"test string example", "string", "test "},
+		{"no match here", "xyz", ""},
+	}
+	for _, test := range tests {
+		result := lxstrings.SubStringBefore(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("SubStringBefore(%q, %q) = %q; want %q", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+func TestSubStringBeforeIgnoreCase(t *testing.T) {
+	tests := []struct {
+		s        string
+		substr   string
+		expected string
+	}{
+		{"hello WORLD", "world", "hello "},
+		{"GoLang PROGRAMMING", "programming", "GoLang "},
+		{"Test STRING example", "string", "Test "},
+		{"no match here", "XYZ", ""},
+	}
+	for _, test := range tests {
+		result := lxstrings.SubStringBeforeIgnoreCase(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("SubStringBeforeIgnoreCase(%q, %q) = %q; want %q", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+
+func TestSubStringAfter(t *testing.T) {
+	tests := []struct {
+		s        string
+		substr   string
+		expected string
+	}{
+		{"hello world", "hello", " world"},
+		{"golang programming", "golang", " programming"},
+		{"test string example", "string", " example"},
+		{"no match here", "xyz", ""},
+	}
+	for _, test := range tests {
+		result := lxstrings.SubStringAfter(test.s, test.substr)
+		if result != test.expected {
+			t.Errorf("SubStringAfter(%q, %q) = %q; want %q", test.s, test.substr, result, test.expected)
+		}
+	}
+}
+
+func TestSubStringAfterIgnoreCase(t *testing.T) {
+	{
+		tests := []struct {
+			s        string
+			substr   string
+			expected string
+		}{
+			{"hello WORLD", "HELLO", " WORLD"},
+			{"GoLang PROGRAMMING", "GOLANG", " PROGRAMMING"},
+			{"Test STRING example", "STRING", " example"},
+			{"no match here", "XYZ", ""},
+		}
+		for _, test := range tests {
+			result := lxstrings.SubStringAfterIgnoreCase(test.s, test.substr)
+			if result != test.expected {
+				t.Errorf("SubStringAfterIgnoreCase(%q, %q) = %q; want %q", test.s, test.substr, result, test.expected)
+			}
+		}
+	}
+}
+
+func TestPadLeft(t *testing.T) {
+	{
+		tests := []struct {
+			s        string
+			length   int
+			padChar  string
+			expected string
+		}{
+			{"hello", 10, "*", "*****hello"},
+			{"golang", 8, "0", "00golang"},
+			{"test", 6, "-", "--test"},
+			{"short", 3, "x", "short"},
+		}
+		for _, test := range tests {
+			result := lxstrings.PadLeft(test.s, test.length, test.padChar)
+			if result != test.expected {
+				t.Errorf("PadLeft(%q, %d, %q) = %q; want %q", test.s, test.length, test.padChar, result, test.expected)
+			}
+		}
+	}
+}
+
+func TestPadRight(t *testing.T) {
+	tests := []struct {
+		s        string
+		length   int
+		padChar  string
+		expected string
+	}{
+		{"hello", 10, "*", "hello*****"},
+		{"golang", 8, "0", "golang00"},
+		{"test", 6, "-", "test--"},
+		{"short", 3, "x", "short"},
+	}
+	for _, test := range tests {
+		result := lxstrings.PadRight(test.s, test.length, test.padChar)
+		if result != test.expected {
+			t.Errorf("PadRight(%q, %d, %q) = %q; want %q", test.s, test.length, test.padChar, result, test.expected)
+		}
+	}
+}
+
+func TestPadCenter(t *testing.T) {
+	tests := []struct {
+		s        string
+		length   int
+		padChar  string
+		expected string
+	}{
+		{"hello", 11, "*", "***hello***"},
+		{"golang", 10, "0", "00golang00"},
+		{"test", 8, "-", "--test--"},
+		{"short", 3, "x", "short"},
+	}
+	for _, test := range tests {
+		result := lxstrings.PadCenter(test.s, test.length, test.padChar)
+		if result != test.expected {
+			t.Errorf("PadCenter(%q, %d, %q) = %q; want %q", test.s, test.length, test.padChar, result, test.expected)
 		}
 	}
 }
