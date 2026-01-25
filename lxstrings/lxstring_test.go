@@ -6,6 +6,66 @@ import (
 	"github.com/nthanhhai2909/lx/lxstrings"
 )
 
+func TestAbbreviate(t *testing.T) {
+	tests := []struct {
+		input    string
+		maxWidth int
+		expected string
+	}{
+		{"Hello, World!", 5, "He..."},
+		{"Hello", 10, "Hello"},
+		{"GoLang", 3, "GoL"},
+		{"Short", 0, ""},
+		{"Exact", 5, "Exact"},
+		{"This is a longer string", 8, "This ..."},
+		{"😊😊😊😊😊", 4, "😊..."},
+		{"こんにちは世界", 6, "こんに..."},
+		{"", 5, ""},
+		{"Test", 2, "Te"},
+		{"Test", 3, "Tes"},
+		{"Test", 4, "Test"},
+	}
+	for _, test := range tests {
+		result := lxstrings.Abbreviate(test.input, test.maxWidth)
+		if result != test.expected {
+			t.Errorf("Abbreviate(%q, %d) = %q; want %q", test.input, test.maxWidth, result, test.expected)
+		}
+	}
+}
+
+
+func TestCapitalize(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"hello", "Hello"},
+		{"Hello", "Hello"},
+		{"hELLO", "HELLO"},
+		{"", ""},
+		{" ", " "},
+		{"\n", "\n"},
+		{"\r", "\r"},
+		{"\t", "\t"},
+		{"a \n", "A \n"},
+		{"\rtest", "\rtest"},
+		{"/", "/"},
+		{"\r\n", "\r\n"},
+		{"aBC", "ABC"},
+		{"111", "111"},
+		{"a", "A"},
+		{"1test", "1test"},
+		{"😊emoji", "😊emoji"},
+		{"こんにちは", "こんにちは"},
+	}
+	for _, test := range tests {
+		result := lxstrings.Capitalize(test.input)
+		if result != test.expected {
+			t.Errorf("Capitalize(%q) = %q; want %q", test.input, result, test.expected)
+		}
+	}
+}
+
 func TestIsEmpty(t *testing.T) {
 	tests := []struct {
 		input    string

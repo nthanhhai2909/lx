@@ -1,6 +1,50 @@
 package lxstrings
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
+
+const (
+	// Empty represents an empty string.
+	Empty = ""
+
+	// Space represents a string with a single space.
+	Space = " "
+
+	// LF represents a line feed character.
+	LF = "\n"
+
+	// CR represents a carriage return character.
+	CR = "\r"
+
+	// CRLF represents a carriage return followed by a line feed.
+	CRLF = "\r\n"
+)
+
+// Abbreviate shortens the string to the specified maxWidth, adding "..." if truncated.
+// If the string is shorter than or equal to maxWidth, it is returned unchanged.
+// If maxWidth is less than or equal to 3, it returns the first maxWidth characters.
+func Abbreviate(s string, maxWidth int) string {
+	runes := []rune(s)
+	if len(runes) <= maxWidth {
+		return s
+	}
+	if maxWidth <= 3 {
+		return string(runes[:maxWidth])
+	}
+	return string(runes[:maxWidth-3]) + "..."
+}
+
+
+func Capitalize(s string) string {
+	if IsBlank(s) {
+		return s
+	}
+	runes := []rune(s)
+	runes[0] = unicode.ToUpper(runes[0])
+	return string(runes)
+}
 
 // IsEmpty checks if the given string is empty.
 func IsEmpty(s string) bool {
