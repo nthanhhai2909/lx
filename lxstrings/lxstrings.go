@@ -66,6 +66,19 @@ func ContainsIgnoreCase(s, substr string) bool {
 	return strings.Contains(sLower, substrLower)
 }
 
+// ContainsAny checks if any of the specified characters are present in the string.
+func ContainsAny(s string, chars ...rune) bool {
+	for _, c := range s {
+		for _, char := range chars {
+			if c == char {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+
 // CompareIgnoreCase compares two strings lexicographically, ignoring case.
 // It returns an integer comparing two strings lexicographically, ignoring case.
 // The result will be 0 if s1 == s2, -1 if s1 < s2, and +1 if s1 > s2.

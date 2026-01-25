@@ -163,6 +163,29 @@ func TestContainsIgnoreCase(t *testing.T) {
 	}
 }
 
+func TestContainsAny(t *testing.T) {
+	tests := []struct {
+		s        string
+		chars    []rune
+		expected bool
+	}{
+		{"hello", []rune{'a', 'e', 'i'}, true},
+		{"world", []rune{'x', 'y', 'z'}, false},
+		{"golang", []rune{'g', 'o'}, true},
+		{"test", []rune{'1', '2', '3'}, false},
+		{"", []rune{'a', 'b'}, false},
+		{"non-empty", []rune{}, false},
+		{"こんにちは", []rune{'に', 'は'}, true},
+		{"😊emoji😊", []rune{'😊'}, true},
+	}
+	for _, test := range tests {
+		result := lxstrings.ContainsAny(test.s, test.chars...)
+		if result != test.expected {
+			t.Errorf("ContainsAny(%q, %v) = %v; want %v", test.s, test.chars, result, test.expected)
+		}
+	}
+}
+
 func TestIsEmpty(t *testing.T) {
 	tests := []struct {
 		input    string
