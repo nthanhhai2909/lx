@@ -205,154 +205,169 @@ func TestContainsAny(t *testing.T) {
 
 func TestIsEmpty(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    string
 		expected bool
 	}{
-		{"", true},
-		{"not empty", false},
-		{" ", false},
-		{"\n", false},
-		{"\t", false},
-		{"hello", false},
-		{"こんにちは", false},
-		{"😊", false},
-		{"\r", false},
-		{"\u200B", false},
+		{"Empty string", "", true},
+		{"Not empty", "not empty", false},
+		{"Space", " ", false},
+		{"Newline", "\n", false},
+		{"Tab", "\t", false},
+		{"Hello", "hello", false},
+		{"こんにちは", "こんにちは", false},
+		{"😊", "😊", false},
+		{"\r", "\r", false},
+		{"\u200B", "\u200B", false},
 	}
-	for _, test := range tests {
-		result := lxstrings.IsEmpty(test.input)
-		if result != test.expected {
-			t.Errorf("IsEmpty(%q) = %v; want %v", test.input, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.IsEmpty(tt.input)
+			if result != tt.expected {
+				t.Errorf("IsEmpty(%q) = %v; want %v", tt.input, result, tt.expected)
+			}
+		})
 	}
 }
 
 func TestIsNotEmpty(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    string
 		expected bool
 	}{
-		{"", false},
-		{"not empty", true},
-		{" ", true},
-		{"\n", true},
-		{"\t", true},
-		{"hello", true},
-		{"こんにちは", true},
-		{"😊", true},
-		{"\r", true},
-		{"\u200B", true},
+		{"Empty string", "", false},
+		{"Not empty", "not empty", true},
+		{"Space", " ", true},
+		{"Newline", "\n", true},
+		{"Tab", "\t", true},
+		{"Hello", "hello", true},
+		{"こんにちは", "こんにちは", true},
+		{"😊", "😊", true},
+		{"\r", "\r", true},
+		{"\u200B", "\u200B", true},
 	}
-	for _, test := range tests {
-		result := lxstrings.IsNotEmpty(test.input)
-		if result != test.expected {
-			t.Errorf("IsNotEmpty(%q) = %v; want %v", test.input, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.IsNotEmpty(tt.input)
+			if result != tt.expected {
+				t.Errorf("IsNotEmpty(%q) = %v; want %v", tt.input, result, tt.expected)
+			}
+		})
 	}
 }
 
 func TestIsBlank(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    string
 		expected bool
 	}{
-		{"", true},
-		{"   ", true},
-		{"\n\t\r", true},
-		{" not blank ", false},
-		{"hello", false},
-		{"こんにちは", false},
-		{"😊", false},
-		{" \n hello \t ", false},
+		{"Empty string", "", true},
+		{"Only spaces", "   ", true},
+		{"Only whitespace", "\n\t\r", true},
+		{"Not blank", " not blank ", false},
+		{"Not blank - lowercase", "hello", false},
+		{"Not blank - Japanese", "こんにちは", false},
+		{"Not blank - Emoji", "😊", false},
+		{"Not blank - mixed whitespace", " \n hello \t ", false},
 	}
-	for _, test := range tests {
-		result := lxstrings.IsBlank(test.input)
-		if result != test.expected {
-			t.Errorf("IsBlank(%q) = %v; want %v", test.input, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.IsBlank(tt.input)
+			if result != tt.expected {
+				t.Errorf("IsBlank(%q) = %v; want %v", tt.input, result, tt.expected)
+			}
+		})
 	}
 }
 
 func TestIsNotBlank(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    string
 		expected bool
 	}{
-		{"", false},
-		{"   ", false},
-		{"\n\t\r", false},
-		{" not blank ", true},
-		{"hello", true},
-		{"こんにちは", true},
-		{"😊", true},
-		{" \n hello \t ", true},
+		{"Empty string", "", false},
+		{"Only spaces", "   ", false},
+		{"Only whitespace", "\n\t\r", false},
+		{"Not blank", " not blank ", true},
+		{"Not blank - lowercase", "hello", true},
+		{"Not blank - Japanese", "こんにちは", true},
+		{"Not blank - Emoji", "😊", true},
+		{"Not blank - mixed whitespace", " \n hello \t ", true},
 	}
-	for _, test := range tests {
-		result := lxstrings.IsNotBlank(test.input)
-		if result != test.expected {
-			t.Errorf("IsNotBlank(%q) = %v; want %v", test.input, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.IsNotBlank(tt.input)
+			if result != tt.expected {
+				t.Errorf("IsNotBlank(%q) = %v; want %v", tt.input, result, tt.expected)
+			}
+		})
 	}
 }
 
 func TestIsAlpha(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    string
 		expected bool
 	}{
-		{"hello", true},
-		{"HelloWorld", true},
-		{"hello123", false},
-		{"123", false},
-		{"", false},
-		{"こんにちは", true},
-		{"😊emoji", false},
+		{"Not blank - lowercase", "hello", true},
+		{"Not blank - Mixcase", "HelloWorld", true},
+		{"Not blank - alphanumeric", "hello123", false},
+		{"Not blank - digits only", "123", false},
+		{"Empty string", "", false},
+		{"Not blank - Japanese", "こんにちは", true},
+		{"Not blank - Emoji", "😊", false},
 	}
-	for _, test := range tests {
-		result := lxstrings.IsAlpha(test.input)
-		if result != test.expected {
-			t.Errorf("IsAlpha(%q) = %v; want %v", test.input, result, test.expected)
+	for _, tt := range tests {
+		result := lxstrings.IsAlpha(tt.input)
+		if result != tt.expected {
+			t.Errorf("IsAlpha(%q) = %v; want %v", tt.input, result, tt.expected)
 		}
 	}
 }
 
 func TestIsNumeric(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    string
 		expected bool
 	}{
-		{"12345", true},
-		{"00123", true},
-		{"123abc", false},
-		{"abc", false},
-		{"", false},
-		{"１２３４５", true}, // Full-width digits
-		{"😊123", false},
+		{"Only numberic", "12345", true},
+		{"Leading zeros", "00123", true},
+		{"Mixed alphanumeric", "123abc", false},
+		{"Only letters", "abc", false},
+		{"Empty string", "", false},
+		{"Full-width digits", "１２３４５", true}, // Full-width digits
+		{"Emoji with numbers", "😊123", false},
 	}
-	for _, test := range tests {
-		result := lxstrings.IsNumeric(test.input)
-		if result != test.expected {
-			t.Errorf("IsNumeric(%q) = %v; want %v", test.input, result, test.expected)
+	for _, tt := range tests {
+		result := lxstrings.IsNumeric(tt.input)
+		if result != tt.expected {
+			t.Errorf("IsNumeric(%q) = %v; want %v", tt.input, result, tt.expected)
 		}
 	}
 }
 
 func TestIsAlphaNumeric(t *testing.T) {
 	tests := []struct {
+		name     string
 		input    string
 		expected bool
-	}{{"hello123", true},
-		{"HelloWorld", true},
-		{"12345", true},
-		{"hello!", false},
-		{"", false},
-		{"こんにちは123", true},
-		{"😊emoji123", false},
+	}{
+		{"Only alphanumeric", "HelloWorld", true},
+		{"Only numbers", "12345", true},
+		{"Mixed alphanumeric", "hello!", false},
+		{"Empty string", "", false},
+		{"Japanese with numbers", "こんにちは123", true},
+		{"Emoji with numbers", "😊emoji123", false},
 	}
-	for _, test := range tests {
-		result := lxstrings.IsAlphaNumeric(test.input)
-		if result != test.expected {
-			t.Errorf("IsAlphaNumeric(%q) = %v; want %v", test.input, result, test.expected)
+	for _, tt := range tests {
+		result := lxstrings.IsAlphaNumeric(tt.input)
+		if result != tt.expected {
+			t.Errorf("IsAlphaNumeric(%q) = %v; want %v", tt.input, result, tt.expected)
 		}
 	}
 }
@@ -363,132 +378,146 @@ func TestIsSpace(t *testing.T) {
 		input string
 		want  bool
 	}{
-		{"empty string", "", false},
-		{"single space", " ", true},
-		{"multiple spaces", "   ", true},
-		{"tab", "\t", true},
-		{"newline", "\n", true},
-		{"mixed whitespace", " \t\n", true},
-		{"unicode space", "\u00A0", true}, // non-breaking space
-		{"text only", "abc", false},
-		{"text with space", "a b", false},
-		{"leading space", " abc", false},
-		{"trailing space", "abc ", false},
-		{"unicode text", "xin chào", false},
+		{"Empty string", "", false},
+		{"Single space", " ", true},
+		{"Multiple spaces", "   ", true},
+		{"Tab", "\t", true},
+		{"Newline", "\n", true},
+		{"Mixed whitespace", " \t\n", true},
+		{"Unicode space", "\u00A0", true}, // non-breaking space
+		{"Text only", "abc", false},
+		{"Text with space", "a b", false},
+		{"Leading space", " abc", false},
+		{"Trailing space", "abc ", false},
+		{"Unicode text", "xin chào", false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := lxstrings.IsSpace(tt.input)
 			if got != tt.want {
-				t.Errorf("IsWhiteSpace(%q) = %v, want %v", tt.input, got, tt.want)
+				t.Errorf("IsSpace(%q) = %v, want %v", tt.input, got, tt.want)
 			}
 		})
 	}
 }
 func TestEquals(t *testing.T) {
 	tests := []struct {
+		name     string
 		s1, s2   string
 		expected bool
 	}{
-		{"hello", "hello", true},
-		{"hello", "Hello", false},
-		{"", "", true},
-		{"not empty", "", false},
-		{"こんにちは", "こんにちは", true},
-		{"😊", "😊", true},
-		{"test", "test ", false},
+		{"Equal", "hello", "hello", true},
+		{"Different case", "hello", "Hello", false},
+		{"Both empty", "", "", true},
+		{"One empty", "hello", "", false},
+		{"Japanese", "こんにちは", "こんにちは", true},
+		{"Emoji", "😊", "😊", true},
+		{"Equal but extra space", "test", "test ", false},
 	}
-	for _, test := range tests {
-		result := lxstrings.Equals(test.s1, test.s2)
-		if result != test.expected {
-			t.Errorf("Equals(%q, %q) = %v; want %v", test.s1, test.s2, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.Equals(tt.s1, tt.s2)
+			if result != tt.expected {
+				t.Errorf("Equals(%q, %q) = %v; want %v", tt.s1, tt.s2, result, tt.expected)
+			}
+		})
 	}
 }
 
 func TestNotEquals(t *testing.T) {
 	tests := []struct {
+		name     string
 		s1, s2   string
 		expected bool
 	}{
-		{"hello", "hello", false},
-		{"hello", "Hello", true},
-		{"", "", false},
-		{"not empty", "", true},
-		{"こんにちは", "こんにちは", false},
-		{"😊", "😊", false},
-		{"test", "test ", true},
+		{"Equal", "hello", "hello", false},
+		{"Different case", "hello", "Hello", true},
+		{"Both empty", "", "", false},
+		{"One empty", "hello", "", true},
+		{"Japanese", "こんにちは", "こんにちは", false},
+		{"Emoji", "😊", "😊", false},
+		{"Equal but extra space", "test", "test ", true},
 	}
-	for _, test := range tests {
-		result := lxstrings.NotEquals(test.s1, test.s2)
-		if result != test.expected {
-			t.Errorf("NotEquals(%q, %q) = %v; want %v", test.s1, test.s2, result, test.expected)
+	for _, tt := range tests {
+		result := lxstrings.NotEquals(tt.s1, tt.s2)
+		if result != tt.expected {
+			t.Errorf("NotEquals(%q, %q) = %v; want %v", tt.s1, tt.s2, result, tt.expected)
 		}
 	}
 }
 
 func TestEqualsIgnoreCase(t *testing.T) {
 	tests := []struct {
+		name     string
 		s1, s2   string
 		expected bool
 	}{
-		{"hello", "HELLO", true},
-		{"GoLang", "golang", true},
-		{"Test", "test ", false},
-		{"こんにちは", "こんにちは", true},
-		{"😊", "😊", true},
-		{"NotEqual", "Different", false},
+		{"Equal", "hello", "HELLO", true},
+		{"GoLang", "golang", "GOLANG", true},
+		{"Test", "test", "TEST", true},
+		{"こんにちは", "こんにちは", "こんにちは", true},
+		{"😊", "😊", "😊", true},
+		{"NotEqual extra space", "Different ", "Different", false},
 	}
-	for _, test := range tests {
-		result := lxstrings.EqualsIgnoreCase(test.s1, test.s2)
-		if result != test.expected {
-			t.Errorf("EqualsIgnoreCase(%q, %q) = %v; want %v", test.s1, test.s2, result, test.expected)
+	for _, tt := range tests {
+		result := lxstrings.EqualsIgnoreCase(tt.s1, tt.s2)
+		if result != tt.expected {
+			t.Errorf("EqualsIgnoreCase(%q, %q) = %v; want %v", tt.s1, tt.s2, result, tt.expected)
 		}
 	}
 }
 
 func TestNotEqualsIgnoreCase(t *testing.T) {
 	tests := []struct {
+		name     string
 		s1, s2   string
 		expected bool
 	}{
-		{"hello", "HELLO", false},
-		{"GoLang", "golang", false},
-		{"Test", "test ", true},
-		{"こんにちは", "こんにちは", false},
-		{"😊", "😊", false},
-		{"NotEqual", "Different", true},
+		{"Equal", "hello", "HELLO", false},
+		{"GoLang", "golang", "GOLANG", false},
+		{"Test", "test", "TEST", false},
+		{"こんにちは", "こんにちは", "こんにちは", false},
+		{"😊", "😊", "😊", false},
+		{"NotEqual extra space", "Different ", "Different", true},
 	}
-	for _, test := range tests {
-		result := lxstrings.NotEqualsIgnoreCase(test.s1, test.s2)
-		if result != test.expected {
-			t.Errorf("NotEqualsIgnoreCase(%q, %q) = %v; want %v", test.s1, test.s2, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.NotEqualsIgnoreCase(tt.s1, tt.s2)
+			if result != tt.expected {
+				t.Errorf("NotEqualsIgnoreCase(%q, %q) = %v; want %v", tt.s1, tt.s2, result, tt.expected)
+			}
+		})
 	}
 }
 
 func TestIndex(t *testing.T) {
 	tests := []struct {
-		s, substr string
-		expected  int
+		name     string
+		str, sub string
+		expected int
 	}{
-		{"hello world", "world", 6},
-		{"hello world", "WORLD", -1},
-		{"golang", "go", 0},
-		{"golang", "lang", 2},
-		{"test", "TEST", -1},
-		{"", "", 0},
-		{"non-empty", "", 0},
-		{"", "non-empty", -1},
-		{"こんにちは世界", "世界", 15},
-		{"😊emoji😊", "emoji", 4},
+		{"Match the second word", "hello world", "world", 6},
+		{"Case insensitive", "hello world", "WORLD", -1},
+		{"Match the first word", "golang", "go", 0},
+		{"Match the last word", "golang", "lang", 2},
+		{"Case insensitive", "test", "TEST", -1},
+		{"Both empty", "", "", 0},
+		{"Empty substring", "non-empty", "", 0},
+		{"Empty string", "", "non-empty", -1},
+		{"Japanese", "こんにちは世界", "世界", 15},
+		{"Emoji", "😊emoji😊", "emoji", 4},
 	}
-	for _, test := range tests {
-		result := lxstrings.Index(test.s, test.substr)
-		if result != test.expected {
-			t.Errorf("Index(%q, %q) = %d; want %d", test.s, test.substr, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxstrings.Index(tt.str, tt.sub)
+			if got != tt.expected {
+				t.Errorf(
+					"Index(%q, %q) = %d; want %d",
+					tt.str, tt.sub, got, tt.expected,
+				)
+			}
+		})
 	}
 }
 
@@ -1539,10 +1568,9 @@ func TestDefaultIfBlank(t *testing.T) {
 	}
 }
 
-
 func TestStartWith(t *testing.T) {
 	tests := []struct {
-		name	 string
+		name     string
 		input    string
 		prefix   string
 		expected bool
@@ -1565,7 +1593,7 @@ func TestStartWith(t *testing.T) {
 
 func TestStartWithIgnoreCase(t *testing.T) {
 	tests := []struct {
-		name	 string
+		name     string
 		input    string
 		prefix   string
 		expected bool
@@ -1588,7 +1616,7 @@ func TestStartWithIgnoreCase(t *testing.T) {
 
 func TestStartWithAny(t *testing.T) {
 	tests := []struct {
-		name	 string
+		name     string
 		input    string
 		prefixes []string
 		expected bool
@@ -1611,7 +1639,7 @@ func TestStartWithAny(t *testing.T) {
 
 func TestStartWithAnyIgnoreCase(t *testing.T) {
 	tests := []struct {
-		name	 string
+		name     string
 		input    string
 		prefixes []string
 		expected bool
