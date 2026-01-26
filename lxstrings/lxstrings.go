@@ -9,9 +9,6 @@ const (
 	// Empty represents an empty string.
 	Empty = ""
 
-	// Space represents a string with a single space.
-	Space = " "
-
 	// LF represents a line feed character.
 	LF = "\n"
 
@@ -67,8 +64,8 @@ func ContainsIgnoreCase(s, substr string) bool {
 }
 
 // ContainsAny checks if any of the specified characters are present in the string.
-func ContainsAny(s string, chars ...rune) bool {
-	for _, c := range s {
+func ContainsAny(str string, chars ...rune) bool {
+	for _, c := range str {
 		for _, char := range chars {
 			if c == char {
 				return true
@@ -80,26 +77,26 @@ func ContainsAny(s string, chars ...rune) bool {
 
 // CompareIgnoreCase compares two strings lexicographically, ignoring case.
 // It returns an integer comparing two strings lexicographically, ignoring case.
-// The result will be 0 if s1 == s2, -1 if s1 < s2, and +1 if s1 > s2.
-func CompareIgnoreCase(s1, s2 string) int {
-	s1Lower := strings.ToLower(s1)
-	s2Lower := strings.ToLower(s2)
+// The result will be 0 if str1 == str2, -1 if str1 < str2, and +1 if str1 > str2.
+func CompareIgnoreCase(str1, str2 string) int {
+	s1Lower := strings.ToLower(str1)
+	s2Lower := strings.ToLower(str2)
 	return strings.Compare(s1Lower, s2Lower)
 }
 
 // IsEmpty checks if the given string is empty.
-func IsEmpty(s string) bool {
-	return len(s) == 0
+func IsEmpty(str string) bool {
+	return len(str) == 0
 }
 
 // IsNotEmpty checks if the given string is not empty.
-func IsNotEmpty(s string) bool {
-	return !IsEmpty(s)
+func IsNotEmpty(str string) bool {
+	return !IsEmpty(str)
 }
 
 // IsBlank checks if the given string is blank (empty or only whitespace).
-func IsBlank(s string) bool {
-	for _, r := range s {
+func IsBlank(str string) bool {
+	for _, r := range str {
 		if r != ' ' && r != '\n' && r != '\t' && r != '\r' {
 			return false
 		}
@@ -108,38 +105,60 @@ func IsBlank(s string) bool {
 }
 
 // IsNotBlank checks if the given string is not blank.
-func IsNotBlank(s string) bool {
-	return !IsBlank(s)
+func IsNotBlank(str string) bool {
+	return !IsBlank(str)
 }
 
 // IsAlpha checks if the given string contains only alphabetic characters.
-func IsAlpha(s string) bool {
-	for _, r := range s {
+func IsAlpha(str string) bool {
+	if IsEmpty(str) {
+		return false
+	}
+	for _, r := range str {
 		if !unicode.IsLetter(r) {
 			return false
 		}
 	}
-	return len(s) > 0
+	return true
 }
 
 // IsNumeric checks if the given string contains only numeric characters.
-func IsNumeric(s string) bool {
-	for _, r := range s {
+func IsNumeric(str string) bool {
+	if IsEmpty(str) {
+		return false
+	}
+	for _, r := range str {
 		if !unicode.IsDigit(r) {
 			return false
 		}
 	}
-	return len(s) > 0
+	return true
 }
 
 // IsAlphaNumeric checks if the given string contains only alphanumeric characters.
 func IsAlphaNumeric(str string) bool {
+	if IsEmpty(str) {
+		return false
+	}
 	for _, r := range str {
 		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
 			return false
 		}
 	}
-	return len(str) > 0
+	return true
+}
+
+// IsSpace reports whether str is non-empty and contains only Unicode whitespace.
+func IsSpace(str string) bool {
+	if IsEmpty(str) {
+		return false
+	}
+	for _, r := range str {
+		if !unicode.IsSpace(r) {
+			return false
+		}
+	}
+	return true
 }
 
 // Index returns the index of the first occurrence of substr in s, or -1 if not found.

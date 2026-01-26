@@ -339,6 +339,36 @@ func TestIsAlphaNumeric(t *testing.T) {
 		}
 	}
 }
+
+func TestIsSpace(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{"empty string", "", false},
+		{"single space", " ", true},
+		{"multiple spaces", "   ", true},
+		{"tab", "\t", true},
+		{"newline", "\n", true},
+		{"mixed whitespace", " \t\n", true},
+		{"unicode space", "\u00A0", true}, // non-breaking space
+		{"text only", "abc", false},
+		{"text with space", "a b", false},
+		{"leading space", " abc", false},
+		{"trailing space", "abc ", false},
+		{"unicode text", "xin chào", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxstrings.IsSpace(tt.input)
+			if got != tt.want {
+				t.Errorf("IsWhiteSpace(%q) = %v, want %v", tt.input, got, tt.want)
+			}
+		})
+	}
+}
 func TestEquals(t *testing.T) {
 	tests := []struct {
 		s1, s2   string
