@@ -52,15 +52,15 @@ func Compare(s1, s2 string) int {
 }
 
 // Contains checks if the substring is present in the string.
-func Contains(s, substr string) bool {
-	return strings.Contains(s, substr)
+func Contains(str, sub string) bool {
+	return strings.Contains(str, sub)
 }
 
 // ContainsIgnoreCase checks if the substring is present in the string, ignoring case.
-func ContainsIgnoreCase(s, substr string) bool {
-	sLower := strings.ToLower(s)
-	substrLower := strings.ToLower(substr)
-	return strings.Contains(sLower, substrLower)
+func ContainsIgnoreCase(str, sub string) bool {
+	sLower := strings.ToLower(str)
+	subLower := strings.ToLower(sub)
+	return strings.Contains(sLower, subLower)
 }
 
 // ContainsAny checks if any of the specified characters are present in the string.
@@ -202,35 +202,35 @@ func LowerCase(s string) string {
 }
 
 // UpperCase converts the string to uppercase.
-func UpperCase(s string) string {
-	return strings.ToUpper(s)
+func UpperCase(str string) string {
+	return strings.ToUpper(str)
 }
 
 // IndexIgnoreCase returns the index of the first occurrence of substr in s, ignoring case, or -1 if not found.
-func IndexIgnoreCase(s, substr string) int {
-	sLower := LowerCase(s)
+func IndexIgnoreCase(str, substr string) int {
+	sLower := LowerCase(str)
 	substrLower := LowerCase(substr)
 	return Index(sLower, substrLower)
 }
 
 // Equals checks if two strings are equal.
-func Equals(s1, s2 string) bool {
-	return s1 == s2
+func Equals(str1, str2 string) bool {
+	return str1 == str2
 }
 
 // NotEquals checks if two strings are not equal.
-func NotEquals(s1, s2 string) bool {
-	return !Equals(s1, s2)
+func NotEquals(str1, str2 string) bool {
+	return !Equals(str1, str2)
 }
 
 // EqualsIgnoreCase checks if two strings are equal, ignoring case.
-func EqualsIgnoreCase(s1, s2 string) bool {
-	return strings.EqualFold(s1, s2)
+func EqualsIgnoreCase(str1, str2 string) bool {
+	return strings.EqualFold(str1, str2)
 }
 
 // NotEqualsIgnoreCase checks if two strings are not equal, ignoring case.
-func NotEqualsIgnoreCase(s1, s2 string) bool {
-	return !EqualsIgnoreCase(s1, s2)
+func NotEqualsIgnoreCase(str1, str2 string) bool {
+	return !EqualsIgnoreCase(str1, str2)
 }
 
 // TrimSpace removes leading and trailing whitespace from the string.
@@ -239,31 +239,31 @@ func TrimSpace(s string) string {
 }
 
 // Trim removes all leading and trailing characters specified in cutset from the string.
-func Trim(s string, cutset string) string {
-	return strings.Trim(s, cutset)
+func Trim(str string, cutset string) string {
+	return strings.Trim(str, cutset)
 }
 
 // TrimLeft removes all leading characters specified in cutset from the string.
-func TrimLeft(s string, cutset string) string {
-	return strings.TrimLeft(s, cutset)
+func TrimLeft(str string, cutset string) string {
+	return strings.TrimLeft(str, cutset)
 }
 
 // TrimRight removes all trailing characters specified in cutset from the string.
-func TrimRight(s string, cutset string) string {
-	return strings.TrimRight(s, cutset)
+func TrimRight(str string, cutset string) string {
+	return strings.TrimRight(str, cutset)
 }
 
-func Truncate(s string, maxWidth int) string {
-	runes := []rune(s)
+func Truncate(str string, maxWidth int) string {
+	runes := []rune(str)
 	if len(runes) <= maxWidth {
-		return s
+		return str
 	}
 	return string(runes[:maxWidth])
 }
 
 // Split splits the string by the specified separator and returns a slice of substrings.
-func Split(s, sep string) []string {
-	return strings.Split(s, sep)
+func Split(str, sep string) []string {
+	return strings.Split(str, sep)
 }
 
 // Join joins a slice of strings into a single string with the specified separator.
@@ -568,4 +568,20 @@ func CountMatches(str, sub string) int {
 	}
 
 	return count
+}
+
+// DefaultIfEmpty returns defaultStr if str is empty, otherwise returns str.
+func DefaultIfEmpty(str, defaultStr string) string {
+	if IsEmpty(str) {
+		return defaultStr
+	}
+	return str
+}
+
+// DefaultIfBlank returns defaultStr if str is blank, otherwise returns str.
+func DefaultIfBlank(str, defaultStr string) string {
+	if IsBlank(str) {
+		return defaultStr
+	}
+	return str
 }
