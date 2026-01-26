@@ -445,6 +445,92 @@ func TestIndex(t *testing.T) {
 	}
 }
 
+func TestIndexFrom(t *testing.T) {
+	tests := []struct {
+		name     string
+		str      string
+		sub      string
+		fromInd  int
+		expected int
+	}{
+		{
+			name:     "found after index",
+			str:      "hello world",
+			sub:      "world",
+			fromInd:  0,
+			expected: 6,
+		},
+		{
+			name:     "found after middle",
+			str:      "hello world world",
+			sub:      "world",
+			fromInd:  7,
+			expected: 12,
+		},
+		{
+			name:     "not found",
+			str:      "hello world",
+			sub:      "abc",
+			fromInd:  0,
+			expected: -1,
+		},
+		{
+			name:     "from index beyond match",
+			str:      "hello world",
+			sub:      "hello",
+			fromInd:  1,
+			expected: -1,
+		},
+		{
+			name:     "from index at exact match",
+			str:      "hello world",
+			sub:      "world",
+			fromInd:  6,
+			expected: 6,
+		},
+		{
+			name:     "empty substring",
+			str:      "abc",
+			sub:      "",
+			fromInd:  1,
+			expected: 1,
+		},
+		{
+			name:     "fromInd equals len(str)",
+			str:      "abc",
+			sub:      "a",
+			fromInd:  3,
+			expected: -1,
+		},
+		{
+			name:     "fromInd greater than len(str)",
+			str:      "abc",
+			sub:      "a",
+			fromInd:  4,
+			expected: -1,
+		},
+		{
+			name:     "fromInd is negative",
+			str:      "abc",
+			sub:      "a",
+			fromInd:  -1,
+			expected: -1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxstrings.IndexFrom(tt.str, tt.sub, tt.fromInd)
+			if got != tt.expected {
+				t.Errorf(
+					"IndexFrom(%q, %q, %d) = %d; want %d",
+					tt.str, tt.sub, tt.fromInd, got, tt.expected,
+				)
+			}
+		})
+	}
+}
+
 func TestIndexIgnoreCase(t *testing.T) {
 	{
 		tests := []struct {
@@ -1262,5 +1348,69 @@ func TestPadCenter(t *testing.T) {
 		if result != test.expected {
 			t.Errorf("PadCenter(%q, %d, %q) = %q; want %q", test.s, test.length, test.padChar, result, test.expected)
 		}
+	}
+}
+
+func TestCountMatches(t *testing.T) {
+	tests := []struct {
+		name string
+		str  string
+		sub  string
+		want int
+	}{
+		{
+			name: "single match",
+			str:  "hello world",
+			sub:  "world",
+			want: 1,
+		},
+		{
+			name: "multiple matches",
+			str:  "go go go",
+			sub:  "go",
+			want: 3,
+		},
+		{
+			name: "no match",
+			str:  "hello",
+			sub:  "abc",
+			want: 0,
+		},
+		{
+			name: "overlapping patterns",
+			str:  "aaaa",
+			sub:  "aa",
+			want: 2,
+		},
+		{
+			name: "substring longer than string",
+			str:  "hi",
+			sub:  "hello",
+			want: 0,
+		},
+		{
+			name: "empty string",
+			str:  "",
+			sub:  "a",
+			want: 0,
+		},
+		{
+			name: "empty substring",
+			str:  "abc",
+			sub:  "",
+			want: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxstrings.CountMatches(tt.str, tt.sub)
+			if got != tt.want {
+				t.Errorf(
+					"CountMatches(%q, %q) = %d; want %d",
+					tt.str, tt.sub, got, tt.want,
+				)
+			}
+		})
 	}
 }

@@ -133,29 +133,42 @@ func IsNumeric(s string) bool {
 }
 
 // IsAlphaNumeric checks if the given string contains only alphanumeric characters.
-func IsAlphaNumeric(s string) bool {
-	for _, r := range s {
+func IsAlphaNumeric(str string) bool {
+	for _, r := range str {
 		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
 			return false
 		}
 	}
-	return len(s) > 0
+	return len(str) > 0
 }
 
 // Index returns the index of the first occurrence of substr in s, or -1 if not found.
-func Index(s, substr string) int {
-	return strings.Index(s, substr)
+func Index(str, sub string) int {
+	return strings.Index(str, sub)
+}
+
+// IndexFrom returns the index of sub in str starting from fromInd,
+// or -1 if sub is not present.
+func IndexFrom(str, sub string, fromInd int) int {
+	if fromInd < 0 || fromInd >= len(str) {
+		return -1
+	}
+	ind := Index(str[fromInd:], sub)
+	if ind == -1 {
+		return -1
+	}
+	return fromInd + ind
 }
 
 // LastIndex returns the index of the last occurrence of substr in s, or -1 if not found.
-func LastIndex(s, substr string) int {
-	return strings.LastIndex(s, substr)
+func LastIndex(str, sub string) int {
+	return strings.LastIndex(str, sub)
 }
 
 // LastIndexIgnoreCase returns the index of the last occurrence of substr in s, ignoring case, or -1 if not found.
-func LastIndexIgnoreCase(s, substr string) int {
-	sLower := strings.ToLower(s)
-	substrLower := strings.ToLower(substr)
+func LastIndexIgnoreCase(str, sub string) int {
+	sLower := strings.ToLower(str)
+	substrLower := strings.ToLower(sub)
 	return strings.LastIndex(sLower, substrLower)
 }
 
@@ -240,34 +253,34 @@ func Join(elems []string, sep string) string {
 }
 
 // Repeat returns a new string consisting of count copies of the string s.
-func Repeat(s string, count int) string {
-	return strings.Repeat(s, count)
+func Repeat(str string, count int) string {
+	return strings.Repeat(str, count)
 }
 
 // StartBy checks if the string starts with the specified prefix.
-func StartBy(s, prefix string) bool {
-	return strings.HasPrefix(s, prefix)
+func StartBy(str, prefix string) bool {
+	return strings.HasPrefix(str, prefix)
 }
 
 // StartByIgnoreCase checks if the string starts with the specified prefix, ignoring case.
-func StartByIgnoreCase(s, prefix string) bool {
-	sLower := LowerCase(s)
+func StartByIgnoreCase(str, prefix string) bool {
+	sLower := LowerCase(str)
 	prefixLower := LowerCase(prefix)
 	return strings.HasPrefix(sLower, prefixLower)
 }
 
 // StartByAny checks if the string starts with any of the specified prefixes.
-func StartByAny(s string, prefixes ...string) bool {
+func StartByAny(str string, prefixes ...string) bool {
 	for _, prefix := range prefixes {
-		if strings.HasPrefix(s, prefix) {
+		if strings.HasPrefix(str, prefix) {
 			return true
 		}
 	}
 	return false
 }
 
-func StartByAnyIgnoreCase(s string, prefixes ...string) bool {
-	sLower := LowerCase(s)
+func StartByAnyIgnoreCase(str string, prefixes ...string) bool {
+	sLower := LowerCase(str)
 	for _, prefix := range prefixes {
 		prefixLower := LowerCase(prefix)
 		if strings.HasPrefix(sLower, prefixLower) {
@@ -278,21 +291,21 @@ func StartByAnyIgnoreCase(s string, prefixes ...string) bool {
 }
 
 // EndBy checks if the string ends with the specified suffix.
-func EndBy(s, suffix string) bool {
-	return strings.HasSuffix(s, suffix)
+func EndBy(str, suffix string) bool {
+	return strings.HasSuffix(str, suffix)
 }
 
 // EndByIgnoreCase checks if the string ends with the specified suffix, ignoring case.
-func EndByIgnoreCase(s, suffix string) bool {
-	sLower := LowerCase(s)
+func EndByIgnoreCase(str, suffix string) bool {
+	sLower := LowerCase(str)
 	suffixLower := LowerCase(suffix)
 	return strings.HasSuffix(sLower, suffixLower)
 }
 
 // EndByAny checks if the string ends with any of the specified suffixes.
-func EndByAny(s string, suffixes ...string) bool {
+func EndByAny(str string, suffixes ...string) bool {
 	for _, suffix := range suffixes {
-		if strings.HasSuffix(s, suffix) {
+		if strings.HasSuffix(str, suffix) {
 			return true
 		}
 	}
@@ -300,8 +313,8 @@ func EndByAny(s string, suffixes ...string) bool {
 }
 
 // EndByAnyIgnoreCase checks if the string ends with any of the specified suffixes, ignoring case.
-func EndByAnyIgnoreCase(s string, suffixes ...string) bool {
-	sLower := LowerCase(s)
+func EndByAnyIgnoreCase(str string, suffixes ...string) bool {
+	sLower := LowerCase(str)
 	for _, suffix := range suffixes {
 		suffixLower := LowerCase(suffix)
 		if strings.HasSuffix(sLower, suffixLower) {
@@ -311,28 +324,29 @@ func EndByAnyIgnoreCase(s string, suffixes ...string) bool {
 	return false
 }
 
-// Replace replaces occurrences of old with new in the string s, up to n times.
+// Replace replaces occurrences of old with new in the string str, up to n times.
 // If n is -1, all occurrences are replaced.
-func Replace(s, old, new string, n int) string {
-	return strings.Replace(s, old, new, n)
+func Replace(str, old, new string, n int) string {
+	return strings.Replace(str, old, new, n)
 }
 
-// ReplaceAll replaces all occurrences of old with new in the string s.
-func ReplaceAll(s, old, new string) string {
-	return strings.ReplaceAll(s, old, new)
+// ReplaceAll replaces all occurrences of old with new in the string str.
+func ReplaceAll(str, old, new string) string {
+	return strings.ReplaceAll(str, old, new)
 }
 
-// Remove removes all occurrences of substr from the string s.
-func Remove(s, substr string) string {
-	return strings.ReplaceAll(s, substr, "")
+// Remove removes all occurrences of sub from the string str.
+func Remove(str, sub string) string {
+	return strings.ReplaceAll(str, sub, "")
 }
 
-func RemoveIgnoreCase(s, substr string) string {
+// RemoveIgnoreCase removes all occurrences of substr from str, ignoring case.
+func RemoveIgnoreCase(str, substr string) string {
 	if substr == "" {
-		return s
+		return str
 	}
 
-	lowerS := LowerCase(s)
+	lowerS := LowerCase(str)
 	lowerSub := LowerCase(substr)
 
 	var b strings.Builder
@@ -341,48 +355,49 @@ func RemoveIgnoreCase(s, substr string) string {
 	for {
 		j := Index(lowerS[i:], lowerSub)
 		if j < 0 {
-			b.WriteString(s[i:])
+			b.WriteString(str[i:])
 			break
 		}
 
 		j += i
-		b.WriteString(s[i:j])
+		b.WriteString(str[i:j])
 		i = j + len(substr)
 	}
 
 	return b.String()
 }
 
-// RemoveAny removes all occurrences of the specified substrings from the string s.
-func RemoveAny(s string, substrs ...string) string {
-	result := s
-	for _, substr := range substrs {
-		result = Remove(result, substr)
+// RemoveAny removes all occurrences of the provided substrings from str.
+func RemoveAny(str string, subs ...string) string {
+	result := str
+	for _, sub := range subs {
+		result = Remove(result, sub)
 	}
 	return result
 }
 
 // RemoveAnyIgnoreCase removes all occurrences of the specified substrings from the string s, ignoring case.
-func RemoveAnyIgnoreCase(s string, substrs ...string) string {
-	result := s
-	for _, substr := range substrs {
-		result = RemoveIgnoreCase(result, substr)
+func RemoveAnyIgnoreCase(str string, subs ...string) string {
+	result := str
+	for _, sub := range subs {
+		result = RemoveIgnoreCase(result, sub)
 	}
 	return result
 }
 
-func Reverse(s string) string {
-	runes := []rune(s)
+// Reverse returns str with its characters in reverse order.
+func Reverse(str string) string {
+	runes := []rune(str)
 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 		runes[i], runes[j] = runes[j], runes[i]
 	}
 	return string(runes)
 }
 
-// SubString returns the substring of s from start index to end index.
+// SubString returns the substring of str from start index to end index.
 // If end is -1, it returns the substring from start to the end of the string.
-func SubString(s string, start, end int) string {
-	runes := []rune(s)
+func SubString(str string, start, end int) string {
+	runes := []rune(str)
 	if end == -1 || end > len(runes) {
 		end = len(runes)
 	}
@@ -394,55 +409,55 @@ func SubString(s string, start, end int) string {
 
 // SubStringBefore returns the substring before the first occurrence of sep.
 // If sep is not found, it returns an empty string.
-func SubStringBefore(s, sep string) string {
-	index := Index(s, sep)
+func SubStringBefore(str, sep string) string {
+	index := Index(str, sep)
 	if index == -1 {
 		return ""
 	}
-	return s[:index]
+	return str[:index]
 }
 
 // SubStringBeforeIgnoreCase returns the substring before the first occurrence of sep, ignoring case.
 // If sep is not found, it returns an empty string.
-func SubStringBeforeIgnoreCase(s, sep string) string {
-	sLower := LowerCase(s)
+func SubStringBeforeIgnoreCase(str, sep string) string {
+	sLower := LowerCase(str)
 	sepLower := LowerCase(sep)
 	index := strings.Index(sLower, sepLower)
 	if index == -1 {
 		return ""
 	}
-	return s[:index]
+	return str[:index]
 }
 
 // SubStringAfter returns the substring after the first occurrence of sep.
 // If sep is not found, it returns an empty string.
-func SubStringAfter(s, sep string) string {
-	index := Index(s, sep)
+func SubStringAfter(str, sep string) string {
+	index := Index(str, sep)
 	if index == -1 {
 		return ""
 	}
-	return s[index+len(sep):]
+	return str[index+len(sep):]
 }
 
 // SubStringAfterIgnoreCase returns the substring after the first occurrence of sep, ignoring case.
 // If sep is not found, it returns an empty string.
-func SubStringAfterIgnoreCase(s, sep string) string {
-	sLower := LowerCase(s)
+func SubStringAfterIgnoreCase(str, sep string) string {
+	sLower := LowerCase(str)
 	sepLower := LowerCase(sep)
 	index := strings.Index(sLower, sepLower)
 	if index == -1 {
 		return ""
 	}
-	return s[index+len(sep):]
+	return str[index+len(sep):]
 }
 
 // PadLeft pads the string on the left with the specified padStr until it reaches the desired length.
-func PadLeft(s string, length int, padStr string) string {
-	if IsEmpty(s) || IsEmpty(padStr) || Length(s) >= length {
-		return s
+func PadLeft(str string, length int, padStr string) string {
+	if IsEmpty(str) || IsEmpty(padStr) || Length(str) >= length {
+		return str
 	}
 
-	padLen := length - Length(s)
+	padLen := length - Length(str)
 	var b strings.Builder
 	b.Grow(length)
 
@@ -451,18 +466,18 @@ func PadLeft(s string, length int, padStr string) string {
 	}
 
 	padded := b.String()
-	return padded[len(padded)-padLen:] + s
+	return padded[len(padded)-padLen:] + str
 }
 
 // PadRight pads the string on the right with the specified padStr until it reaches the desired length.
-func PadRight(s string, length int, padStr string) string {
-	if IsEmpty(s) || IsEmpty(padStr) || Length(s) >= length {
-		return s
+func PadRight(str string, length int, padStr string) string {
+	if IsEmpty(str) || IsEmpty(padStr) || Length(str) >= length {
+		return str
 	}
 
 	var b strings.Builder
 	b.Grow(length)
-	b.WriteString(s)
+	b.WriteString(str)
 
 	for b.Len() < length {
 		b.WriteString(padStr)
@@ -473,14 +488,14 @@ func PadRight(s string, length int, padStr string) string {
 }
 
 // PadCenter pads the string on both sides with the specified padStr until it reaches the desired length.
-func PadCenter(s string, length int, padStr string) string {
-	if IsEmpty(s) || IsEmpty(padStr) {
-		return s
+func PadCenter(str string, length int, padStr string) string {
+	if IsEmpty(str) || IsEmpty(padStr) {
+		return str
 	}
 
-	sLen := len(s)
+	sLen := len(str)
 	if sLen >= length {
-		return s
+		return str
 	}
 
 	totalPad := length - sLen
@@ -500,7 +515,7 @@ func PadCenter(s string, length int, padStr string) string {
 		}
 	}
 
-	b.WriteString(s)
+	b.WriteString(str)
 
 	for n := right; n > 0; {
 		if len(padStr) <= n {
@@ -513,4 +528,25 @@ func PadCenter(s string, length int, padStr string) string {
 	}
 
 	return b.String()
+}
+
+// CountMatches counts non-overlapping occurrences of sub in str.
+func CountMatches(str, sub string) int {
+	if IsEmpty(str) || IsEmpty(sub) {
+		return 0
+	}
+
+	count := 0
+	ind := 0
+
+	for {
+		ind = IndexFrom(str, sub, ind)
+		if ind == -1 {
+			break
+		}
+		count++
+		ind += len(sub)
+	}
+
+	return count
 }
