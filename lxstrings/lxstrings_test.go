@@ -101,25 +101,27 @@ func TestCompare(t *testing.T) {
 
 func TestCompareIgnoreCase(t *testing.T) {
 	tests := []struct {
+		name     string
 		s1, s2   string
 		expected int
 	}{
-		{"apple", "BANANA", -1},
-		{"BANANA", "apple", 1},
-		{"cherry", "CHERRY", 0},
-		{"", "", 0},
-		{"a", "A", 0},
-		{"A", "a", 0},
-		{"abc", "ABCD", -1},
-		{"ABCD", "abc", 1},
-		{"GoLang", "golang", 0},
-		{"HELLO", "hello", 0},
+		{"Less than case insensitive", "apple", "BANANA", -1},
+		{"Greater than case insensitive", "BANANA", "apple", 1},
+		{"Equal case insensitive", "cherry", "CHERRY", 0},
+		{"Empty strings", "", "", 0},
+		{"Case sensitive - lowercase first", "a", "A", 0},
+		{"Case sensitive - uppercase first", "A", "a", 0},
+		{"Less than number of characters", "abc", "ABCD", -1},
+		{"Greater than number of characters", "ABCD", "abc", 1},
+		{"Japanese equal", "こんにちは", "こんにちは", 0},
 	}
-	for _, test := range tests {
-		result := lxstrings.CompareIgnoreCase(test.s1, test.s2)
-		if result != test.expected {
-			t.Errorf("CompareIgnoreCase(%q, %q) = %d; want %d", test.s1, test.s2, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.CompareIgnoreCase(tt.s1, tt.s2)
+			if result != tt.expected {
+				t.Errorf("CompareIgnoreCase(%q, %q) = %d; want %d", tt.s1, tt.s2, result, tt.expected)
+			}
+		})
 	}
 }
 
@@ -152,48 +154,52 @@ func TestContains(t *testing.T) {
 
 func TestContainsIgnoreCase(t *testing.T) {
 	tests := []struct {
-		s, substr string
-		expected  bool
+		name        string
+		str, substr string
+		expected    bool
 	}{
-		{"hello world", "WORLD", true},
-		{"GoLang", "golang", true},
-		{"TestString", "teststring", true},
-		{"CaseSensitive", "casesensitive", true},
-		{"NoMatch", "MATCH", true},
-		{"", "", true},
-		{"non-empty", "", true},
-		{"", "non-empty", false},
-		{"こんにちは世界", "世界", true},
-		{"😊Emoji😊", "emoji", true},
+		{"Case insensitive", "hello world", "WORLD", true},
+		{"Case sensitive - lowercase first", "golang", "golang", true},
+		{"Case sensitive - uppercase first", "GOLANG", "golang", true},
+		{"Case sensitive - mixed case", "CaseSensitive", "casesensitive", true},
+		{"Empty strings", "", "", true},
+		{"Non-empty string in empty string", "", "non-empty", false},
+		{"Japanese", "こんにちは世界", "世界", true},
+		{"Emoji", "😊emoji😊", "emoji", true},
 	}
-	for _, test := range tests {
-		result := lxstrings.ContainsIgnoreCase(test.s, test.substr)
-		if result != test.expected {
-			t.Errorf("ContainsIgnoreCase(%q, %q) = %v; want %v", test.s, test.substr, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.ContainsIgnoreCase(tt.str, tt.substr)
+			if result != tt.expected {
+				t.Errorf("ContainsIgnoreCase(%q, %q) = %v; want %v", tt.str, tt.substr, result, tt.expected)
+			}
+		})
 	}
 }
 
 func TestContainsAny(t *testing.T) {
 	tests := []struct {
-		s        string
+		name     string
+		str      string
 		chars    []rune
 		expected bool
 	}{
-		{"hello", []rune{'a', 'e', 'i'}, true},
-		{"world", []rune{'x', 'y', 'z'}, false},
-		{"golang", []rune{'g', 'o'}, true},
-		{"test", []rune{'1', '2', '3'}, false},
-		{"", []rune{'a', 'b'}, false},
-		{"non-empty", []rune{}, false},
-		{"こんにちは", []rune{'に', 'は'}, true},
-		{"😊emoji😊", []rune{'😊'}, true},
+		{"Multiple single characters", "hello", []rune{'a', 'e', 'i'}, true},
+		{"No match single characters", "world", []rune{'x', 'y', 'z'}, false},
+		{"Match first character", "golang", []rune{'g', 'o'}, true},
+		{"No match - number", "test", []rune{'1', '2', '3'}, false},
+		{"Empty string", "", []rune{'a', 'b'}, false},
+		{"None empty string - no chars", "non-empty", []rune{}, false},
+		{"Japanese", "こんにちは", []rune{'に', 'は'}, true},
+		{"Emoji", "😊emoji😊", []rune{'😊'}, true},
 	}
-	for _, test := range tests {
-		result := lxstrings.ContainsAny(test.s, test.chars...)
-		if result != test.expected {
-			t.Errorf("ContainsAny(%q, %v) = %v; want %v", test.s, test.chars, result, test.expected)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.ContainsAny(tt.str, tt.chars...)
+			if result != tt.expected {
+				t.Errorf("ContainsAny(%q, %v) = %v; want %v", tt.str, tt.chars, result, tt.expected)
+			}
+		})
 	}
 }
 
@@ -1528,6 +1534,191 @@ func TestDefaultIfBlank(t *testing.T) {
 			result := lxstrings.DefaultIfBlank(tt.input, tt.def)
 			if result != tt.expected {
 				t.Errorf("DefaultIfBlank(%q, %q) = %q; want %q", tt.input, tt.def, result, tt.expected)
+			}
+		})
+	}
+}
+
+
+func TestStartWith(t *testing.T) {
+	tests := []struct {
+		name	 string
+		input    string
+		prefix   string
+		expected bool
+	}{
+		{"Starts with prefix", "hello world", "hello", true},
+		{"Does not start with prefix", "hello world", "world", false},
+		{"Empty prefix", "hello world", "", true},
+		{"Empty string and empty prefix", "", "", true},
+		{"Empty string and non-empty prefix", "", "hello", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.StartWith(tt.input, tt.prefix)
+			if result != tt.expected {
+				t.Errorf("StartWith(%q, %q) = %v; want %v", tt.input, tt.prefix, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestStartWithIgnoreCase(t *testing.T) {
+	tests := []struct {
+		name	 string
+		input    string
+		prefix   string
+		expected bool
+	}{
+		{"Starts with prefix (case insensitive)", "Hello World", "hello", true},
+		{"Does not start with prefix (case insensitive)", "Hello World", "WORLD", false},
+		{"Empty prefix", "Hello World", "", true},
+		{"Empty string and empty prefix", "", "", true},
+		{"Empty string and non-empty prefix", "", "hello", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.StartWithIgnoreCase(tt.input, tt.prefix)
+			if result != tt.expected {
+				t.Errorf("StartWithIgnoreCase(%q, %q) = %v; want %v", tt.input, tt.prefix, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestStartWithAny(t *testing.T) {
+	tests := []struct {
+		name	 string
+		input    string
+		prefixes []string
+		expected bool
+	}{
+		{"Starts with one of the prefixes", "hello world", []string{"hi", "hello"}, true},
+		{"Does not start with any of the prefixes", "hello world", []string{"world", "planet"}, false},
+		{"Empty prefixes", "hello world", []string{}, false},
+		{"Empty string and empty prefixes", "", []string{}, false},
+		{"Empty string and non-empty prefixes", "", []string{"hello"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.StartWithAny(tt.input, tt.prefixes...)
+			if result != tt.expected {
+				t.Errorf("StartWithAny(%q, %v) = %v; want %v", tt.input, tt.prefixes, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestStartWithAnyIgnoreCase(t *testing.T) {
+	tests := []struct {
+		name	 string
+		input    string
+		prefixes []string
+		expected bool
+	}{
+		{"Starts with one of the prefixes (case insensitive)", "Hello World", []string{"HI", "hello"}, true},
+		{"Does not start with any of the prefixes (case insensitive)", "Hello World", []string{"WORLD", "PLANET"}, false},
+		{"Empty prefixes", "Hello World", []string{}, false},
+		{"Empty string and empty prefixes", "", []string{}, false},
+		{"Empty string and non-empty prefixes", "", []string{"hello"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.StartWithAnyIgnoreCase(tt.input, tt.prefixes...)
+			if result != tt.expected {
+				t.Errorf("StartWithAnyIgnoreCase(%q, %v) = %v; want %v", tt.input, tt.prefixes, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEndWith(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		suffix   string
+		expected bool
+	}{
+		{"Ends with suffix", "hello world", "world", true},
+		{"Does not end with suffix", "hello world", "hello", false},
+		{"Empty suffix", "hello world", "", true},
+		{"Empty string and empty suffix", "", "", true},
+		{"Empty string and non-empty suffix", "", "world", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.EndWith(tt.input, tt.suffix)
+			if result != tt.expected {
+				t.Errorf("EndWith(%q, %q) = %v; want %v", tt.input, tt.suffix, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEndWithIgnoreCase(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		suffix   string
+		expected bool
+	}{
+		{"Ends with suffix (case insensitive)", "Hello World", "WORLD", true},
+		{"Does not end with suffix (case insensitive)", "Hello World", "HELLO", false},
+		{"Empty suffix", "Hello World", "", true},
+		{"Empty string and empty suffix", "", "", true},
+		{"Empty string and non-empty suffix", "", "world", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.EndWithIgnoreCase(tt.input, tt.suffix)
+			if result != tt.expected {
+				t.Errorf("EndWithIgnoreCase(%q, %q) = %v; want %v", tt.input, tt.suffix, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEndWithAny(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		suffixes []string
+		expected bool
+	}{
+		{"Ends with one of the suffixes", "hello world", []string{"planet", "world"}, true},
+		{"Does not end with any of the suffixes", "hello world", []string{"hello", "hi"}, false},
+		{"Empty suffixes", "hello world", []string{}, false},
+		{"Empty string and empty suffixes", "", []string{}, false},
+		{"Empty string and non-empty suffixes", "", []string{"world"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.EndWithAny(tt.input, tt.suffixes...)
+			if result != tt.expected {
+				t.Errorf("EndWithAny(%q, %v) = %v; want %v", tt.input, tt.suffixes, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEndWithAnyIgnoreCase(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		suffixes []string
+		expected bool
+	}{
+		{"Ends with one of the suffixes (case insensitive)", "Hello World", []string{"PLANET", "world"}, true},
+		{"Does not end with any of the suffixes (case insensitive)", "Hello World", []string{"HELLO", "HI"}, false},
+		{"Empty suffixes", "Hello World", []string{}, false},
+		{"Empty string and empty suffixes", "", []string{}, false},
+		{"Empty string and non-empty suffixes", "", []string{"world"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxstrings.EndWithAnyIgnoreCase(tt.input, tt.suffixes...)
+			if result != tt.expected {
+				t.Errorf("EndWithAnyIgnoreCase(%q, %v) = %v; want %v", tt.input, tt.suffixes, result, tt.expected)
 			}
 		})
 	}

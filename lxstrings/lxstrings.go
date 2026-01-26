@@ -585,3 +585,70 @@ func DefaultIfBlank(str, defaultStr string) string {
 	}
 	return str
 }
+
+func StartWith(str, prefix string) bool {
+	return strings.HasPrefix(str, prefix)
+}
+
+// StartByIgnoreCase checks if the string starts with the specified prefix, ignoring case.
+func StartWithIgnoreCase(str, prefix string) bool {
+	sLower := LowerCase(str)
+	prefixLower := LowerCase(prefix)
+	return strings.HasPrefix(sLower, prefixLower)
+}
+
+// StartByAny checks if the string starts with any of the specified prefixes.
+func StartWithAny(str string, prefixes ...string) bool {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(str, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+// StartByAnyIgnoreCase checks if the string starts with any of the specified prefixes, ignoring case.
+func StartWithAnyIgnoreCase(str string, prefixes ...string) bool {
+	sLower := LowerCase(str)
+	for _, prefix := range prefixes {
+		prefixLower := LowerCase(prefix)
+		if strings.HasPrefix(sLower, prefixLower) {
+			return true
+		}
+	}
+	return false
+}
+
+// EndBy checks if the string ends with the specified suffix.
+func EndWith(str, suffix string) bool {
+	return strings.HasSuffix(str, suffix)
+}
+
+// EndByIgnoreCase checks if the string ends with the specified suffix, ignoring case.
+func EndWithIgnoreCase(str, suffix string) bool {
+	sLower := LowerCase(str)
+	suffixLower := LowerCase(suffix)
+	return strings.HasSuffix(sLower, suffixLower)
+}
+
+// EndByAny checks if the string ends with any of the specified suffixes.
+func EndWithAny(str string, suffixes ...string) bool {
+	for _, suffix := range suffixes {
+		if strings.HasSuffix(str, suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+// EndByAnyIgnoreCase checks if the string ends with any of the specified suffixes, ignoring case.
+func EndWithAnyIgnoreCase(str string, suffixes ...string) bool {
+	sLower := LowerCase(str)
+	for _, suffix := range suffixes {
+		suffixLower := LowerCase(suffix)
+		if strings.HasSuffix(sLower, suffixLower) {
+			return true
+		}
+	}
+	return false
+}
