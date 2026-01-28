@@ -15,6 +15,7 @@
 ## Packages
 
 * **`lxstrings`** – string helpers
+* **`lxptrs`** – pointer helpers
 
 > More packages may be added over time, but only when they provide clear value beyond the standard library.
 
