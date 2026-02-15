@@ -18,8 +18,8 @@ func TestRef(t *testing.T) {
 
 	t.Run("Bool", func(t *testing.T) {
 		v := true
-		p := lxptrs.Ref(v)
-		if *p != v {
+		p := lxptrs.Ref(true)
+		if *p != true {
 			t.Errorf("Ref(%v) = %v; want %v", v, *p, v)
 		}
 	})
