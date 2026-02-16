@@ -22,10 +22,6 @@ func ContainsAny[T comparable](slice []T, elems ...T) bool {
 	return false
 }
 
-func NotContainsAny[T comparable](slice []T, elems ...T) bool {
-	return !ContainsAny(slice, elems...)
-}
-
 // ContainsAll returns true if all the specified elements are present in the slice, false otherwise.
 func ContainsAll[T comparable](slice []T, elems ...T) bool {
 	for _, elem := range elems {
