@@ -772,3 +772,69 @@ func TestGroupBy(t *testing.T) {
 		}
 	})
 }
+
+func TestUniqueGroups(t *testing.T) {
+	t.Run("user group by id", func(t *testing.T) {
+		type User struct {
+			ID   int
+			Name string
+			Age  int
+		}
+		slice := []User{
+			{1, "Alice", 25},
+			{2, "Bob", 30},
+			{3, "Charlie", 35},
+		}
+		expected := map[int]User{
+			1: {1, "Alice", 25},
+			2: {2, "Bob", 30},
+			3: {3, "Charlie", 35},
+		}
+		result, err := lxslices.UniqueGroupBy(slice, func(u User) int {
+			return u.ID
+		})
+		if err != nil {
+			t.Errorf("UniqueGroupBy() error = %v", err)
+		}
+		if !reflect.DeepEqual(result, expected) {
+			t.Errorf("UniqueGroupBy() = %v; want %v", result, expected)
+		}
+	})
+
+	t.Run("duplicate keys", func(t *testing.T) {
+		slice := []int{1, 2, 3, 4, 5}
+		_, err := lxslices.UniqueGroupBy(slice, func(n int) string {
+			return "even"
+		})
+		if err == nil {
+			t.Errorf("UniqueGroupBy() error = %v; want error", err)
+		}
+	})
+
+	t.Run("nil slice", func(t *testing.T) {
+		var slice []int
+		result, err := lxslices.UniqueGroupBy(slice, func(n int) string {
+			return "even"
+		})
+		if err != nil {
+			t.Errorf("UniqueGroupBy() error = %v; want nil", err)
+		}
+		if len(result) != 0 {
+			t.Errorf("UniqueGroupBy() = %v; want empty map", result)
+		}
+	})
+
+	t.Run("empty slice", func(t *testing.T) {
+		var slice []int
+		result, err := lxslices.UniqueGroupBy(slice, func(n int) string {
+			return "even"
+		})
+		if err != nil {
+			t.Errorf("UniqueGroupBy() error = %v; want nil", err)
+		}
+		if len(result) != 0 {
+			t.Errorf("UniqueGroupBy() = %v; want empty map", result)
+		}
+	})
+
+}

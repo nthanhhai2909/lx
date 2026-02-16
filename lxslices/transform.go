@@ -1,5 +1,7 @@
 package lxslices
 
+import "fmt"
+
 // Map applies the given function to each element of the slice and returns a new slice with the results.
 // The order of the elements in the returned slice is the same as in the original slice.
 func Map[T, U any](slice []T, fn func(T) U) []U {
@@ -48,4 +50,18 @@ func GroupBy[T any, K comparable](slice []T, fn func(T) K) map[K][]T {
 		result[key] = append(result[key], e)
 	}
 	return result
+}
+
+// UniqueGroupBy groups the elements of the slice by the given function and returns a map with only unique keys.
+// It returns an error if the function returns duplicate keys.
+func UniqueGroupBy[T any, K comparable](slice []T, fn func(T) K) (map[K]T, error) {
+	result := make(map[K]T)
+	for _, e := range slice {
+		key := fn(e)
+		if _, exists := result[key]; exists {
+			return nil, fmt.Errorf("%w: %v", ErrDuplicateKey, key)
+		}
+		result[key] = e
+	}
+	return result, nil
 }
