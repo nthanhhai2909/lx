@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/nthanhhai2909/lx/lxslices"
+	"github.com/nthanhhai2909/lx/lxtuples"
 )
 
 func TestMap_IntToInt(t *testing.T) {
@@ -571,3 +572,127 @@ func TestUniqueGroups(t *testing.T) {
 	})
 
 }
+
+func TestConcat_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slices   [][]int
+		expected []int
+	}{
+		{name: "no slices", slices: nil, expected: nil},
+		{name: "all nil", slices: [][]int{nil, nil}, expected: nil},
+		{name: "empty non-nil", slices: [][]int{{}, {}}, expected: []int{}},
+		{name: "concat multiple", slices: [][]int{{1, 2}, {3}, {4, 5}}, expected: []int{1, 2, 3, 4, 5}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := lxslices.Concat(tt.slices...)
+			if !reflect.DeepEqual(res, tt.expected) {
+				t.Errorf("Concat(%v) = %v; want %v", tt.slices, res, tt.expected)
+			}
+		})
+	}
+}
+
+func TestConcat_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		slices   [][]string
+		expected []string
+	}{
+		{name: "concat strings", slices: [][]string{{"a"}, {"b", "c"}}, expected: []string{"a", "b", "c"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := lxslices.Concat(tt.slices...)
+			if !reflect.DeepEqual(res, tt.expected) {
+				t.Errorf("Concat(%v) = %v; want %v", tt.slices, res, tt.expected)
+			}
+		})
+	}
+}
+
+func TestConcat_Struct(t *testing.T) {
+	type Node struct {
+		ID   int
+		Name string
+	}
+	tests := []struct {
+		name     string
+		slices   [][]Node
+		expected []Node
+	}{
+		{name: "concat nodes", slices: [][]Node{{{1, "a"}}, {{2, "b"}}}, expected: []Node{{1, "a"}, {2, "b"}}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := lxslices.Concat(tt.slices...)
+			if !reflect.DeepEqual(res, tt.expected) {
+				t.Errorf("Concat(%v) = %v; want %v", tt.slices, res, tt.expected)
+			}
+		})
+	}
+}
+
+func TestZip_IntString(t *testing.T) {
+	// int and string
+	a := []int{1, 2, 3}
+	b := []string{"a", "b"}
+	got := lxslices.Zip(a, b)
+	want := []lxtuples.Pair[int, string]{{1, "a"}, {2, "b"}}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("Zip(%v,%v) = %v; want %v", a, b, got, want)
+	}
+}
+
+func TestZip_StringString_EmptyNil(t *testing.T) {
+	// both nil -> nil
+	if got := lxslices.Zip[string, string](nil, nil); got != nil {
+		t.Fatalf("Zip(nil,nil) = %v; want nil", got)
+	}
+	// both empty non-nil -> empty slice
+	a := []string{}
+	b := []string{}
+	if got := lxslices.Zip(a, b); got == nil || len(got) != 0 {
+		t.Fatalf("Zip(empty,empty) = %v; want empty non-nil slice", got)
+	}
+}
+
+func TestZip_Struct(t *testing.T) {
+	type A struct{ X int }
+	type B struct{ Y string }
+	a := []A{{1}, {2}}
+	b := []B{{"one"}, {"two"}}
+	got := lxslices.Zip(a, b)
+	want := []lxtuples.Pair[A, B]{{First: A{1}, Second: B{"one"}}, {First: A{2}, Second: B{"two"}}}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("Zip(structs) = %v; want %v", got, want)
+	}
+}
+
+func TestUnzip_IntString(t *testing.T) {
+	pairs := []lxtuples.Pair[int, string]{{1, "a"}, {2, "b"}}
+	a, b := lxslices.Unzip(pairs)
+	if !reflect.DeepEqual(a, []int{1, 2}) || !reflect.DeepEqual(b, []string{"a", "b"}) {
+		t.Fatalf("Unzip(%v) = (%v, %v); want (%v, %v)", pairs, a, b, []int{1, 2}, []string{"a", "b"})
+	}
+}
+
+func TestUnzip_EmptyNil(t *testing.T) {
+	// nil -> nil,nil
+	a, b := lxslices.Unzip[any, any](nil)
+	if a != nil || b != nil {
+		t.Fatalf("Unzip(nil) = (%v, %v); want (nil, nil)", a, b)
+	}
+	// empty non-nil -> empty slices
+	pairs := []lxtuples.Pair[int, int]{}
+	a2, b2 := lxslices.Unzip(pairs)
+	if a2 == nil || b2 == nil || len(a2) != 0 || len(b2) != 0 {
+		t.Fatalf("Unzip(empty) = (%v, %v); want empty non-nil slices", a2, b2)
+	}
+}
+
+// ---- end moved tests ----

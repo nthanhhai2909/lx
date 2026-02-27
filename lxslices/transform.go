@@ -1,6 +1,10 @@
 package lxslices
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/nthanhhai2909/lx/lxtuples"
+)
 
 // Map applies the given function to each element of the slice and returns a new slice with the results.
 // The order of the elements in the returned slice is the same as in the original slice.
@@ -54,4 +58,75 @@ func UniqueGroupBy[T any, K comparable](slice []T, fn func(T) K) (map[K]T, error
 		result[key] = e
 	}
 	return result, nil
+}
+
+// Concat concatenates multiple slices into a single slice.
+// Behavior:
+// - If no slices are provided, returns nil.
+// - If all provided slices are nil, returns nil.
+// - If one or more slices are non-nil but total length is zero, returns an empty non-nil slice.
+func Concat[T any](slices ...[]T) []T {
+	if len(slices) == 0 {
+		return nil
+	}
+	total := 0
+	hadNonNil := false
+	for _, s := range slices {
+		if s != nil {
+			hadNonNil = true
+		}
+		total += len(s)
+	}
+	if total == 0 {
+		if hadNonNil {
+			return []T{}
+		}
+		return nil
+	}
+	res := make([]T, 0, total)
+	for _, s := range slices {
+		res = append(res, s...)
+	}
+	return res
+}
+
+// Zip combines two slices into a slice of Pair. The length of the result is the
+// minimum of the two input lengths. If both inputs are nil, returns nil. If both
+// inputs are empty but non-nil, returns an empty non-nil slice.
+func Zip[T any, U any](a []T, b []U) []lxtuples.Pair[T, U] {
+	if a == nil && b == nil {
+		return nil
+	}
+	n := len(a)
+	if len(b) < n {
+		n = len(b)
+	}
+	if n == 0 {
+		// at least one input was non-nil (since both-nil handled above), return empty slice
+		return []lxtuples.Pair[T, U]{}
+	}
+	res := make([]lxtuples.Pair[T, U], n)
+	for i := 0; i < n; i++ {
+		res[i] = lxtuples.Pair[T, U]{First: a[i], Second: b[i]}
+	}
+	return res
+}
+
+// Unzip splits a slice of Pair into two slices. If pairs is nil, returns (nil, nil).
+// If pairs is an empty non-nil slice, returns two empty non-nil slices.
+func Unzip[T any, U any](pairs []lxtuples.Pair[T, U]) ([]T, []U) {
+	if pairs == nil {
+		return nil, nil
+	}
+	n := len(pairs)
+	if n == 0 {
+		return []T{}, []U{}
+	}
+	first := make([]T, n)
+	second := make([]U, n)
+	for i := 0; i < n; i++ {
+		first[i] = pairs[i].First
+		second[i] = pairs[i].Second
+	}
+	return first, second
 }
