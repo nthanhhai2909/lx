@@ -1138,3 +1138,249 @@ func TestMaxIndex_String(t *testing.T) {
 		})
 	}
 }
+
+func TestFirst(t *testing.T) {
+	t.Run("int", func(t *testing.T) {
+		t.Run("nil", func(t *testing.T) {
+			var s []int
+			v, ok := lxslices.First(s)
+			if ok || v != 0 {
+				t.Fatalf("First(nil) = (%v, %v); want (0, false)", v, ok)
+			}
+		})
+
+		t.Run("empty", func(t *testing.T) {
+			s := []int{}
+			v, ok := lxslices.First(s)
+			if ok || v != 0 {
+				t.Fatalf("First(empty) = (%v, %v); want (0, false)", v, ok)
+			}
+		})
+
+		t.Run("non-empty", func(t *testing.T) {
+			s := []int{7, 8, 9}
+			v, ok := lxslices.First(s)
+			if !ok || v != 7 {
+				t.Fatalf("First(%v) = (%v, %v); want (7, true)", s, v, ok)
+			}
+		})
+	})
+
+	t.Run("string", func(t *testing.T) {
+		t.Run("nil", func(t *testing.T) {
+			var s []string
+			v, ok := lxslices.First(s)
+			if ok || v != "" {
+				t.Fatalf("First(nil) = (%v, %v); want (\"\", false)", v, ok)
+			}
+		})
+
+		t.Run("empty", func(t *testing.T) {
+			s := []string{}
+			v, ok := lxslices.First(s)
+			if ok || v != "" {
+				t.Fatalf("First(empty) = (%v, %v); want (\"\", false)", v, ok)
+			}
+		})
+
+		t.Run("non-empty", func(t *testing.T) {
+			s := []string{"a", "b"}
+			v, ok := lxslices.First(s)
+			if !ok || v != "a" {
+				t.Fatalf("First(%v) = (%v, %v); want (\"a\", true)", s, v, ok)
+			}
+		})
+	})
+
+	t.Run("struct", func(t *testing.T) {
+		type P struct{ A int }
+
+		t.Run("nil", func(t *testing.T) {
+			var s []P
+			v, ok := lxslices.First(s)
+			if ok || v != (P{}) {
+				t.Fatalf("First(nil) = (%v, %v); want (%v, false)", v, ok, P{})
+			}
+		})
+
+		t.Run("empty", func(t *testing.T) {
+			s := []P{}
+			v, ok := lxslices.First(s)
+			if ok || v != (P{}) {
+				t.Fatalf("First(empty) = (%v, %v); want (%v, false)", v, ok, P{})
+			}
+		})
+
+		t.Run("non-empty", func(t *testing.T) {
+			s := []P{{1}, {2}}
+			v, ok := lxslices.First(s)
+			if !ok || v != (P{1}) {
+				t.Fatalf("First(%v) = (%v, %v); want (%v, true)", s, v, ok, P{1})
+			}
+		})
+	})
+}
+
+func TestLast(t *testing.T) {
+	t.Run("int", func(t *testing.T) {
+		t.Run("nil", func(t *testing.T) {
+			var s []int
+			v, ok := lxslices.Last(s)
+			if ok || v != 0 {
+				t.Fatalf("Last(nil) = (%v, %v); want (0, false)", v, ok)
+			}
+		})
+
+		t.Run("empty", func(t *testing.T) {
+			s := []int{}
+			v, ok := lxslices.Last(s)
+			if ok || v != 0 {
+				t.Fatalf("Last(empty) = (%v, %v); want (0, false)", v, ok)
+			}
+		})
+
+		t.Run("non-empty", func(t *testing.T) {
+			s := []int{7, 8, 9}
+			v, ok := lxslices.Last(s)
+			if !ok || v != 9 {
+				t.Fatalf("Last(%v) = (%v, %v); want (9, true)", s, v, ok)
+			}
+		})
+	})
+
+	t.Run("string", func(t *testing.T) {
+		t.Run("nil", func(t *testing.T) {
+			var s []string
+			v, ok := lxslices.Last(s)
+			if ok || v != "" {
+				t.Fatalf("Last(nil) = (%v, %v); want (\"\", false)", v, ok)
+			}
+		})
+
+		t.Run("empty", func(t *testing.T) {
+			s := []string{}
+			v, ok := lxslices.Last(s)
+			if ok || v != "" {
+				t.Fatalf("Last(empty) = (%v, %v); want (\"\", false)", v, ok)
+			}
+		})
+
+		t.Run("non-empty", func(t *testing.T) {
+			s := []string{"a", "b"}
+			v, ok := lxslices.Last(s)
+			if !ok || v != "b" {
+				t.Fatalf("Last(%v) = (%v, %v); want (\"b\", true)", s, v, ok)
+			}
+		})
+	})
+
+	t.Run("struct", func(t *testing.T) {
+		type P struct{ A int }
+
+		t.Run("nil", func(t *testing.T) {
+			var s []P
+			v, ok := lxslices.Last(s)
+			if ok || v != (P{}) {
+				t.Fatalf("Last(nil) = (%v, %v); want (%v, false)", v, ok, P{})
+			}
+		})
+
+		t.Run("empty", func(t *testing.T) {
+			s := []P{}
+			v, ok := lxslices.Last(s)
+			if ok || v != (P{}) {
+				t.Fatalf("Last(empty) = (%v, %v); want (%v, false)", v, ok, P{})
+			}
+		})
+
+		t.Run("non-empty", func(t *testing.T) {
+			s := []P{{1}, {2}}
+			v, ok := lxslices.Last(s)
+			if !ok || v != (P{2}) {
+				t.Fatalf("Last(%v) = (%v, %v); want (%v, true)", s, v, ok, P{2})
+			}
+		})
+	})
+}
+
+func TestGet(t *testing.T) {
+	t.Run("int", func(t *testing.T) {
+		t.Run("in range", func(t *testing.T) {
+			s := []int{10, 11, 12}
+			v, ok := lxslices.Get(s, 1)
+			if !ok || v != 11 {
+				t.Fatalf("Get(%v, 1) = (%v, %v); want (11, true)", s, v, ok)
+			}
+		})
+
+		t.Run("out of range negative", func(t *testing.T) {
+			s := []int{10, 11, 12}
+			v, ok := lxslices.Get(s, -1)
+			if ok || v != 0 {
+				t.Fatalf("Get(%v, -1) = (%v, %v); want (0, false)", s, v, ok)
+			}
+		})
+
+		t.Run("out of range too large", func(t *testing.T) {
+			s := []int{10, 11, 12}
+			v, ok := lxslices.Get(s, 3)
+			if ok || v != 0 {
+				t.Fatalf("Get(%v, 3) = (%v, %v); want (0, false)", s, v, ok)
+			}
+		})
+	})
+
+	t.Run("string", func(t *testing.T) {
+		t.Run("in range", func(t *testing.T) {
+			s := []string{"x", "y", "z"}
+			v, ok := lxslices.Get(s, 2)
+			if !ok || v != "z" {
+				t.Fatalf("Get(%v, 2) = (%v, %v); want (\"z\", true)", s, v, ok)
+			}
+		})
+
+		t.Run("out of range negative", func(t *testing.T) {
+			s := []string{"x", "y", "z"}
+			v, ok := lxslices.Get(s, -1)
+			if ok || v != "" {
+				t.Fatalf("Get(%v, -1) = (%v, %v); want (\"\", false)", s, v, ok)
+			}
+		})
+
+		t.Run("out of range too large", func(t *testing.T) {
+			s := []string{"x", "y", "z"}
+			v, ok := lxslices.Get(s, 3)
+			if ok || v != "" {
+				t.Fatalf("Get(%v, 3) = (%v, %v); want (\"\", false)", s, v, ok)
+			}
+		})
+	})
+
+	t.Run("struct", func(t *testing.T) {
+		type P struct{ A int }
+
+		t.Run("in range", func(t *testing.T) {
+			s := []P{{5}, {6}, {7}}
+			v, ok := lxslices.Get(s, 1)
+			if !ok || v != (P{6}) {
+				t.Fatalf("Get(%v, 1) = (%v, %v); want (%v, true)", s, v, ok, P{6})
+			}
+		})
+
+		t.Run("out of range negative", func(t *testing.T) {
+			s := []P{{5}, {6}, {7}}
+			v, ok := lxslices.Get(s, -1)
+			if ok || v != (P{}) {
+				t.Fatalf("Get(%v, -1) = (%v, %v); want (%v, false)", s, v, ok, P{})
+			}
+		})
+
+		t.Run("out of range too large", func(t *testing.T) {
+			s := []P{{5}, {6}, {7}}
+			v, ok := lxslices.Get(s, 3)
+			if ok || v != (P{}) {
+				t.Fatalf("Get(%v, 3) = (%v, %v); want (%v, false)", s, v, ok, P{})
+			}
+		})
+	})
+}

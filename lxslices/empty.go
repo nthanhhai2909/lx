@@ -99,3 +99,18 @@ func EmptyError() []error {
 func EmptyString() []string {
 	return Empty[string]()
 }
+
+// IsEmpty returns true if the slice is nil or has zero length.
+func IsEmpty[T any](slice []T) bool {
+	return len(slice) == 0
+}
+
+// IsNotEmpty returns true if the slice has at least one element.
+func IsNotEmpty[T any](slice []T) bool {
+	return !IsEmpty(slice)
+}
+
+// Length returns the number of elements in the slice.
+func Length[T any](slice []T) int {
+	return len(slice)
+}

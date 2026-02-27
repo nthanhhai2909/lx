@@ -69,3 +69,30 @@ func MaxIndex[T lxconstraints.Ordered](slice []T) (int, bool) {
 	}
 	return idx, true
 }
+
+// First returns the first element of the slice and true, or the zero value and false if the slice is empty.
+func First[T any](slice []T) (T, bool) {
+	if len(slice) == 0 {
+		var zero T
+		return zero, false
+	}
+	return slice[0], true
+}
+
+// Last returns the last element of the slice and true, or the zero value and false if the slice is empty.
+func Last[T any](slice []T) (T, bool) {
+	if len(slice) == 0 {
+		var zero T
+		return zero, false
+	}
+	return slice[len(slice)-1], true
+}
+
+// Get returns the element at index and true, or the zero value and false if the index is out of bounds.
+func Get[T any](slice []T, index int) (T, bool) {
+	if index < 0 || index >= len(slice) {
+		var zero T
+		return zero, false
+	}
+	return slice[index], true
+}

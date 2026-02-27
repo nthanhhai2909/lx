@@ -344,3 +344,72 @@ func TestEmptyString(t *testing.T) {
 		t.Fatalf("append result = %v; want [x]", s)
 	}
 }
+
+func TestIsEmpty(t *testing.T) {
+	t.Run("nil slice", func(t *testing.T) {
+		var s []int
+		if !lxslices.IsEmpty(s) {
+			t.Fatalf("IsEmpty(nil) = false; want true")
+		}
+	})
+
+	t.Run("empty slice", func(t *testing.T) {
+		s := []int{}
+		if !lxslices.IsEmpty(s) {
+			t.Fatalf("IsEmpty(empty) = false; want true")
+		}
+	})
+
+	t.Run("non-empty slice", func(t *testing.T) {
+		s := []int{1, 2, 3}
+		if lxslices.IsEmpty(s) {
+			t.Fatalf("IsEmpty(non-empty) = true; want false")
+		}
+	})
+}
+
+func TestIsNotEmpty(t *testing.T) {
+	t.Run("nil slice", func(t *testing.T) {
+		var s []int
+		if lxslices.IsNotEmpty(s) {
+			t.Fatalf("IsNotEmpty(nil) = true; want false")
+		}
+	})
+
+	t.Run("empty slice", func(t *testing.T) {
+		s := []int{}
+		if lxslices.IsNotEmpty(s) {
+			t.Fatalf("IsNotEmpty(empty) = true; want false")
+		}
+	})
+
+	t.Run("non-empty slice", func(t *testing.T) {
+		s := []int{1, 2, 3}
+		if !lxslices.IsNotEmpty(s) {
+			t.Fatalf("IsNotEmpty(non-empty) = false; want true")
+		}
+	})
+}
+
+func TestLength(t *testing.T) {
+	t.Run("nil slice", func(t *testing.T) {
+		var s []int
+		if lxslices.Length(s) != 0 {
+			t.Fatalf("Length(nil) = %d; want 0", lxslices.Length(s))
+		}
+	})
+
+	t.Run("empty slice", func(t *testing.T) {
+		s := []int{}
+		if lxslices.Length(s) != 0 {
+			t.Fatalf("Length(empty) = %d; want 0", lxslices.Length(s))
+		}
+	})
+
+	t.Run("non-empty slice", func(t *testing.T) {
+		s := []int{1, 2, 3}
+		if lxslices.Length(s) != 3 {
+			t.Fatalf("Length(non-empty) = %d; want 3", lxslices.Length(s))
+		}
+	})
+}
