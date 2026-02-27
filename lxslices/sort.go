@@ -1,8 +1,9 @@
 package lxslices
 
 import (
-	"cmp"
 	"sort"
+
+	"github.com/nthanhhai2909/lx/lxconstraints"
 )
 
 // SortBy sorts the slice using the provided less function.
@@ -23,11 +24,11 @@ func StableSortBy[T any](slice []T, less func(T, T) bool) []T {
 }
 
 // SortAsc sorts the slice in ascending order.
-func SortAsc[T cmp.Ordered](slice []T) []T {
+func SortAsc[T lxconstraints.Ordered](slice []T) []T {
 	return SortBy(slice, func(a, b T) bool { return a < b })
 }
 
 // SortDesc sorts the slice in descending order.
-func SortDesc[T cmp.Ordered](slice []T) []T {
+func SortDesc[T lxconstraints.Ordered](slice []T) []T {
 	return SortBy(slice, func(a, b T) bool { return a > b })
 }
