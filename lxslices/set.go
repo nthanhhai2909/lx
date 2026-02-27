@@ -35,7 +35,59 @@ func Difference[T comparable](slice1, slice2 []T) []T {
 	return result
 }
 
-// Intersection TODO: implement
+// Intersection returns a new slice containing elements that appear in both slice1 and slice2.
+// The order of elements from slice1 is preserved. Each occurrence in slice1 is kept if it
+// exists in slice2 (i.e., duplicates in slice1 are preserved when the value exists in slice2).
 func Intersection[T comparable](slice1, slice2 []T) []T {
-	return nil
+	if len(slice1) == 0 || len(slice2) == 0 {
+		return nil
+	}
+	m := make(map[T]struct{}, len(slice2))
+	for _, e := range slice2 {
+		m[e] = struct{}{}
+	}
+	var result []T
+	for _, e := range slice1 {
+		if _, found := m[e]; found {
+			result = append(result, e)
+		}
+	}
+	return result
+}
+
+// Union returns a new slice containing the union of elements from slice1 and slice2.
+// The order of the elements in the returned slice is such that elements from slice1
+// come first, followed by elements from slice2 that were not in slice1.
+// This function does not modify the original slices.
+func Union[T comparable](slice1, slice2 []T) []T {
+	// if both nil, return nil
+	if slice1 == nil && slice2 == nil {
+		return nil
+	}
+	seen := make(map[T]struct{})
+	var result []T
+	// append unique elements from slice1 (preserve order)
+	for _, e := range slice1 {
+		if _, ok := seen[e]; !ok {
+			seen[e] = struct{}{}
+			result = append(result, e)
+		}
+	}
+	// append elements from slice2 that haven't been seen
+	for _, e := range slice2 {
+		if _, ok := seen[e]; !ok {
+			seen[e] = struct{}{}
+			result = append(result, e)
+		}
+	}
+	// if result is empty but one of inputs was a non-nil empty slice, return empty slice
+	if len(result) == 0 {
+		// if either input is a non-nil empty slice, return empty slice (not nil)
+		if (slice1 != nil && len(slice1) == 0) || (slice2 != nil && len(slice2) == 0) {
+			return []T{}
+		}
+		// otherwise both were nil or had no unique elements; returning nil is fine
+		return nil
+	}
+	return result
 }

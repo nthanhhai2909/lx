@@ -358,3 +358,349 @@ func TestDifference_Struct(t *testing.T) {
 		})
 	}
 }
+
+func TestIntersection_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		s1       []int
+		s2       []int
+		expected []int
+	}{
+		{
+			name:     "basic intersection",
+			s1:       []int{1, 2, 3, 4},
+			s2:       []int{2, 4},
+			expected: []int{2, 4},
+		},
+		{
+			name:     "no overlap",
+			s1:       []int{1, 2},
+			s2:       []int{3, 4},
+			expected: nil,
+		},
+		{
+			name:     "duplicates preserved",
+			s1:       []int{1, 2, 2, 3},
+			s2:       []int{2},
+			expected: []int{2, 2},
+		},
+		{
+			name:     "empty s1",
+			s1:       []int{},
+			s2:       []int{1},
+			expected: nil,
+		},
+		{
+			name:     "nil s1",
+			s1:       nil,
+			s2:       []int{1},
+			expected: nil,
+		},
+		{
+			name:     "empty s2",
+			s1:       []int{1, 2},
+			s2:       []int{},
+			expected: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Intersection(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Intersection() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Intersection() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
+
+func TestIntersection_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		s1       []string
+		s2       []string
+		expected []string
+	}{
+		{
+			name:     "basic intersection",
+			s1:       []string{"a", "b", "c"},
+			s2:       []string{"b"},
+			expected: []string{"b"},
+		},
+		{
+			name:     "no overlap",
+			s1:       []string{"a"},
+			s2:       []string{"b"},
+			expected: nil,
+		},
+		{
+			name:     "duplicates preserved",
+			s1:       []string{"a", "b", "b", "c"},
+			s2:       []string{"b"},
+			expected: []string{"b", "b"},
+		},
+		{
+			name:     "empty s1",
+			s1:       []string{},
+			s2:       []string{"a"},
+			expected: nil,
+		},
+		{
+			name:     "nil s1",
+			s1:       nil,
+			s2:       []string{"a"},
+			expected: nil,
+		},
+		{
+			name:     "empty s2",
+			s1:       []string{"a", "b"},
+			s2:       []string{},
+			expected: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Intersection(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Intersection() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Intersection() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
+
+func TestIntersection_Struct(t *testing.T) {
+	type Item struct {
+		ID   int
+		Name string
+	}
+
+	tests := []struct {
+		name     string
+		s1       []Item
+		s2       []Item
+		expected []Item
+	}{
+		{
+			name:     "basic intersection",
+			s1:       []Item{{1, "a"}, {2, "b"}, {3, "c"}},
+			s2:       []Item{{2, "b"}},
+			expected: []Item{{2, "b"}},
+		},
+		{
+			name:     "no overlap",
+			s1:       []Item{{1, "a"}},
+			s2:       []Item{{2, "b"}},
+			expected: nil,
+		},
+		{
+			name:     "duplicates preserved",
+			s1:       []Item{{1, "a"}, {2, "b"}, {2, "b"}},
+			s2:       []Item{{2, "b"}},
+			expected: []Item{{2, "b"}, {2, "b"}},
+		},
+		{
+			name:     "empty s1",
+			s1:       []Item{},
+			s2:       []Item{{1, "a"}},
+			expected: nil,
+		},
+		{
+			name:     "nil s1",
+			s1:       nil,
+			s2:       []Item{{1, "a"}},
+			expected: nil,
+		},
+		{
+			name:     "empty s2",
+			s1:       []Item{{1, "a"}},
+			s2:       []Item{},
+			expected: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Intersection(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Intersection() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Intersection() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
+
+func TestUnion_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		s1       []int
+		s2       []int
+		expected []int
+	}{
+		{
+			name:     "basic union",
+			s1:       []int{1, 2},
+			s2:       []int{2, 3},
+			expected: []int{1, 2, 3},
+		},
+		{
+			name:     "no overlap",
+			s1:       []int{1},
+			s2:       []int{2},
+			expected: []int{1, 2},
+		},
+		{
+			name:     "s2 subset of s1",
+			s1:       []int{1, 2, 3},
+			s2:       []int{2},
+			expected: []int{1, 2, 3},
+		},
+		{
+			name:     "empty s1",
+			s1:       []int{},
+			s2:       []int{1, 2},
+			expected: []int{1, 2},
+		},
+		{
+			name:     "nil s1",
+			s1:       nil,
+			s2:       []int{1, 2},
+			expected: []int{1, 2},
+		},
+		{
+			name:     "both nil",
+			s1:       nil,
+			s2:       nil,
+			expected: nil,
+		},
+		{
+			name:     "both empty",
+			s1:       []int{},
+			s2:       []int{},
+			expected: []int{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Union(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Union() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Union() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
+
+func TestUnion_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		s1       []string
+		s2       []string
+		expected []string
+	}{
+		{
+			name:     "basic union",
+			s1:       []string{"a", "b"},
+			s2:       []string{"b", "c"},
+			expected: []string{"a", "b", "c"},
+		},
+		{
+			name:     "no overlap",
+			s1:       []string{"a"},
+			s2:       []string{"b"},
+			expected: []string{"a", "b"},
+		},
+		{
+			name:     "empty s1",
+			s1:       []string{},
+			s2:       []string{"a", "b"},
+			expected: []string{"a", "b"},
+		},
+		{
+			name:     "both empty",
+			s1:       []string{},
+			s2:       []string{},
+			expected: []string{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Union(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Union() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Union() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
+
+func TestUnion_Struct(t *testing.T) {
+	type Item struct {
+		ID   int
+		Name string
+	}
+
+	tests := []struct {
+		name     string
+		s1       []Item
+		s2       []Item
+		expected []Item
+	}{
+		{
+			name:     "basic union",
+			s1:       []Item{{1, "a"}},
+			s2:       []Item{{1, "a"}, {2, "b"}},
+			expected: []Item{{1, "a"}, {2, "b"}},
+		},
+		{
+			name:     "no overlap",
+			s1:       []Item{{1, "a"}},
+			s2:       []Item{{2, "b"}},
+			expected: []Item{{1, "a"}, {2, "b"}},
+		},
+		{
+			name:     "both empty",
+			s1:       []Item{},
+			s2:       []Item{},
+			expected: []Item{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Union(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Union() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Union() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
