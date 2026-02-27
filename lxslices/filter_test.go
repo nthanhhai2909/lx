@@ -287,6 +287,269 @@ func TestFind_Struct(t *testing.T) {
 	}
 }
 
+func TestFindLast_Int(t *testing.T) {
+	tests := []struct {
+		name      string
+		slice     []int
+		predicate func(int) bool
+		expected  struct {
+			value int
+			found bool
+		}
+	}{
+		{
+			name:      "find at beginning",
+			slice:     []int{1, 2, 3},
+			predicate: func(v int) bool { return v == 1 },
+			expected: struct {
+				value int
+				found bool
+			}{1, true},
+		},
+		{
+			name:      "find in the middle",
+			slice:     []int{1, 2, 3},
+			predicate: func(v int) bool { return v == 2 },
+			expected: struct {
+				value int
+				found bool
+			}{2, true},
+		},
+		{
+			name:  "find at the end",
+			slice: []int{1, 2, 3},
+			predicate: func(v int) bool {
+				return v == 3
+			},
+			expected: struct {
+				value int
+				found bool
+			}{3, true},
+		},
+		{
+			name:      "last even number",
+			slice:     []int{1, 2, 3, 4, 6},
+			predicate: func(v int) bool { return v%2 == 0 },
+			expected: struct {
+				value int
+				found bool
+			}{6, true},
+		},
+		{
+			name:      "no match",
+			slice:     []int{1, 2, 3},
+			predicate: func(v int) bool { return v == 4 },
+			expected: struct {
+				value int
+				found bool
+			}{0, false},
+		},
+		{
+			name:      "empty slice",
+			slice:     []int{},
+			predicate: func(v int) bool { return v == 0 },
+			expected: struct {
+				value int
+				found bool
+			}{0, false},
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(v int) bool { return v == 0 },
+			expected: struct {
+				value int
+				found bool
+			}{0, false},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, found := lxslices.FindLast(tt.slice, tt.predicate)
+			if value != tt.expected.value || found != tt.expected.found {
+				t.Errorf("FindLast() = (%v, %v); want (%v, %v)", value, found, tt.expected.value, tt.expected.found)
+			}
+		})
+	}
+}
+
+func TestFindLast_String(t *testing.T) {
+	tests := []struct {
+		name      string
+		slice     []string
+		predicate func(string) bool
+		expected  struct {
+			value string
+			found bool
+		}
+	}{
+		{
+			name:  "find at beginning",
+			slice: []string{"a", "b", "c"},
+			predicate: func(s string) bool {
+				return s == "a"
+			},
+			expected: struct {
+				value string
+				found bool
+			}{"a", true},
+		},
+		{
+			name:  "find in the middle",
+			slice: []string{"a", "b", "c"},
+			predicate: func(s string) bool {
+				return s == "b"
+			},
+			expected: struct {
+				value string
+				found bool
+			}{"b", true},
+		},
+		{
+			name:  "find at the end",
+			slice: []string{"a", "b", "c"},
+			predicate: func(s string) bool {
+				return s == "c"
+			},
+			expected: struct {
+				value string
+				found bool
+			}{"c", true},
+		},
+		{
+			name:      "multiple matches return last",
+			slice:     []string{"apple", "banana", "apricot", "avocado"},
+			predicate: func(s string) bool { return strings.HasPrefix(s, "a") },
+			expected: struct {
+				value string
+				found bool
+			}{"avocado", true},
+		},
+		{
+			name:      "not found",
+			slice:     []string{"a", "b", "c"},
+			predicate: func(s string) bool { return s == "d" },
+			expected: struct {
+				value string
+				found bool
+			}{"", false},
+		},
+		{
+			name:      "empty slice",
+			slice:     []string{},
+			predicate: func(s string) bool { return s == "a" },
+			expected: struct {
+				value string
+				found bool
+			}{"", false},
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(s string) bool { return s == "a" },
+			expected: struct {
+				value string
+				found bool
+			}{"", false},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, found := lxslices.FindLast(tt.slice, tt.predicate)
+			if value != tt.expected.value || found != tt.expected.found {
+				t.Errorf("FindLast() = (%v, %v); want (%v, %v)", value, found, tt.expected.value, tt.expected.found)
+			}
+		})
+	}
+}
+
+func TestFindLast_Struct(t *testing.T) {
+	type User struct {
+		ID     int
+		Name   string
+		Active bool
+	}
+	tests := []struct {
+		name      string
+		slice     []User
+		predicate func(User) bool
+		expected  struct {
+			value User
+			found bool
+		}
+	}{
+		{
+			name: "last active user",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", false},
+				{3, "Charlie", true},
+			},
+			predicate: func(u User) bool { return u.Active },
+			expected: struct {
+				value User
+				found bool
+			}{User{3, "Charlie", true}, true},
+		},
+		{
+			name: "last user with name starting with 'A'",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", false},
+				{3, "Andrew", true},
+				{4, "Alice", true},
+			},
+			predicate: func(u User) bool { return strings.HasPrefix(u.Name, "A") },
+			expected: struct {
+				value User
+				found bool
+			}{User{4, "Alice", true}, true},
+		},
+		{
+			name: "not found user by id",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", false},
+				{3, "Charlie", true},
+			},
+			predicate: func(u User) bool { return u.ID == 4 },
+			expected: struct {
+				value User
+				found bool
+			}{User{}, false},
+		},
+		{
+			name:      "empty slice",
+			slice:     []User{},
+			predicate: func(u User) bool { return u.Active },
+			expected: struct {
+				value User
+				found bool
+			}{User{}, false},
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(u User) bool { return u.Active },
+			expected: struct {
+				value User
+				found bool
+			}{User{}, false},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, found := lxslices.FindLast(tt.slice, tt.predicate)
+			if value != tt.expected.value || found != tt.expected.found {
+				t.Errorf("FindLast() = (%v, %v); want (%v, %v)", value, found, tt.expected.value, tt.expected.found)
+			}
+		})
+	}
+}
+
 func TestFilter_Int(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -495,18 +758,6 @@ func TestFilter_Struct(t *testing.T) {
 			},
 			predicate: func(u User) bool { return !u.Active },
 			expected:  []User{},
-		},
-		{
-			name: "all match",
-			slice: []User{
-				{1, "Alice", true},
-				{2, "Bob", true},
-			},
-			predicate: func(u User) bool { return u.Active },
-			expected: []User{
-				{1, "Alice", true},
-				{2, "Bob", true},
-			},
 		},
 		{
 			name:      "empty slice",
@@ -950,6 +1201,203 @@ func TestNone_Int(t *testing.T) {
 			result := lxslices.None(tt.slice, tt.predicate)
 			if result != tt.expected {
 				t.Errorf("None() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCount_Int(t *testing.T) {
+	tests := []struct {
+		name      string
+		slice     []int
+		predicate func(int) bool
+		expected  int
+	}{
+		{
+			name:      "count even numbers",
+			slice:     []int{1, 2, 3, 4, 5, 6},
+			predicate: func(v int) bool { return v%2 == 0 },
+			expected:  3,
+		},
+		{
+			name:      "count odd numbers",
+			slice:     []int{1, 2, 3, 4, 5, 6},
+			predicate: func(v int) bool { return v%2 != 0 },
+			expected:  3,
+		},
+		{
+			name:      "no matches",
+			slice:     []int{1, 2, 3},
+			predicate: func(v int) bool { return v > 10 },
+			expected:  0,
+		},
+		{
+			name:      "all match",
+			slice:     []int{2, 4, 6},
+			predicate: func(v int) bool { return v%2 == 0 },
+			expected:  3,
+		},
+		{
+			name:      "empty slice",
+			slice:     []int{},
+			predicate: func(v int) bool { return v > 0 },
+			expected:  0,
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(v int) bool { return v > 0 },
+			expected:  0,
+		},
+		{
+			name:      "predicate always true",
+			slice:     []int{1, 2, 3},
+			predicate: func(v int) bool { return true },
+			expected:  3,
+		},
+		{
+			name:      "predicate always false",
+			slice:     []int{1, 2, 3},
+			predicate: func(v int) bool { return false },
+			expected:  0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Count(tt.slice, tt.predicate)
+			if result != tt.expected {
+				t.Errorf("Count() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCount_String(t *testing.T) {
+	tests := []struct {
+		name      string
+		slice     []string
+		predicate func(string) bool
+		expected  int
+	}{
+		{
+			name:      "count strings starting with 'a'",
+			slice:     []string{"apple", "banana", "apricot", "avocado"},
+			predicate: func(s string) bool { return strings.HasPrefix(s, "a") },
+			expected:  3,
+		},
+		{
+			name:      "count strings longer than 5",
+			slice:     []string{"cat", "dog", "elephant", "bird"},
+			predicate: func(s string) bool { return len(s) > 5 },
+			expected:  1,
+		},
+		{
+			name:      "count uppercase strings",
+			slice:     []string{"HELLO", "world", "GO", "lang"},
+			predicate: func(s string) bool { return s == strings.ToUpper(s) },
+			expected:  2,
+		},
+		{
+			name:      "no matches",
+			slice:     []string{"a", "b", "c"},
+			predicate: func(s string) bool { return len(s) > 5 },
+			expected:  0,
+		},
+		{
+			name:      "empty slice",
+			slice:     []string{},
+			predicate: func(s string) bool { return true },
+			expected:  0,
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(s string) bool { return true },
+			expected:  0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Count(tt.slice, tt.predicate)
+			if result != tt.expected {
+				t.Errorf("Count() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCount_Struct(t *testing.T) {
+	type User struct {
+		ID     int
+		Name   string
+		Active bool
+	}
+	tests := []struct {
+		name      string
+		slice     []User
+		predicate func(User) bool
+		expected  int
+	}{
+		{
+			name: "count active users",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", false},
+				{3, "Charlie", true},
+			},
+			predicate: func(u User) bool { return u.Active },
+			expected:  2,
+		},
+		{
+			name: "count users with ID greater than 1",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", false},
+				{3, "Charlie", true},
+			},
+			predicate: func(u User) bool { return u.ID > 1 },
+			expected:  2,
+		},
+		{
+			name: "count users with name starting with 'A'",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", false},
+				{3, "Andrew", true},
+			},
+			predicate: func(u User) bool { return strings.HasPrefix(u.Name, "A") },
+			expected:  2,
+		},
+		{
+			name: "no matches",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", true},
+			},
+			predicate: func(u User) bool { return !u.Active },
+			expected:  0,
+		},
+		{
+			name:      "empty slice",
+			slice:     []User{},
+			predicate: func(u User) bool { return u.Active },
+			expected:  0,
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(u User) bool { return u.Active },
+			expected:  0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Count(tt.slice, tt.predicate)
+			if result != tt.expected {
+				t.Errorf("Count() = %v; want %v", result, tt.expected)
 			}
 		})
 	}

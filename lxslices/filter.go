@@ -12,6 +12,18 @@ func Find[T any](slice []T, predicate func(T) bool) (T, bool) {
 	return zero, false
 }
 
+// FindLast returns the last element that satisfies the predicate.
+// It returns the element and true if found, otherwise it returns the zero value of T and false.
+func FindLast[T any](slice []T, predicate func(T) bool) (T, bool) {
+	for i := len(slice) - 1; i >= 0; i-- {
+		if predicate(slice[i]) {
+			return slice[i], true
+		}
+	}
+	var zero T
+	return zero, false
+}
+
 // Filter returns a new slice containing only the elements of the original slice that satisfy the predicate.
 // The order of the elements in the returned slice is the same as in the original slice.
 func Filter[T any](slice []T, predicate func(T) bool) []T {
@@ -50,4 +62,15 @@ func All[T any](slice []T, predicate func(T) bool) bool {
 // It is equivalent to the none() function in Python.
 func None[T any](slice []T, predicate func(T) bool) bool {
 	return !Any(slice, predicate)
+}
+
+// Count returns the number of elements in the slice that satisfy the predicate.
+func Count[T any](slice []T, predicate func(T) bool) int {
+	count := 0
+	for _, e := range slice {
+		if predicate(e) {
+			count++
+		}
+	}
+	return count
 }
