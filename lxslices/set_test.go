@@ -185,3 +185,176 @@ func TestUnique_Struct(t *testing.T) {
 		})
 	}
 }
+
+func TestDifference_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		s1       []int
+		s2       []int
+		expected []int
+	}{
+		{
+			name:     "basic difference",
+			s1:       []int{1, 2, 3, 4},
+			s2:       []int{2, 4},
+			expected: []int{1, 3},
+		},
+		{
+			name:     "no overlap",
+			s1:       []int{1, 2},
+			s2:       []int{3, 4},
+			expected: []int{1, 2},
+		},
+		{
+			name:     "all removed",
+			s1:       []int{1, 2},
+			s2:       []int{1, 2},
+			expected: nil,
+		},
+		{
+			name:     "duplicates preserved",
+			s1:       []int{1, 2, 2, 3},
+			s2:       []int{4},
+			expected: []int{1, 2, 2, 3},
+		},
+		{
+			name:     "empty s1",
+			s1:       []int{},
+			s2:       []int{1},
+			expected: nil,
+		},
+		{
+			name:     "nil s1",
+			s1:       nil,
+			s2:       []int{1},
+			expected: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Difference(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Difference() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Difference() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
+
+func TestDifference_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		s1       []string
+		s2       []string
+		expected []string
+	}{
+		{
+			name:     "basic difference",
+			s1:       []string{"a", "b", "c"},
+			s2:       []string{"b"},
+			expected: []string{"a", "c"},
+		},
+		{
+			name:     "no overlap",
+			s1:       []string{"a"},
+			s2:       []string{"b"},
+			expected: []string{"a"},
+		},
+		{
+			name:     "all removed",
+			s1:       []string{"a"},
+			s2:       []string{"a"},
+			expected: nil,
+		},
+		{
+			name:     "empty s1",
+			s1:       []string{},
+			s2:       []string{"a"},
+			expected: nil,
+		},
+		{
+			name:     "nil s1",
+			s1:       nil,
+			s2:       []string{"a"},
+			expected: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Difference(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Difference() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Difference() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
+
+func TestDifference_Struct(t *testing.T) {
+	type Item struct {
+		ID   int
+		Name string
+	}
+
+	tests := []struct {
+		name     string
+		s1       []Item
+		s2       []Item
+		expected []Item
+	}{
+		{
+			name:     "basic difference",
+			s1:       []Item{{1, "a"}, {2, "b"}, {3, "c"}},
+			s2:       []Item{{2, "b"}},
+			expected: []Item{{1, "a"}, {3, "c"}},
+		},
+		{
+			name:     "no overlap",
+			s1:       []Item{{1, "a"}},
+			s2:       []Item{{2, "b"}},
+			expected: []Item{{1, "a"}},
+		},
+		{
+			name:     "all removed",
+			s1:       []Item{{1, "a"}},
+			s2:       []Item{{1, "a"}},
+			expected: nil,
+		},
+		{
+			name:     "empty s1",
+			s1:       []Item{},
+			s2:       []Item{{1, "a"}},
+			expected: nil,
+		},
+		{
+			name:     "nil s1",
+			s1:       nil,
+			s2:       []Item{{1, "a"}},
+			expected: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Difference(tt.s1, tt.s2)
+			if len(result) != len(tt.expected) {
+				t.Errorf("Difference() length = %v; want %v", len(result), len(tt.expected))
+				return
+			}
+			for i := range result {
+				if result[i] != tt.expected[i] {
+					t.Errorf("Difference() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
