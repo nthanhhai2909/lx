@@ -693,3 +693,78 @@ func TestMax_Float64(t *testing.T) {
 		})
 	}
 }
+
+func TestAverage_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		expected struct {
+			value float64
+			found bool
+		}
+	}{
+		{name: "average of ints", slice: []int{1, 2, 3, 4}, expected: struct {
+			value float64
+			found bool
+		}{2.5, true}},
+		{name: "single element", slice: []int{5}, expected: struct {
+			value float64
+			found bool
+		}{5.0, true}},
+		{name: "negatives", slice: []int{-1, -2, -3}, expected: struct {
+			value float64
+			found bool
+		}{-2.0, true}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v, ok := lxslices.Average(tt.slice)
+			if v != tt.expected.value || ok != tt.expected.found {
+				t.Errorf("Average() = (%v, %v); want (%v, %v)", v, ok, tt.expected.value, tt.expected.found)
+			}
+		})
+	}
+}
+
+func TestAverage_Float64(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []float64
+		expected struct {
+			value float64
+			found bool
+		}
+	}{
+		{name: "average floats", slice: []float64{1.5, 2.5, 3.0}, expected: struct {
+			value float64
+			found bool
+		}{7.0 / 3.0, true}},
+		{name: "single float", slice: []float64{2.2}, expected: struct {
+			value float64
+			found bool
+		}{2.2, true}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v, ok := lxslices.Average(tt.slice)
+			if v != tt.expected.value || ok != tt.expected.found {
+				t.Errorf("Average() = (%v, %v); want (%v, %v)", v, ok, tt.expected.value, tt.expected.found)
+			}
+		})
+	}
+}
+
+func TestAverage_Empty(t *testing.T) {
+	// empty and nil slices should return (0, false)
+	if v, ok := lxslices.Average([]int{}); ok || v != 0 {
+		t.Errorf("Average(empty int) = (%v, %v); want (0, false)", v, ok)
+	}
+	if v, ok := lxslices.Average([]float64{}); ok || v != 0 {
+		t.Errorf("Average(empty float64) = (%v, %v); want (0, false)", v, ok)
+	}
+	if v, ok := lxslices.Average([]int(nil)); ok || v != 0 {
+		t.Errorf("Average(nil int) = (%v, %v); want (0, false)", v, ok)
+	}
+}

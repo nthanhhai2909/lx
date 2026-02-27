@@ -50,3 +50,16 @@ func Max[T lxconstraints.Ordered](slice []T) (T, bool) {
 	}
 	return res, true
 }
+
+// Average returns the arithmetic mean of the slice as a float64 and a boolean
+// indicating whether a value was found. For an empty slice it returns 0 and false.
+func Average[T lxconstraints.Number](slice []T) (float64, bool) {
+	if len(slice) == 0 {
+		return 0, false
+	}
+	var total float64
+	for _, v := range slice {
+		total += float64(v)
+	}
+	return total / float64(len(slice)), true
+}
