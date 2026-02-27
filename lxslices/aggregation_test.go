@@ -1,6 +1,7 @@
 package lxslices_test
 
 import (
+	"math"
 	"strings"
 	"testing"
 
@@ -269,6 +270,425 @@ func TestReduce_StructAggregation(t *testing.T) {
 			result := lxslices.Reduce(tt.slice, tt.fn, tt.initial)
 			if result != tt.expected {
 				t.Errorf("Reduce() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestSum_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		expected int
+	}{
+		{
+			name:     "sum of positives",
+			slice:    []int{1, 2, 3, 4, 5},
+			expected: 15,
+		},
+		{
+			name:     "single element",
+			slice:    []int{42},
+			expected: 42,
+		},
+		{
+			name:     "includes negatives",
+			slice:    []int{-1, 2, -3, 4},
+			expected: 2,
+		},
+		{
+			name:     "empty slice",
+			slice:    []int{},
+			expected: 0,
+		},
+		{
+			name:     "nil slice",
+			slice:    nil,
+			expected: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Sum(tt.slice)
+			if result != tt.expected {
+				t.Errorf("Sum() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestSum_Float64(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []float64
+		expected float64
+	}{
+		{
+			name:     "sum of floats",
+			slice:    []float64{1.5, 2.5, 3.0},
+			expected: 7.0,
+		},
+		{
+			name:     "single element",
+			slice:    []float64{3.14},
+			expected: 3.14,
+		},
+		{
+			name:     "empty slice",
+			slice:    []float64{},
+			expected: 0.0,
+		},
+		{
+			name:     "nil slice",
+			slice:    nil,
+			expected: 0.0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Sum(tt.slice)
+			if result != tt.expected {
+				t.Errorf("Sum() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestMin_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		expected struct {
+			value int
+			found bool
+		}
+	}{
+		{
+			name:  "min at beginning",
+			slice: []int{1, 2, 3},
+			expected: struct {
+				value int
+				found bool
+			}{1, true},
+		},
+		{
+			name:  "min in middle",
+			slice: []int{3, 1, 2},
+			expected: struct {
+				value int
+				found bool
+			}{1, true},
+		},
+		{
+			name:  "min at end",
+			slice: []int{3, 2, 1},
+			expected: struct {
+				value int
+				found bool
+			}{1, true},
+		},
+		{
+			name:  "duplicate minima returns first value",
+			slice: []int{2, 1, 1, 3},
+			expected: struct {
+				value int
+				found bool
+			}{1, true},
+		},
+		{
+			name:  "empty slice",
+			slice: []int{},
+			expected: struct {
+				value int
+				found bool
+			}{0, false},
+		},
+		{
+			name:  "nil slice",
+			slice: nil,
+			expected: struct {
+				value int
+				found bool
+			}{0, false},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, found := lxslices.Min(tt.slice)
+			if value != tt.expected.value || found != tt.expected.found {
+				t.Errorf("Min() = (%v, %v); want (%v, %v)", value, found, tt.expected.value, tt.expected.found)
+			}
+		})
+	}
+}
+
+func TestMin_Float64(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []float64
+		expected struct {
+			value float64
+			found bool
+		}
+	}{
+		{
+			name:  "min at beginning",
+			slice: []float64{1.0, 2.0, 3.0},
+			expected: struct {
+				value float64
+				found bool
+			}{1.0, true},
+		},
+		{
+			name:  "min in middle",
+			slice: []float64{3.0, 1.0, 2.0},
+			expected: struct {
+				value float64
+				found bool
+			}{1.0, true},
+		},
+		{
+			name:  "min at end",
+			slice: []float64{3.0, 2.0, 1.0},
+			expected: struct {
+				value float64
+				found bool
+			}{1.0, true},
+		},
+		{
+			name:  "duplicate minima returns first value",
+			slice: []float64{2.0, 1.0, 1.0, 3.0},
+			expected: struct {
+				value float64
+				found bool
+			}{1.0, true},
+		},
+		{
+			name:  "empty slice",
+			slice: []float64{},
+			expected: struct {
+				value float64
+				found bool
+			}{0.0, false},
+		},
+		{
+			name:  "nil slice",
+			slice: nil,
+			expected: struct {
+				value float64
+				found bool
+			}{0.0, false},
+		},
+		{
+			name:  "NaN first returns NaN",
+			slice: []float64{math.NaN(), 1.0, 2.0},
+			expected: struct {
+				value float64
+				found bool
+			}{math.NaN(), true},
+		},
+		{
+			name:  "NaN later ignored",
+			slice: []float64{1.0, math.NaN(), 2.0},
+			expected: struct {
+				value float64
+				found bool
+			}{1.0, true},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, found := lxslices.Min(tt.slice)
+			if tt.expected.found {
+				if math.IsNaN(tt.expected.value) {
+					if !found {
+						t.Fatalf("Min() found=false; want true")
+					}
+					if !math.IsNaN(value) {
+						t.Errorf("Min() value = %v; want NaN", value)
+					}
+				} else {
+					if value != tt.expected.value || found != tt.expected.found {
+						t.Errorf("Min() = (%v, %v); want (%v, %v)", value, found, tt.expected.value, tt.expected.found)
+					}
+				}
+			} else {
+				if found {
+					t.Errorf("Min() found=true; want false for empty/nil slice")
+				}
+			}
+		})
+	}
+}
+
+func TestMax_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		expected struct {
+			value int
+			found bool
+		}
+	}{
+		{
+			name:  "max at beginning",
+			slice: []int{3, 2, 1},
+			expected: struct {
+				value int
+				found bool
+			}{3, true},
+		},
+		{
+			name:  "max in middle",
+			slice: []int{1, 3, 2},
+			expected: struct {
+				value int
+				found bool
+			}{3, true},
+		},
+		{
+			name:  "max at end",
+			slice: []int{1, 2, 5},
+			expected: struct {
+				value int
+				found bool
+			}{5, true},
+		},
+		{
+			name:  "duplicate maxima returns first value",
+			slice: []int{5, 3, 5, 2},
+			expected: struct {
+				value int
+				found bool
+			}{5, true},
+		},
+		{
+			name:  "empty slice",
+			slice: []int{},
+			expected: struct {
+				value int
+				found bool
+			}{0, false},
+		},
+		{
+			name:  "nil slice",
+			slice: nil,
+			expected: struct {
+				value int
+				found bool
+			}{0, false},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, found := lxslices.Max(tt.slice)
+			if value != tt.expected.value || found != tt.expected.found {
+				t.Errorf("Max() = (%v, %v); want (%v, %v)", value, found, tt.expected.value, tt.expected.found)
+			}
+		})
+	}
+}
+
+func TestMax_Float64(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []float64
+		expected struct {
+			value float64
+			found bool
+		}
+	}{
+		{
+			name:  "max at beginning",
+			slice: []float64{3.0, 2.0, 1.0},
+			expected: struct {
+				value float64
+				found bool
+			}{3.0, true},
+		},
+		{
+			name:  "max in middle",
+			slice: []float64{1.0, 3.0, 2.0},
+			expected: struct {
+				value float64
+				found bool
+			}{3.0, true},
+		},
+		{
+			name:  "max at end",
+			slice: []float64{1.0, 2.0, 5.0},
+			expected: struct {
+				value float64
+				found bool
+			}{5.0, true},
+		},
+		{
+			name:  "duplicate maxima returns first value",
+			slice: []float64{5.0, 3.0, 5.0, 2.0},
+			expected: struct {
+				value float64
+				found bool
+			}{5.0, true},
+		},
+		{
+			name:  "empty slice",
+			slice: []float64{},
+			expected: struct {
+				value float64
+				found bool
+			}{0.0, false},
+		},
+		{
+			name:  "nil slice",
+			slice: nil,
+			expected: struct {
+				value float64
+				found bool
+			}{0.0, false},
+		},
+		{
+			name:  "NaN first returns NaN",
+			slice: []float64{math.NaN(), 1.0, 2.0},
+			expected: struct {
+				value float64
+				found bool
+			}{math.NaN(), true},
+		},
+		{
+			name:  "NaN later ignored",
+			slice: []float64{1.0, math.NaN(), 2.0},
+			expected: struct {
+				value float64
+				found bool
+			}{2.0, true},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			value, found := lxslices.Max(tt.slice)
+			if tt.expected.found {
+				if math.IsNaN(tt.expected.value) {
+					if !found {
+						t.Fatalf("Max() found=false; want true")
+					}
+					if !math.IsNaN(value) {
+						t.Errorf("Max() value = %v; want NaN", value)
+					}
+				} else {
+					if value != tt.expected.value || found != tt.expected.found {
+						t.Errorf("Max() = (%v, %v); want (%v, %v)", value, found, tt.expected.value, tt.expected.found)
+					}
+				}
+			} else {
+				if found {
+					t.Errorf("Max() found=true; want false for empty/nil slice")
+				}
 			}
 		})
 	}

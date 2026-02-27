@@ -619,19 +619,19 @@ func StartWithAnyIgnoreCase(str string, prefixes ...string) bool {
 	return false
 }
 
-// EndBy checks if the string ends with the specified suffix.
+// EndWith checks if the string ends with the specified suffix.
 func EndWith(str, suffix string) bool {
 	return strings.HasSuffix(str, suffix)
 }
 
-// EndByIgnoreCase checks if the string ends with the specified suffix, ignoring case.
+// EndWithIgnoreCase checks if the string ends with the specified suffix, ignoring case.
 func EndWithIgnoreCase(str, suffix string) bool {
 	sLower := LowerCase(str)
 	suffixLower := LowerCase(suffix)
 	return strings.HasSuffix(sLower, suffixLower)
 }
 
-// EndByAny checks if the string ends with any of the specified suffixes.
+// EndWithAny checks if the string ends with any of the specified suffixes.
 func EndWithAny(str string, suffixes ...string) bool {
 	for _, suffix := range suffixes {
 		if strings.HasSuffix(str, suffix) {
@@ -641,7 +641,7 @@ func EndWithAny(str string, suffixes ...string) bool {
 	return false
 }
 
-// EndByAnyIgnoreCase checks if the string ends with any of the specified suffixes, ignoring case.
+// EndWithAnyIgnoreCase checks if the string ends with any of the specified suffixes, ignoring case.
 func EndWithAnyIgnoreCase(str string, suffixes ...string) bool {
 	sLower := LowerCase(str)
 	for _, suffix := range suffixes {

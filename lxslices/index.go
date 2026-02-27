@@ -1,5 +1,7 @@
 package lxslices
 
+import "github.com/nthanhhai2909/lx/lxconstraints"
+
 // Index returns the index of the first instance of elem in slice, or -1 if elem is not present in slice.
 func Index[T comparable](slice []T, elem T) int {
 	for i, e := range slice {
@@ -38,4 +40,32 @@ func LastIndexFunc[T any](slice []T, predicate func(T) bool) int {
 		}
 	}
 	return -1
+}
+
+// MinIndex returns the index of the minimum element in the slice, or -1 if the slice is empty.
+func MinIndex[T lxconstraints.Ordered](slice []T) (int, bool) {
+	if len(slice) == 0 {
+		return -1, false
+	}
+	idx := 0
+	for i := 1; i < len(slice); i++ {
+		if slice[i] < slice[idx] {
+			idx = i
+		}
+	}
+	return idx, true
+}
+
+// MaxIndex returns the index of the maximum element in the slice, or -1 if the slice is empty.
+func MaxIndex[T lxconstraints.Ordered](slice []T) (int, bool) {
+	if len(slice) == 0 {
+		return -1, false
+	}
+	idx := 0
+	for i := 1; i < len(slice); i++ {
+		if slice[i] > slice[idx] {
+			idx = i
+		}
+	}
+	return idx, true
 }
