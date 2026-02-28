@@ -28,11 +28,10 @@ func FlatMap[T, U any](slice []T, fn func(T) []U) []U {
 
 // Reverse returns a new slice with the elements in reverse order.
 func Reverse[T any](slice []T) []T {
-	result := make([]T, len(slice))
-	for i, e := range slice {
-		result[len(slice)-1-i] = e
+	for i, j := 0, len(slice)-1; i < j; i, j = i+1, j-1 {
+		slice[i], slice[j] = slice[j], slice[i]
 	}
-	return result
+	return slice
 }
 
 // GroupBy groups the elements of the slice by the given function.

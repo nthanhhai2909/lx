@@ -129,3 +129,36 @@ func ReplaceAt[T any](slice []T, index int, new T) []T {
 	res[index] = new
 	return res
 }
+
+// RotateLeft rotates the slice to the left by k positions and returns a new slice.
+// For k <= 0, it rotates to the right by -k positions. For nil input it returns an empty non-nil slice.
+func RotateLeft[T any](slice []T, k int) []T {
+	n := len(slice)
+	if n == 0 || k == 0 {
+		return slice
+	}
+
+	// Normalize k to [0, n)
+	k = k % n
+	if k < 0 {
+		k += n
+	}
+	if k == 0 {
+		return slice
+	}
+
+	// Use the reversal algorithm:
+	// 1. Reverse [0, k)
+	// 2. Reverse [k, n)
+	// 3. Reverse [0, n)
+	Reverse(slice[:k])
+	Reverse(slice[k:])
+	Reverse(slice)
+	return slice
+}
+
+// RotateRight rotates the slice to the right by k positions and returns a new slice.
+// Equivalent to RotateLeft(slice, -k).
+func RotateRight[T any](slice []T, k int) []T {
+	return RotateLeft(slice, -k)
+}

@@ -376,7 +376,7 @@ func TestReverse(t *testing.T) {
 
 	t.Run("nil slice", func(t *testing.T) {
 		var slice []int
-		expected := []int{}
+		var expected []int
 		result := lxslices.Reverse(slice)
 		if len(result) != 0 {
 			t.Errorf("Reverse() = %v; want empty slice", result)
