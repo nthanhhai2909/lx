@@ -22,7 +22,7 @@ We take the security of `lx` seriously. If you believe you have found a security
 
 Please report security vulnerabilities by emailing:
 
-**[INSERT SECURITY EMAIL]**
+**nthanhhai2909@gmail.com**
 
 Include the following information:
 

@@ -776,14 +776,29 @@ Based on your current excellent work, maintain these principles:
 ## 🚀 Quick Start Guide for New Packages
 
 ### 1. **Package Structure Template**
+
+**For small packages:**
 ```
 lxpackagename/
-├── packagename.go        # Main functions
+├── packagename.go        # Main implementation
 ├── packagename_test.go   # Tests
-├── types.go             # Types/structs (if needed)
-├── constants.go         # Constants (if needed)
-├── errors.go            # Package-specific errors
-└── doc.go               # Package documentation
+├── doc.go               # Package documentation (optional)
+├── README.md            # Package-specific docs (optional)
+└── examples_test.go     # Example functions (optional)
+```
+
+**For large packages** (like lxslices):
+```
+lxpackagename/
+├── feature1.go          # Feature group 1 (e.g., aggregation.go)
+├── feature1_test.go     # Tests for feature 1
+├── feature2.go          # Feature group 2 (e.g., filter.go)
+├── feature2_test.go     # Tests for feature 2
+├── errs.go              # Package-specific errors (if needed)
+├── doc.go               # Package documentation (optional)
+├── README.md            # Package-specific docs (optional)
+├── ROADMAP.md           # Future enhancements (optional)
+└── examples_test.go     # Example functions (optional)
 ```
 
 ### 2. **File Header Template**

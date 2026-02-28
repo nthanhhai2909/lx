@@ -1,0 +1,196 @@
+# Cursor Rules for lx Project
+
+**Remember**: Quality over quantity. Every function should be production-ready!
+
+---
+
+```
+}
+    }
+        })
+            // Assert...
+            result := Chunk(tt.input, tt.size)
+        t.Run(tt.name, func(t *testing.T) {
+    for _, tt := range tests {
+
+    }
+        {"zero size", []int{1,2}, 0, [][]int{}},
+        {"nil slice", nil, 2, nil},
+        {"uneven division", []int{1,2,3}, 2, [][]int{{1,2}, {3}}},
+        {"even division", []int{1,2,3,4}, 2, [][]int{{1,2}, {3,4}}},
+    }{
+        expected [][]int
+        size     int
+        input    []int
+        name     string
+    tests := []struct {
+func TestChunk(t *testing.T) {
+```go
+### Example Test
+
+```
+}
+    // Implementation...
+    }
+        return [][]T{}
+    if size <= 0 {
+    }
+        return nil
+    if slice == nil {
+func Chunk[T any](slice []T, size int) [][]T {
+// Returns nil if input is nil, empty slice if size <= 0.
+// The last chunk may be smaller if len(slice) is not divisible by size.
+// Chunk splits slice into chunks of specified size.
+```go
+### Example Function
+
+5. Verify 90%+ coverage
+4. Document with examples
+3. Implement with nil safety
+2. Write tests first (table-driven)
+1. Check similar functions for patterns
+### Adding a Function
+
+## Quick Examples
+
+- lxslices roadmap: `lxslices/ROADMAP.md`
+- Contributing: `CONTRIBUTING.md`
+- Package roadmap: `PACKAGE_ROADMAP.md`
+- Full guidelines: `.github/AI_INSTRUCTIONS.md`
+
+## References
+
+❌ Breaking changes without major version bump
+❌ Reflection or unsafe code
+❌ External dependencies
+❌ Missing or unclear documentation
+❌ Inconsistent naming across packages
+❌ Missing edge case tests (nil, empty, boundary)
+❌ Breaking nil semantics (return []T{} instead of nil)
+
+## What to Avoid
+
+```
+func Max[T lxconstraints.Ordered](slice []T) (T, bool)
+func Sum[T lxconstraints.Number](slice []T) T
+```go
+### Type Constraints
+
+```
+)
+    predicate,
+    lxslices.Map(input, transform),
+result := lxslices.Filter(
+```go
+### Chaining
+
+```
+}
+    // Use value
+if value, found := lxslices.First(slice); found {
+```go
+### Safe Operations
+
+## Common Patterns
+
+```
+test(lxmaps): add edge cases for Merge
+docs: update README examples
+fix(lxstrings): handle nil in IsBlank
+feat(lxslices): add Chunk function for pagination
+```
+Examples:
+
+Format: `<type>(<scope>): <description>`
+
+## Commit Messages
+
+```
+go vet ./...           # Check for issues
+gofmt -w .             # Format code
+go test -cover ./...    # Check coverage
+go test ./...           # All tests pass
+```bash
+
+## Before Committing
+
+- etc.
+- `manipulation.go` - Append, Remove, Insert
+- `filter.go` - Find, Filter, Any, All
+- `aggregation.go` - Reduce, Sum, Min, Max
+For large packages (like lxslices), split by functionality:
+
+```
+└── README.md            # Package-specific docs
+├── doc.go               # Package docs (if needed)
+├── packagename_test.go   # Tests
+├── packagename.go        # Main implementation
+lxpackagename/
+```
+For new packages:
+
+## File Organization
+
+```
+[T lxconstraints.Ordered]       // Supports < and >
+[T lxconstraints.Number]        // Numeric types
+[T comparable]                   // Supports == and !=
+[T any]                          // Any type
+// Use appropriate constraints
+```go
+### Generic Constraints
+
+```
+func FunctionName[T any](input T) T
+//
+//     result := FunctionName(input)
+//
+// Example:
+//
+// Returns nil if input is nil, empty slice if no matches.
+// FunctionName does X and returns Y.
+```go
+### Documentation
+
+- Run: `go test -cover ./...`
+- Aim for 90%+ coverage
+- Test nil, empty, single, multiple cases
+- Use table-driven tests
+### Testing
+
+```
+}
+    return nil
+if slice == nil {
+// Always preserve nil semantics
+```go
+### Nil Handling
+
+```
+func FirstOr[T any](slice []T, defaultValue T) T
+// Provide OrDefault variants
+
+func First[T any](slice []T) (T, bool)
+// Use (value, bool) for potentially failing operations
+```go
+### Return Patterns
+
+- Keep functions small and focused
+- Use descriptive variable names
+- Follow existing naming patterns
+- Use `gofmt` formatting
+### Code Style
+
+## Quick Rules
+
+6. **Nil-Safe**: Always handle nil gracefully
+5. **Well-Tested**: Maintain 90%+ test coverage
+4. **Idiomatic Go**: Follow Go conventions strictly
+3. **Zero Dependencies**: Only use Go standard library
+2. **Generic-First**: Use Go 1.25+ generics for type safety
+1. **Small & Focused**: Each package solves one problem well
+
+## Core Principles
+
+You are an expert Go developer working on the lx project - a high-quality utilities library for Go.
+

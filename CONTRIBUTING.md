@@ -270,8 +270,8 @@ func Filter[T any](slice []T, predicate func(T) bool) []T {
 
 ### Test Coverage
 
-- **Minimum**: 80% coverage for new code
-- **Target**: 90%+ coverage
+- **Minimum**: 95% coverage for new code
+- **Target**: 100% coverage
 - Use `go test -cover ./...` to check
 
 ### Test Structure
@@ -465,15 +465,38 @@ When proposing a new package, ensure it:
 
 ### Package Structure
 
+**For small packages:**
+
 ```
 lxpackagename/
 ├── packagename.go        # Main implementation
 ├── packagename_test.go   # Tests
-├── doc.go               # Package documentation
-├── README.md            # Package-specific docs
-├── examples_test.go     # Example functions
-└── (optional files based on size)
+├── doc.go               # Package documentation (optional)
+├── README.md            # Package-specific docs (optional)
+└── examples_test.go     # Example functions (optional)
 ```
+
+**For large packages** (like lxslices):
+
+```
+lxpackagename/
+├── feature1.go          # Feature group 1 (e.g., aggregation.go)
+├── feature1_test.go     # Tests for feature 1
+├── feature2.go          # Feature group 2 (e.g., filter.go)
+├── feature2_test.go     # Tests for feature 2
+├── errs.go              # Package-specific errors (if needed)
+├── doc.go               # Package documentation (optional)
+├── README.md            # Package-specific docs (optional)
+├── ROADMAP.md           # Future enhancements (optional)
+└── examples_test.go     # Example functions (optional)
+```
+
+**Guidelines:**
+- Split large packages into logical feature groups (one file per feature set)
+- Keep test files alongside their implementation files
+- Use clear, descriptive filenames that indicate functionality
+- Add `doc.go` for comprehensive package documentation
+- Include `README.md` for usage examples and quick reference
 
 ---
 
