@@ -551,3 +551,171 @@ func TestSortDesc_String(t *testing.T) {
 		})
 	}
 }
+
+func TestIsSortedAsc_Int(t *testing.T) {
+	tests := []struct {
+		name  string
+		slice []int
+		want  bool
+	}{
+		{name: "nil slice", slice: nil, want: true},
+		{name: "empty slice", slice: []int{}, want: true},
+		{name: "single element", slice: []int{1}, want: true},
+		{name: "sorted asc", slice: []int{1, 2, 3, 4}, want: true},
+		{name: "all equal", slice: []int{2, 2, 2}, want: true},
+		{name: "unsorted", slice: []int{1, 3, 2, 4}, want: false},
+		{name: "sorted desc", slice: []int{5, 4, 3}, want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxslices.IsSortedAsc(tt.slice)
+			if got != tt.want {
+				t.Fatalf("IsSortedAsc(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsSortedAsc_String(t *testing.T) {
+	tests := []struct {
+		name  string
+		slice []string
+		want  bool
+	}{
+		{name: "nil slice", slice: nil, want: true},
+		{name: "empty", slice: []string{}, want: true},
+		{name: "single", slice: []string{"a"}, want: true},
+		{name: "sorted asc", slice: []string{"a", "b", "c"}, want: true},
+		{name: "unsorted", slice: []string{"a", "c", "b"}, want: false},
+		{name: "equal values", slice: []string{"z", "z"}, want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxslices.IsSortedAsc(tt.slice)
+			if got != tt.want {
+				t.Fatalf("IsSortedAsc(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsSortedBy_Int(t *testing.T) {
+	tests := []struct {
+		name  string
+		slice []int
+		less  func(int, int) bool
+		want  bool
+	}{
+		{name: "ascending comparator on asc", slice: []int{1, 2, 3}, less: func(a, b int) bool { return a < b }, want: true},
+		{name: "ascending comparator on desc", slice: []int{3, 2, 1}, less: func(a, b int) bool { return a < b }, want: false},
+		{name: "descending comparator on desc", slice: []int{3, 2, 1}, less: func(a, b int) bool { return a > b }, want: true},
+		{name: "equal elements", slice: []int{2, 2, 2}, less: func(a, b int) bool { return a < b }, want: true},
+		{name: "nil slice", slice: nil, less: func(a, b int) bool { return a < b }, want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxslices.IsSortedBy(tt.slice, tt.less)
+			if got != tt.want {
+				t.Fatalf("IsSortedBy(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsSortedBy_String(t *testing.T) {
+	tests := []struct {
+		name  string
+		slice []string
+		less  func(string, string) bool
+		want  bool
+	}{
+		{name: "asc on asc", slice: []string{"a", "b"}, less: func(a, b string) bool { return a < b }, want: true},
+		{name: "asc on desc", slice: []string{"b", "a"}, less: func(a, b string) bool { return a < b }, want: false},
+		{name: "desc comparator", slice: []string{"b", "a"}, less: func(a, b string) bool { return a > b }, want: true},
+		{name: "nil slice", slice: nil, less: func(a, b string) bool { return a < b }, want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxslices.IsSortedBy(tt.slice, tt.less)
+			if got != tt.want {
+				t.Fatalf("IsSortedBy(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsSortedBy_Struct(t *testing.T) {
+	type Node struct{ Key int }
+	less := func(a, b Node) bool { return a.Key < b.Key }
+	tests := []struct {
+		name  string
+		slice []Node
+		want  bool
+	}{
+		{name: "ascending", slice: []Node{{1}, {2}, {3}}, want: true},
+		{name: "unsorted", slice: []Node{{2}, {1}}, want: false},
+		{name: "nil slice", slice: nil, want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxslices.IsSortedBy(tt.slice, less)
+			if got != tt.want {
+				t.Fatalf("IsSortedBy(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsSortedDesc_Int(t *testing.T) {
+	tests := []struct {
+		name  string
+		slice []int
+		want  bool
+	}{
+		{name: "nil slice", slice: nil, want: true},
+		{name: "empty slice", slice: []int{}, want: true},
+		{name: "single element", slice: []int{1}, want: true},
+		{name: "sorted desc", slice: []int{5, 4, 3, 2}, want: true},
+		{name: "all equal", slice: []int{2, 2, 2}, want: true},
+		{name: "unsorted", slice: []int{1, 3, 2, 4}, want: false},
+		{name: "sorted asc", slice: []int{1, 2, 3}, want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxslices.IsSortedDesc(tt.slice)
+			if got != tt.want {
+				t.Fatalf("IsSortedDesc(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsSortedDesc_String(t *testing.T) {
+	tests := []struct {
+		name  string
+		slice []string
+		want  bool
+	}{
+		{name: "nil slice", slice: nil, want: true},
+		{name: "empty", slice: []string{}, want: true},
+		{name: "single", slice: []string{"a"}, want: true},
+		{name: "sorted desc", slice: []string{"z", "y", "x"}, want: true},
+		{name: "unsorted", slice: []string{"a", "c", "b"}, want: false},
+		{name: "sorted asc", slice: []string{"a", "b", "c"}, want: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxslices.IsSortedDesc(tt.slice)
+			if got != tt.want {
+				t.Fatalf("IsSortedDesc(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+		})
+	}
+}
