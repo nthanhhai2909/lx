@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/nthanhhai2909/lx/lxslices"
-	"github.com/nthanhhai2909/lx/lxtuples"
+	"github.com/nthanhhai2909/lx/lxtypes"
 )
 
 func TestMap_IntToInt(t *testing.T) {
@@ -642,7 +642,7 @@ func TestZip_IntString(t *testing.T) {
 	a := []int{1, 2, 3}
 	b := []string{"a", "b"}
 	got := lxslices.Zip(a, b)
-	want := []lxtuples.Pair[int, string]{{1, "a"}, {2, "b"}}
+	want := []lxtypes.Pair[int, string]{{1, "a"}, {2, "b"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("Zip(%v,%v) = %v; want %v", a, b, got, want)
 	}
@@ -667,14 +667,14 @@ func TestZip_Struct(t *testing.T) {
 	a := []A{{1}, {2}}
 	b := []B{{"one"}, {"two"}}
 	got := lxslices.Zip(a, b)
-	want := []lxtuples.Pair[A, B]{{First: A{1}, Second: B{"one"}}, {First: A{2}, Second: B{"two"}}}
+	want := []lxtypes.Pair[A, B]{{First: A{1}, Second: B{"one"}}, {First: A{2}, Second: B{"two"}}}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("Zip(structs) = %v; want %v", got, want)
 	}
 }
 
 func TestUnzip_IntString(t *testing.T) {
-	pairs := []lxtuples.Pair[int, string]{{1, "a"}, {2, "b"}}
+	pairs := []lxtypes.Pair[int, string]{{1, "a"}, {2, "b"}}
 	a, b := lxslices.Unzip(pairs)
 	if !reflect.DeepEqual(a, []int{1, 2}) || !reflect.DeepEqual(b, []string{"a", "b"}) {
 		t.Fatalf("Unzip(%v) = (%v, %v); want (%v, %v)", pairs, a, b, []int{1, 2}, []string{"a", "b"})
@@ -688,7 +688,7 @@ func TestUnzip_EmptyNil(t *testing.T) {
 		t.Fatalf("Unzip(nil) = (%v, %v); want (nil, nil)", a, b)
 	}
 	// empty non-nil -> empty slices
-	pairs := []lxtuples.Pair[int, int]{}
+	pairs := []lxtypes.Pair[int, int]{}
 	a2, b2 := lxslices.Unzip(pairs)
 	if a2 == nil || b2 == nil || len(a2) != 0 || len(b2) != 0 {
 		t.Fatalf("Unzip(empty) = (%v, %v); want empty non-nil slices", a2, b2)

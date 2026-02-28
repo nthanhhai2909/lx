@@ -1,0 +1,159 @@
+package lxtypes
+
+// Pair represents a generic tuple of two values.
+// Useful for functions that need to return or work with paired values.
+//
+// Example:
+//
+//	p := lxtypes.NewPair(1, "hello")
+//	fmt.Println(p.First)   // 1
+//	fmt.Println(p.Second)  // "hello"
+type Pair[T, U any] struct {
+	First  T
+	Second U
+}
+
+// NewPair creates a new Pair with the given values.
+//
+// Example:
+//
+//	p := lxtypes.NewPair(42, "answer")
+func NewPair[T, U any](first T, second U) Pair[T, U] {
+	return Pair[T, U]{First: first, Second: second}
+}
+
+// Values returns the two values as separate return values.
+// Useful for unpacking a pair.
+//
+// Example:
+//
+//	p := lxtypes.NewPair(1, "hello")
+//	x, y := p.Values()
+func (p Pair[T, U]) Values() (T, U) {
+	return p.First, p.Second
+}
+
+// Swap returns a new Pair with First and Second swapped.
+//
+// Example:
+//
+//	p := lxtypes.NewPair(1, "hello")
+//	swapped := p.Swap()  // Pair[string, int]{"hello", 1}
+func (p Pair[T, U]) Swap() Pair[U, T] {
+	return Pair[U, T]{First: p.Second, Second: p.First}
+}
+
+// MapFirst applies a function to the First value, returning a new Pair.
+//
+// Example:
+//
+//	p := lxtypes.NewPair(5, "test")
+//	doubled := p.MapFirst(func(n int) int { return n * 2 })
+//	// doubled.First == 10, doubled.Second == "test"
+func (p Pair[T, U]) MapFirst(fn func(T) T) Pair[T, U] {
+	return Pair[T, U]{First: fn(p.First), Second: p.Second}
+}
+
+// MapSecond applies a function to the Second value, returning a new Pair.
+//
+// Example:
+//
+//	p := lxtypes.NewPair(5, "test")
+//	upper := p.MapSecond(func(s string) string { return strings.ToUpper(s) })
+//	// upper.First == 5, upper.Second == "TEST"
+func (p Pair[T, U]) MapSecond(fn func(U) U) Pair[T, U] {
+	return Pair[T, U]{First: p.First, Second: fn(p.Second)}
+}
+
+// Triple represents a generic tuple of three values.
+//
+// Example:
+//
+//	t := lxtypes.NewTriple(1, "hello", true)
+type Triple[T, U, V any] struct {
+	First  T
+	Second U
+	Third  V
+}
+
+// NewTriple creates a new Triple with the given values.
+//
+// Example:
+//
+//	t := lxtypes.NewTriple(42, "answer", true)
+func NewTriple[T, U, V any](first T, second U, third V) Triple[T, U, V] {
+	return Triple[T, U, V]{First: first, Second: second, Third: third}
+}
+
+// Values returns the three values as separate return values.
+// Useful for unpacking a triple.
+//
+// Example:
+//
+//	t := lxtypes.NewTriple(1, "hello", true)
+//	x, y, z := t.Values()
+func (t Triple[T, U, V]) Values() (T, U, V) {
+	return t.First, t.Second, t.Third
+}
+
+// ToPair returns a Pair containing the first two values, discarding the third.
+//
+// Example:
+//
+//	t := lxtypes.NewTriple(1, "hello", true)
+//	p := t.ToPair()  // Pair[int, string]{1, "hello"}
+func (t Triple[T, U, V]) ToPair() Pair[T, U] {
+	return Pair[T, U]{First: t.First, Second: t.Second}
+}
+
+// Quad represents a generic tuple of four values.
+//
+// Example:
+//
+//	q := lxtypes.NewQuad(1, "hello", true, 3.14)
+type Quad[T, U, V, W any] struct {
+	First  T
+	Second U
+	Third  V
+	Fourth W
+}
+
+// NewQuad creates a new Quad with the given values.
+//
+// Example:
+//
+//	q := lxtypes.NewQuad(42, "answer", true, 3.14)
+func NewQuad[T, U, V, W any](first T, second U, third V, fourth W) Quad[T, U, V, W] {
+	return Quad[T, U, V, W]{First: first, Second: second, Third: third, Fourth: fourth}
+}
+
+// Values returns the four values as separate return values.
+// Useful for unpacking a quad.
+//
+// Example:
+//
+//	q := lxtypes.NewQuad(1, "hello", true, 3.14)
+//	w, x, y, z := q.Values()
+func (q Quad[T, U, V, W]) Values() (T, U, V, W) {
+	return q.First, q.Second, q.Third, q.Fourth
+}
+
+// ToPair returns a Pair containing the first two values, discarding the rest.
+//
+// Example:
+//
+//	q := lxtypes.NewQuad(1, "hello", true, 3.14)
+//	p := q.ToPair()  // Pair[int, string]{1, "hello"}
+func (q Quad[T, U, V, W]) ToPair() Pair[T, U] {
+	return Pair[T, U]{First: q.First, Second: q.Second}
+}
+
+// ToTriple returns a Triple containing the first three values, discarding the fourth.
+//
+// Example:
+//
+//	q := lxtypes.NewQuad(1, "hello", true, 3.14)
+//	t := q.ToTriple()  // Triple[int, string, bool]{1, "hello", true}
+func (q Quad[T, U, V, W]) ToTriple() Triple[T, U, V] {
+	return Triple[T, U, V]{First: q.First, Second: q.Second, Third: q.Third}
+}

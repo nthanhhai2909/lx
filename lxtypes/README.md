@@ -175,6 +175,91 @@ addTenThenDouble := lxtypes.Compose(addTen, double)
 result := addTenThenDouble(5)  // 30
 ```
 
+## Tuple Types
+
+### Pair[T, U]
+A generic two-element tuple.
+
+```go
+// Create a pair
+p := lxtypes.NewPair(42, "answer")
+fmt.Printf("First: %d, Second: %s\n", p.First, p.Second)
+
+// Unpack values
+x, y := p.Values()
+
+// Swap elements
+swapped := p.Swap()  // Pair[string, int]
+
+// Transform elements
+doubled := p.MapFirst(func(n int) int { return n * 2 })
+upper := p.MapSecond(func(s string) string { return strings.ToUpper(s) })
+```
+
+**Methods:**
+- `Values() (T, U)` - Unpack the pair into separate values
+- `Swap() Pair[U, T]` - Create a new pair with swapped elements
+- `MapFirst(func(T) T) Pair[T, U]` - Transform the first element
+- `MapSecond(func(U) U) Pair[T, U]` - Transform the second element
+
+**Use Cases:**
+- Return multiple values from functions
+- Zip operations (combine two slices)
+- Key-value pairs
+- Coordinate pairs
+
+### Triple[T, U, V]
+A generic three-element tuple.
+
+```go
+// Create a triple
+t := lxtypes.NewTriple(1, "hello", true)
+fmt.Printf("Values: %d, %s, %t\n", t.First, t.Second, t.Third)
+
+// Unpack values
+x, y, z := t.Values()
+
+// Convert to pair (drops third element)
+p := t.ToPair()
+```
+
+**Methods:**
+- `Values() (T, U, V)` - Unpack the triple into separate values
+- `ToPair() Pair[T, U]` - Convert to a Pair, discarding the third element
+
+**Use Cases:**
+- RGB color values
+- 3D coordinates
+- Database query results with multiple columns
+- Function results with status, value, and metadata
+
+### Quad[T, U, V, W]
+A generic four-element tuple.
+
+```go
+// Create a quad
+q := lxtypes.NewQuad(1, "hello", true, 3.14)
+fmt.Printf("Values: %d, %s, %t, %.2f\n", q.First, q.Second, q.Third, q.Fourth)
+
+// Unpack values
+w, x, y, z := q.Values()
+
+// Convert to smaller tuples
+p := q.ToPair()    // Pair with first two elements
+t := q.ToTriple()  // Triple with first three elements
+```
+
+**Methods:**
+- `Values() (T, U, V, W)` - Unpack the quad into separate values
+- `ToPair() Pair[T, U]` - Convert to a Pair, discarding last two elements
+- `ToTriple() Triple[T, U, V]` - Convert to a Triple, discarding the fourth element
+
+**Use Cases:**
+- RGBA color values
+- Complex return values
+- Database rows with multiple typed columns
+- Configuration tuples
+
 ## Advanced Examples
 
 ### Combining Predicates

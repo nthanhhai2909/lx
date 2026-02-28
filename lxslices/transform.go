@@ -3,7 +3,7 @@ package lxslices
 import (
 	"fmt"
 
-	"github.com/nthanhhai2909/lx/lxtuples"
+	"github.com/nthanhhai2909/lx/lxtypes"
 )
 
 // Map applies the given function to each element of the slice and returns a new slice with the results.
@@ -92,7 +92,7 @@ func Concat[T any](slices ...[]T) []T {
 // Zip combines two slices into a slice of Pair. The length of the result is the
 // minimum of the two input lengths. If both inputs are nil, returns nil. If both
 // inputs are empty but non-nil, returns an empty non-nil slice.
-func Zip[T any, U any](a []T, b []U) []lxtuples.Pair[T, U] {
+func Zip[T any, U any](a []T, b []U) []lxtypes.Pair[T, U] {
 	if a == nil && b == nil {
 		return nil
 	}
@@ -102,18 +102,18 @@ func Zip[T any, U any](a []T, b []U) []lxtuples.Pair[T, U] {
 	}
 	if n == 0 {
 		// at least one input was non-nil (since both-nil handled above), return empty slice
-		return []lxtuples.Pair[T, U]{}
+		return []lxtypes.Pair[T, U]{}
 	}
-	res := make([]lxtuples.Pair[T, U], n)
+	res := make([]lxtypes.Pair[T, U], n)
 	for i := 0; i < n; i++ {
-		res[i] = lxtuples.Pair[T, U]{First: a[i], Second: b[i]}
+		res[i] = lxtypes.Pair[T, U]{First: a[i], Second: b[i]}
 	}
 	return res
 }
 
 // Unzip splits a slice of Pair into two slices. If pairs is nil, returns (nil, nil).
 // If pairs is an empty non-nil slice, returns two empty non-nil slices.
-func Unzip[T any, U any](pairs []lxtuples.Pair[T, U]) ([]T, []U) {
+func Unzip[T any, U any](pairs []lxtypes.Pair[T, U]) ([]T, []U) {
 	if pairs == nil {
 		return nil, nil
 	}
