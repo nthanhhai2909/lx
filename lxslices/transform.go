@@ -129,3 +129,21 @@ func Unzip[T any, U any](pairs []lxtuples.Pair[T, U]) ([]T, []U) {
 	}
 	return first, second
 }
+
+// Copy creates a shallow copy of the slice.
+// Returns a new slice with the same elements. For nil input, returns nil.
+func Copy[T any](slice []T) []T {
+	if slice == nil {
+		return nil
+	}
+
+	result := make([]T, len(slice))
+	copy(result, slice)
+	return result
+}
+
+// Clone is an alias for Copy that creates a shallow copy of the slice.
+// Returns a new slice with the same elements. For nil input, returns nil.
+func Clone[T any](slice []T) []T {
+	return Copy(slice)
+}

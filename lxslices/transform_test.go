@@ -696,3 +696,209 @@ func TestUnzip_EmptyNil(t *testing.T) {
 }
 
 // ---- end moved tests ----
+
+func TestCopy_Int(t *testing.T) {
+	tests := []struct {
+		name  string
+		slice []int
+		want  []int
+	}{
+		{name: "nil slice", slice: nil, want: nil},
+		{name: "empty slice", slice: []int{}, want: []int{}},
+		{name: "single element", slice: []int{42}, want: []int{42}},
+		{name: "multiple values", slice: []int{1, 2, 3}, want: []int{1, 2, 3}},
+		{name: "large slice", slice: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, want: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// snapshot original for later comparisons
+			orig := append([]int(nil), tt.slice...)
+
+			got := lxslices.Copy(tt.slice)
+
+			// Check values match
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("Copy(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+
+			// Check nil vs empty distinction
+			if tt.slice == nil && got != nil {
+				t.Fatalf("Copy(nil) should return nil, got %v", got)
+			}
+			if tt.slice != nil && len(tt.slice) == 0 && got == nil {
+				t.Fatalf("Copy(empty non-nil) should return empty non-nil slice, got nil")
+			}
+
+			// Further independence checks only make sense for non-nil and non-empty
+			if tt.slice != nil && len(tt.slice) > 0 {
+				// backing array independence: compare addresses of first element
+				origAddr := &tt.slice[0]
+				gotAddr := &got[0]
+				if origAddr == gotAddr {
+					t.Fatalf("Copy must allocate a new backing array; addresses equal: %p", origAddr)
+				}
+
+				// 1) Mutate the original and ensure copy is unaffected
+				tt.slice[0] = tt.slice[0] + 100
+				if reflect.DeepEqual(got, tt.slice) {
+					t.Fatalf("Copy should produce independent slice; original change reflected in copy")
+				}
+				// restore original from snapshot for the next checks
+				tt.slice = append([]int(nil), orig...)
+
+				// 2) Mutate the copy and ensure original is unaffected
+				got[0] = got[0] + 200
+				if reflect.DeepEqual(got, tt.slice) {
+					t.Fatalf("Modifying copy should not affect original slice")
+				}
+
+				// 3) Ensure append operations are independent (appending to copy should not change original)
+				originalLen := len(tt.slice)
+				originalCap := cap(tt.slice)
+				gotCopy := append([]int(nil), got...)
+				got = append(got, 999)
+				if len(tt.slice) != originalLen {
+					t.Fatalf("Appending to copy affected original length: want %d got %d", originalLen, len(tt.slice))
+				}
+				if cap(tt.slice) != originalCap {
+					t.Fatalf("Appending to copy affected original capacity: want %d got %d", originalCap, cap(tt.slice))
+				}
+				// restore got
+				got = gotCopy
+			}
+		})
+	}
+}
+
+func TestCopy_String(t *testing.T) {
+	tests := []struct {
+		name  string
+		slice []string
+		want  []string
+	}{
+		{name: "nil slice", slice: nil, want: nil},
+		{name: "empty slice", slice: []string{}, want: []string{}},
+		{name: "values", slice: []string{"a", "b"}, want: []string{"a", "b"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			orig := append([]string(nil), tt.slice...)
+
+			got := lxslices.Copy(tt.slice)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("Copy(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+
+			if tt.slice != nil && len(tt.slice) > 0 {
+				// mutate original
+				tt.slice[0] = tt.slice[0] + "!"
+				if reflect.DeepEqual(got, tt.slice) {
+					t.Fatalf("Copy should produce independent slice; original change reflected in copy")
+				}
+				// restore
+				tt.slice = append([]string(nil), orig...)
+
+				// mutate copy
+				got[0] = got[0] + "?"
+				if reflect.DeepEqual(got, tt.slice) {
+					t.Fatalf("Modifying copy should not affect original slice")
+				}
+			}
+		})
+	}
+}
+
+func TestCopy_Struct(t *testing.T) {
+	type Node struct{ ID int }
+	tests := []struct {
+		name  string
+		slice []Node
+		want  []Node
+	}{
+		{name: "nil slice", slice: nil, want: nil},
+		{name: "empty slice", slice: []Node{}, want: []Node{}},
+		{name: "values", slice: []Node{{1}, {2}}, want: []Node{{1}, {2}}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			orig := append([]Node(nil), tt.slice...)
+
+			got := lxslices.Copy(tt.slice)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("Copy(%v) = %v; want %v", tt.slice, got, tt.want)
+			}
+
+			if tt.slice != nil && len(tt.slice) > 0 {
+				// mutate original element
+				tt.slice[0].ID += 10
+				if reflect.DeepEqual(got, tt.slice) {
+					t.Fatalf("Copy should produce independent slice; original change reflected in copy")
+				}
+				// restore
+				tt.slice = append([]Node(nil), orig...)
+
+				// mutate copy element
+				got[0].ID += 20
+				if reflect.DeepEqual(got, tt.slice) {
+					t.Fatalf("Modifying copy should not affect original slice")
+				}
+			}
+		})
+	}
+}
+
+// Clone is an alias for Copy; test the alias behavior separately
+func TestClone_Int(t *testing.T) {
+	src := []int{1, 2, 3}
+	cl := lxslices.Clone(src)
+	if !reflect.DeepEqual(cl, src) {
+		t.Fatalf("Clone(%v) = %v; want %v", src, cl, src)
+	}
+	// mutate source and ensure clone unaffected
+	src[0] = 999
+	if cl[0] == src[0] {
+		t.Fatalf("Clone should be independent of source backing array")
+	}
+
+	// mutate clone and ensure source unaffected
+	cl[1] = 555
+	if cl[1] == src[1] {
+		t.Fatalf("Modifying clone should not affect source")
+	}
+}
+
+func TestClone_String(t *testing.T) {
+	src := []string{"x", "y"}
+	cl := lxslices.Clone(src)
+	if !reflect.DeepEqual(cl, src) {
+		t.Fatalf("Clone(%v) = %v; want %v", src, cl, src)
+	}
+	src[1] = "z"
+	if cl[1] == src[1] {
+		t.Fatalf("Clone should be independent of source backing array")
+	}
+	cl[0] = "q"
+	if cl[0] == src[0] {
+		t.Fatalf("Modifying clone should not affect source")
+	}
+}
+
+func TestClone_Struct(t *testing.T) {
+	type Node struct{ ID int }
+	src := []Node{{1}, {2}}
+	cl := lxslices.Clone(src)
+	if !reflect.DeepEqual(cl, src) {
+		t.Fatalf("Clone(%v) = %v; want %v", src, cl, src)
+	}
+	src[0].ID = 77
+	if cl[0].ID == src[0].ID {
+		t.Fatalf("Clone should be independent of source backing array")
+	}
+	cl[1].ID = 88
+	if cl[1].ID == src[1].ID {
+		t.Fatalf("Modifying clone should not affect source")
+	}
+}
