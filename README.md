@@ -55,6 +55,7 @@ Think of it as the **missing pieces** of Go's stdlib - nothing more, nothing les
 | [`lxslices`](./lxslices) | Slice operations (filter, map, reduce, etc.) | ✅ Stable | [View](./lxslices#examples) |
 | [`lxstrings`](./lxstrings) | String utilities (blank checks, case conversion, etc.) | ✅ Stable | [View](./lxstrings#examples) |
 | [`lxptrs`](./lxptrs) | Pointer helpers (ref, deref, safe operations) | ✅ Stable | [View](./lxptrs#examples) |
+| [`lxtypes`](./lxtypes) | Functional type definitions (Predicate, Function, etc.) | ✅ Stable | [View](./lxtypes#examples) |
 | [`lxtuples`](./lxtuples) | Tuple types (Pair, Triple, Quad) | ✅ Stable | [View](./lxtuples#examples) |
 | [`lxsystems`](./lxsystems) | System information (OS, paths, environment) | ✅ Stable | [View](./lxsystems#examples) |
 | [`lxconstraints`](./lxconstraints) | Generic type constraints | ✅ Stable | [View](./lxconstraints#examples) |
