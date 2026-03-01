@@ -6,8 +6,8 @@ import (
 	"github.com/nthanhhai2909/lx/lxtypes"
 )
 
-func ExampleOf() {
-	opt := lxtypes.Of(42)
+func ExampleOptionalOf() {
+	opt := lxtypes.OptionalOf(42)
 	fmt.Println(opt.IsPresent())
 	fmt.Println(opt.Get())
 	// Output:
@@ -15,8 +15,8 @@ func ExampleOf() {
 	// 42
 }
 
-func ExampleEmpty() {
-	opt := lxtypes.Empty[int]()
+func ExampleOptionalEmpty() {
+	opt := lxtypes.OptionalEmpty[int]()
 	fmt.Println(opt.IsEmpty())
 	fmt.Println(opt.OrElse(99))
 	// Output:
@@ -24,16 +24,15 @@ func ExampleEmpty() {
 	// 99
 }
 
-func ExampleOfNullable() {
-	// With non-nil pointer
+func ExampleOptionalOfNullable() {
 	value := 42
-	opt1 := lxtypes.OfNullable(&value)
+	opt1 := lxtypes.OptionalOfNullable(&value)
 	fmt.Println(opt1.IsPresent())
 	fmt.Println(opt1.Get())
 
 	// With nil pointer
 	var nilPtr *int
-	opt2 := lxtypes.OfNullable(nilPtr)
+	opt2 := lxtypes.OptionalOfNullable(nilPtr)
 	fmt.Println(opt2.IsEmpty())
 	// Output:
 	// true
@@ -42,8 +41,8 @@ func ExampleOfNullable() {
 }
 
 func ExampleOptional_OrElse() {
-	present := lxtypes.Of(42)
-	empty := lxtypes.Empty[int]()
+	present := lxtypes.OptionalOf(42)
+	empty := lxtypes.OptionalEmpty[int]()
 
 	fmt.Println(present.OrElse(0))
 	fmt.Println(empty.OrElse(99))
@@ -53,8 +52,8 @@ func ExampleOptional_OrElse() {
 }
 
 func ExampleOptional_OrElseGet() {
-	present := lxtypes.Of(42)
-	empty := lxtypes.Empty[int]()
+	present := lxtypes.OptionalOf(42)
+	empty := lxtypes.OptionalEmpty[int]()
 
 	fmt.Println(present.OrElseGet(func() int { return 0 }))
 	fmt.Println(empty.OrElseGet(func() int { return 99 }))
@@ -64,13 +63,13 @@ func ExampleOptional_OrElseGet() {
 }
 
 func ExampleOptional_Or() {
-	opt1 := lxtypes.Of(42)
-	opt2 := lxtypes.Of(99)
-	empty := lxtypes.Empty[int]()
+	opt1 := lxtypes.OptionalOf(42)
+	opt2 := lxtypes.OptionalOf(99)
+	empty := lxtypes.OptionalEmpty[int]()
 
 	fmt.Println(opt1.Or(opt2).Get())
 	fmt.Println(empty.Or(opt2).Get())
-	fmt.Println(empty.Or(lxtypes.Empty[int]()).IsEmpty())
+	fmt.Println(empty.Or(lxtypes.OptionalEmpty[int]()).IsEmpty())
 	// Output:
 	// 42
 	// 99

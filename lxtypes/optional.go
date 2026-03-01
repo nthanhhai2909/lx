@@ -5,8 +5,8 @@ package lxtypes
 // that may or may not exist, as an alternative to using pointers or special sentinel values.
 //
 // An Optional is either:
-//   - Present: Contains a value (created with Of or OfNullable)
-//   - Empty: Contains no value (created with Empty)
+//   - Present: Contains a value (created with OptionalOf or OptionalOfNullable)
+//   - Empty: Contains no value (created with OptionalEmpty)
 //
 // Common use cases:
 //   - Return values from functions that might not find a result
@@ -18,9 +18,9 @@ package lxtypes
 //
 //	func FindUser(id int) Optional[User] {
 //	    if user, exists := users[id]; exists {
-//	        return Of(user)
+//	        return OptionalOf(user)
 //	    }
-//	    return Empty[User]()
+//	    return OptionalEmpty[User]()
 //	}
 //
 //	user := FindUser(42)
@@ -56,31 +56,30 @@ type Optional[T any] interface {
 	OrElseSupply(fn func() Optional[T]) Optional[T]
 }
 
+// OptionalOf creates an Optional containing the given non-nil value.
+func OptionalOf[T any](value T) Optional[T] {
+	return presentOption[T]{value: value}
+}
+
+// OptionalOfNullable creates an Optional from a pointer.
+// Returns a present Optional if the pointer is non-nil, otherwise returns an empty Optional.
+func OptionalOfNullable[T any](ptr *T) Optional[T] {
+	if ptr == nil {
+		return OptionalEmpty[T]()
+	}
+	return OptionalOf(*ptr)
+}
+
+// OptionalEmpty creates an empty Optional.
+func OptionalEmpty[T any]() Optional[T] {
+	return emptyOption[T]{}
+}
+
 type presentOption[T any] struct {
 	value T
 }
 
-type emptyOption[T any] struct{}
-
-// Of creates an Optional containing the given value.
-// Panics if value is nil for pointer types (use OfNullable for nil-safe creation).
-func Of[T any](value T) Optional[T] {
-	return presentOption[T]{value: value}
-}
-
-// OfNullable creates an Optional from a pointer.
-// Returns Empty if the pointer is nil, otherwise returns an Optional with the dereferenced value.
-func OfNullable[T any](ptr *T) Optional[T] {
-	if ptr == nil {
-		return Empty[T]()
-	}
-	return Of(*ptr)
-}
-
-// Empty creates an empty Optional.
-func Empty[T any]() Optional[T] {
-	return emptyOption[T]{}
-}
+// ----------------------------------- Present Optional implementation -----------------------------------
 
 func (o presentOption[T]) IsPresent() bool {
 	return true
@@ -109,6 +108,10 @@ func (o presentOption[T]) Or(other Optional[T]) Optional[T] {
 func (o presentOption[T]) OrElseSupply(fn func() Optional[T]) Optional[T] {
 	return o
 }
+
+// ----------------------------------- Empty Optional implementation -----------------------------------
+
+type emptyOption[T any] struct{}
 
 func (o emptyOption[T]) IsPresent() bool {
 	return false

@@ -52,11 +52,6 @@ type Result[T any] interface {
 	OrElse(fn func(error) Result[T]) Result[T]
 }
 
-// successResult represents a successful result.
-type successResult[T any] struct {
-	value T
-}
-
 // failureResult represents a failed result.
 type failureResult[T any] struct {
 	err error
@@ -86,7 +81,11 @@ func FromError[T any](value T, err error) Result[T] {
 	return Success(value)
 }
 
-// successResult implementation
+// -------------------------------------- Success Result implementation --------------------------------------
+type successResult[T any] struct {
+	value T
+}
+
 func (r successResult[T]) IsSuccess() bool {
 	return true
 }
@@ -115,7 +114,8 @@ func (r successResult[T]) OrElse(fn func(error) Result[T]) Result[T] {
 	return r
 }
 
-// failureResult implementation
+// -------------------------------------- Failure Result implementation --------------------------------------
+
 func (r failureResult[T]) IsSuccess() bool {
 	return false
 }

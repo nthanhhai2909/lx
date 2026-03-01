@@ -181,30 +181,30 @@ result := intComparator(3, 5)  // -1 (3 < 5)
 Represents a value that may or may not be present. Inspired by Java's `Optional<T>`.
 
 An `Optional` is either:
-- **Present**: Contains a value (created with `Of` or `OfNullable`)
-- **Empty**: Contains no value (created with `Empty`)
+- **Present**: Contains a value (created with `OptionalOf` or `OptionalOfNullable`)
+- **Empty**: Contains no value (created with `OptionalEmpty`)
 
 #### Creating Optionals
 
 ```go
 // Present value
-opt := lxtypes.Of(42)
+opt := lxtypes.OptionalOf(42)
 
 // Empty value
-empty := lxtypes.Empty[int]()
+empty := lxtypes.OptionalEmpty[int]()
 
 // From nullable pointer (safe nil handling)
 value := 42
-opt1 := lxtypes.OfNullable(&value)  // Of(42)
+opt1 := lxtypes.OptionalOfNullable(&value)  // OptionalOf(42)
 
 var nilPtr *int
-opt2 := lxtypes.OfNullable(nilPtr)  // Empty()
+opt2 := lxtypes.OptionalOfNullable(nilPtr)  // OptionalEmpty()
 ```
 
 #### Checking Presence
 
 ```go
-opt := lxtypes.Of(42)
+opt := lxtypes.OptionalOf(42)
 
 if opt.IsPresent() {
     fmt.Println("Has value:", opt.Get())
@@ -227,7 +227,7 @@ value := opt.OrElseGet(func() int {
 })
 
 // Fallback to another Optional
-result := opt.Or(lxtypes.Of(99))
+result := opt.Or(lxtypes.OptionalOf(99))
 ```
 
 **Methods:**
@@ -327,21 +327,50 @@ An `Either` is either:
 
 ```go
 // Left
-either := lxtypes.Left[string, int]("error")
+either := lxtypes.EitherLeft[string, int]("error")
 
 // Right
-either := lxtypes.Right[string, int](42)
+either := lxtypes.EitherRight[string, int](42)
 ```
 
 #### Checking Which Side
 
 ```go
-either := parseValue("42")
+either := lxtypes.EitherRight[string, int](42)
+
+// Check which side
+if either.IsLeft() {
+    fmt.Println("This is a Left")
+}
 
 if either.IsRight() {
-    fmt.Println("Number:", either.Right())
+    fmt.Println("This is a Right")
+}
+```
+
+#### Accessing Values
+
+```go
+// Pattern matching with IsLeft/IsRight
+if either.IsLeft() {
+    left, err := either.Left()
+    if err == nil {
+        fmt.Println("Left value:", left)
+    }
+} else if either.IsRight() {
+    right, err := either.Right()
+    if err == nil {
+        fmt.Println("Right value:", right)
+    }
+}
+
+// Or direct access with error checking
+left, err := either.Left()
+if err != nil {
+    // This is a Right, not a Left
+    fmt.Println("Error:", err)
 } else {
-    fmt.Println("String:", either.Left())
+    fmt.Println("Left value:", left)
 }
 ```
 
@@ -351,20 +380,19 @@ if either.IsRight() {
 // With defaults
 leftVal := either.LeftOr("default")
 rightVal := either.RightOr(0)
-
-// Swap sides
-swapped := either.Swap()  // Either[int, string]
 ```
 
 **Methods:**
-- `IsLeft() bool` - Check if Left
-- `IsRight() bool` - Check if Right
-- `Left() L` - Get left value (panics if Right)
-- `Right() R` - Get right value (panics if Left)
+- `IsLeft() bool` - Check if this is a Left value
+- `IsRight() bool` - Check if this is a Right value
+- `Left() (L, error)` - Get left value, returns error if Right
+- `Right() (R, error)` - Get right value, returns error if Left
 - `LeftOr(L) L` - Get left or default
 - `RightOr(R) R` - Get right or default
-- `Swap() Either[R, L]` - Swap Left and Right
 
+**Predefined Errors:**
+- `ErrLeftOnRight` - Returned when calling Left() on a Right-sided Either
+- `ErrRightOnLeft` - Returned when calling Right() on a Left-sided Either
 
 **Use Cases:**
 - Validation with custom error types
@@ -386,16 +414,26 @@ type User struct {
 
 func ValidateUser(name string, age int) lxtypes.Either[ValidationError, User] {
     if age < 0 {
-        return lxtypes.Left[ValidationError, User](
+        return lxtypes.EitherLeft[ValidationError, User](
             ValidationError{Field: "age", Message: "must be non-negative"},
         )
     }
     if name == "" {
-        return lxtypes.Left[ValidationError, User](
+        return lxtypes.EitherLeft[ValidationError, User](
             ValidationError{Field: "name", Message: "cannot be empty"},
         )
     }
-    return lxtypes.Right[ValidationError, User](User{Name: name, Age: age})
+    return lxtypes.EitherRight[ValidationError, User](User{Name: name, Age: age})
+}
+
+// Usage
+result := ValidateUser("Alice", 30)
+if result.IsRight() {
+    user, _ := result.Right()
+    fmt.Printf("Valid user: %s, age %d\n", user.Name, user.Age)
+} else if result.IsLeft() {
+    validationErr, _ := result.Left()
+    fmt.Printf("Validation error in %s: %s\n", validationErr.Field, validationErr.Message)
 }
 ```
 
@@ -633,9 +671,10 @@ This package follows the lx project's core principles:
 - ✅ General binary choice between any two types
 - ✅ Custom error types with rich data
 - ✅ Validation with detailed error information
+- ✅ Safe access with error returns (no panics)
+- ✅ Explicit error handling with predefined errors
 - ✅ Polymorphic return values
 - ✅ Union types representation
-- ✅ Swap operation for flexibility
 
 ## Related Packages
 

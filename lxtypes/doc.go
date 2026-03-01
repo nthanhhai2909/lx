@@ -14,9 +14,9 @@
 //
 // 2. Optional and Error Handling:
 //
-//   - Optional[T] - Optional value (Java-style: Of, Empty, OfNullable, IsPresent, OrElse)
+//   - Optional[T] - Optional value (Java-style: OptionalOf, OptionalEmpty, OptionalOfNullable, IsPresent, OrElse)
 //   - Result[T] - Error handling with Go's error type (Success, Failure, FromError)
-//   - Either[L, R] - General binary choice between any two types (Left, Right, Swap)
+//   - Either[L, R] - General binary choice between any two types (EitherLeft, EitherRight, IsLeft, IsRight)
 //
 // 3. Tuple Types:
 //
@@ -37,13 +37,13 @@
 //	result := add.AndThen(func(n int) int { return n * 2 })(3, 4)  // 14
 //
 //	// Optional values (Java-style)
-//	opt := lxtypes.Of(42)
+//	opt := lxtypes.OptionalOf(42)
 //	value := opt.OrElse(0)  // 42
 //
 //	// Safe nil handling
 //	var ptr *int
-//	opt2 := lxtypes.OfNullable(ptr)  // Empty Optional
-//	value2 := opt2.OrElse(99)        // 99
+//	opt2 := lxtypes.OptionalOfNullable(ptr)  // Empty Optional
+//	value2 := opt2.OrElse(99)                // 99
 //
 //	// Error handling with Result[T] (specialized for Go's error)
 //	result := lxtypes.Success(42)
@@ -54,9 +54,10 @@
 //	result2 := lxtypes.FromError(strconv.Atoi("42"))
 //
 //	// General binary choice with Either[L, R]
-//	either := lxtypes.Right[string, int](42)
+//	either := lxtypes.EitherRight[string, int](42)
 //	if either.IsRight() {
-//	    fmt.Println(either.Right())  // 42
+//	    right, _ := either.Right()
+//	    fmt.Println(right)  // 42
 //	}
 //
 //	// Tuples

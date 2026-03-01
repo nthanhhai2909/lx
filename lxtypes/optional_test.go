@@ -7,7 +7,7 @@ import (
 )
 
 func TestOptionalOf(t *testing.T) {
-	opt := lxtypes.Of(42)
+	opt := lxtypes.OptionalOf(42)
 
 	if !opt.IsPresent() {
 		t.Error("Expected Of to return true for IsPresent()")
@@ -21,7 +21,7 @@ func TestOptionalOf(t *testing.T) {
 }
 
 func TestOptionalEmpty(t *testing.T) {
-	opt := lxtypes.Empty[int]()
+	opt := lxtypes.OptionalEmpty[int]()
 
 	if opt.IsPresent() {
 		t.Error("Expected Empty to return false for IsPresent()")
@@ -37,13 +37,13 @@ func TestOptionalGetPanics(t *testing.T) {
 			t.Error("Expected Get on Empty to panic")
 		}
 	}()
-	opt := lxtypes.Empty[int]()
+	opt := lxtypes.OptionalEmpty[int]()
 	opt.Get()
 }
 
 func TestOptionalOrElse(t *testing.T) {
-	present := lxtypes.Of(42)
-	empty := lxtypes.Empty[int]()
+	present := lxtypes.OptionalOf(42)
+	empty := lxtypes.OptionalEmpty[int]()
 
 	if got := present.OrElse(0); got != 42 {
 		t.Errorf("Of.OrElse(0) = %v, want 42", got)
@@ -54,8 +54,8 @@ func TestOptionalOrElse(t *testing.T) {
 }
 
 func TestOptionalOrElseGet(t *testing.T) {
-	present := lxtypes.Of(42)
-	empty := lxtypes.Empty[int]()
+	present := lxtypes.OptionalOf(42)
+	empty := lxtypes.OptionalEmpty[int]()
 
 	if got := present.OrElseGet(func() int { return 0 }); got != 42 {
 		t.Errorf("Of.OrElseGet(...) = %v, want 42", got)
@@ -66,9 +66,9 @@ func TestOptionalOrElseGet(t *testing.T) {
 }
 
 func TestOptionalOr(t *testing.T) {
-	opt1 := lxtypes.Of(42)
-	opt2 := lxtypes.Of(99)
-	empty := lxtypes.Empty[int]()
+	opt1 := lxtypes.OptionalOf(42)
+	opt2 := lxtypes.OptionalOf(99)
+	empty := lxtypes.OptionalEmpty[int]()
 
 	if got := opt1.Or(opt2).Get(); got != 42 {
 		t.Errorf("Of.Or(Of) = %v, want 42", got)
@@ -79,17 +79,17 @@ func TestOptionalOr(t *testing.T) {
 	if got := empty.Or(opt2).Get(); got != 99 {
 		t.Errorf("Empty.Or(Of) = %v, want 99", got)
 	}
-	if !empty.Or(lxtypes.Empty[int]()).IsEmpty() {
+	if !empty.Or(lxtypes.OptionalEmpty[int]()).IsEmpty() {
 		t.Error("Empty.Or(Empty) should be Empty")
 	}
 }
 
 func TestOptionalOrElseSupply(t *testing.T) {
-	present := lxtypes.Of(42)
-	empty := lxtypes.Empty[int]()
+	present := lxtypes.OptionalOf(42)
+	empty := lxtypes.OptionalEmpty[int]()
 
 	fallback := func() lxtypes.Optional[int] {
-		return lxtypes.Of(99)
+		return lxtypes.OptionalOf(99)
 	}
 
 	if got := present.OrElseSupply(fallback).Get(); got != 42 {
@@ -103,7 +103,7 @@ func TestOptionalOrElseSupply(t *testing.T) {
 func TestOptionalOfNullable(t *testing.T) {
 	// Non-nil pointer
 	value := 42
-	opt := lxtypes.OfNullable(&value)
+	opt := lxtypes.OptionalOfNullable(&value)
 
 	if !opt.IsPresent() {
 		t.Error("Expected OfNullable with non-nil to be present")
@@ -114,7 +114,7 @@ func TestOptionalOfNullable(t *testing.T) {
 
 	// Nil pointer
 	var nilPtr *int
-	optNil := lxtypes.OfNullable(nilPtr)
+	optNil := lxtypes.OptionalOfNullable(nilPtr)
 
 	if !optNil.IsEmpty() {
 		t.Error("Expected OfNullable with nil to be empty")
