@@ -142,7 +142,7 @@ git push origin main
 
 - [ ] **Verify Go version** in `.github/workflows/ci.yml`
   ```yaml
-  # Current: go: ['1.25']
+  # Current: go: ['1.18']
   # Check if this is correct for your project
   ```
 

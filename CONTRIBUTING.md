@@ -70,7 +70,7 @@ Have an idea? [Open an issue](../../issues/new?labels=enhancement) or [start a d
 
 ### Prerequisites
 
-- **Go 1.25+** installed
+- **Go 1.18+** installed (generics support required)
 - **Git** for version control
 - A **GitHub account**
 - Familiarity with Go generics

@@ -2,7 +2,7 @@
 
 # 🚀 lx
 
-[![Go Version](https://img.shields.io/badge/Go-1.25%2B-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![Go Version](https://img.shields.io/badge/Go-1.18%2B-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nthanhhai2909/lx)](https://goreportcard.com/report/github.com/nthanhhai2909/lx)
 [![GoDoc](https://pkg.go.dev/badge/github.com/nthanhhai2909/lx)](https://pkg.go.dev/github.com/nthanhhai2909/lx)
@@ -23,7 +23,7 @@ Working with Go's standard library is great, but sometimes you need just a *litt
 
 - ✨ **Enhance productivity** without adding bloat
 - 🎯 **Stay focused** - small, single-purpose packages (no giant "utils")
-- 🔒 **Type-safe** with Go 1.25+ generics
+- 🔒 **Type-safe** with Go 1.18+ generics
 - 📦 **Zero external dependencies** - just pure Go
 - 🧪 **Battle-tested** with comprehensive test coverage
 - 📖 **Well-documented** with examples and clear APIs
@@ -79,7 +79,7 @@ See our [**Package Roadmap**](./PACKAGE_ROADMAP.md) for planned packages:
 go get github.com/nthanhhai2909/lx
 ```
 
-**Requirements**: Go 1.25 or higher
+**Requirements**: Go 1.18 or higher (generics support required)
 
 > 💡 **Note**: Installing `lx` downloads all packages, but you only import what you need:
 > ```go
@@ -237,7 +237,7 @@ Looking to contribute? Check out issues labeled [`good first issue`](../../issue
 |--------|--------|
 | **Stability** | Beta - API may change |
 | **Test Coverage** | >85% across all packages |
-| **Go Version** | 1.25+ required |
+| **Go Version** | 1.18+ required (generics) |
 | **Dependencies** | Zero (stdlib only) |
 | **License** | Apache 2.0 |
 
