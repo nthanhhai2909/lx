@@ -7,6 +7,10 @@ import (
 	"github.com/nthanhhai2909/lx/lxtypes"
 )
 
+// ============================================================================
+// Predicate Examples
+// ============================================================================
+
 func ExamplePredicate() {
 	isPositive := lxtypes.Predicate[int](func(n int) bool {
 		return n > 0
@@ -58,155 +62,9 @@ func ExamplePredicate_Negate() {
 	// false
 }
 
-func ExampleConsumer() {
-	printStr := lxtypes.Consumer[string](func(s string) {
-		fmt.Println(s)
-	})
-
-	printStr("Hello, World!")
-	// Output:
-	// Hello, World!
-}
-
-func ExampleConsumer_AndThen() {
-	var results []string
-
-	append1 := lxtypes.Consumer[string](func(s string) {
-		results = append(results, s)
-	})
-	append2 := lxtypes.Consumer[string](func(s string) {
-		results = append(results, strings.ToUpper(s))
-	})
-
-	combined := append1.AndThen(append2)
-	combined("hello")
-
-	fmt.Println(results)
-	// Output:
-	// [hello HELLO]
-}
-
-func ExampleFunction() {
-	toUpper := lxtypes.Function[string, string](func(s string) string {
-		return strings.ToUpper(s)
-	})
-
-	fmt.Println(toUpper("hello"))
-	// Output:
-	// HELLO
-}
-
-func ExamplePair() {
-	// Creating a pair
-	p := lxtypes.NewPair(42, "answer")
-	fmt.Printf("First: %d, Second: %s\n", p.First, p.Second)
-
-	// Unpacking values
-	x, y := p.Values()
-	fmt.Printf("Unpacked: %d, %s\n", x, y)
-	// Output:
-	// First: 42, Second: answer
-	// Unpacked: 42, answer
-}
-
-func ExamplePair_Swap() {
-	p := lxtypes.NewPair(42, "answer")
-	swapped := p.Swap()
-	fmt.Printf("Original: (%d, %s)\n", p.First, p.Second)
-	fmt.Printf("Swapped: (%s, %d)\n", swapped.First, swapped.Second)
-	// Output:
-	// Original: (42, answer)
-	// Swapped: (answer, 42)
-}
-
-func ExamplePair_MapFirst() {
-	p := lxtypes.NewPair(5, "test")
-	doubled := p.MapFirst(func(n int) int { return n * 2 })
-	fmt.Printf("Original: (%d, %s)\n", p.First, p.Second)
-	fmt.Printf("After MapFirst: (%d, %s)\n", doubled.First, doubled.Second)
-	// Output:
-	// Original: (5, test)
-	// After MapFirst: (10, test)
-}
-
-func ExamplePair_MapSecond() {
-	p := lxtypes.NewPair(5, "test")
-	upper := p.MapSecond(func(s string) string { return strings.ToUpper(s) })
-	fmt.Printf("Original: (%d, %s)\n", p.First, p.Second)
-	fmt.Printf("After MapSecond: (%d, %s)\n", upper.First, upper.Second)
-	// Output:
-	// Original: (5, test)
-	// After MapSecond: (5, TEST)
-}
-
-func ExampleTriple() {
-	// Creating a triple
-	t := lxtypes.NewTriple(1, "hello", true)
-	fmt.Printf("First: %d, Second: %s, Third: %t\n", t.First, t.Second, t.Third)
-
-	// Unpacking values
-	x, y, z := t.Values()
-	fmt.Printf("Unpacked: %d, %s, %t\n", x, y, z)
-	// Output:
-	// First: 1, Second: hello, Third: true
-	// Unpacked: 1, hello, true
-}
-
-func ExampleTriple_ToPair() {
-	t := lxtypes.NewTriple(1, "hello", true)
-	p := t.ToPair()
-	fmt.Printf("Triple: (%d, %s, %t)\n", t.First, t.Second, t.Third)
-	fmt.Printf("Pair: (%d, %s)\n", p.First, p.Second)
-	// Output:
-	// Triple: (1, hello, true)
-	// Pair: (1, hello)
-}
-
-func ExampleQuad() {
-	// Creating a quad
-	q := lxtypes.NewQuad(1, "hello", true, 3.14)
-	fmt.Printf("Values: %d, %s, %t, %.2f\n", q.First, q.Second, q.Third, q.Fourth)
-
-	// Unpacking values
-	w, x, y, z := q.Values()
-	fmt.Printf("Unpacked: %d, %s, %t, %.2f\n", w, x, y, z)
-	// Output:
-	// Values: 1, hello, true, 3.14
-	// Unpacked: 1, hello, true, 3.14
-}
-
-func ExampleQuad_ToTriple() {
-	q := lxtypes.NewQuad(1, "hello", true, 3.14)
-	t := q.ToTriple()
-	fmt.Printf("Quad: (%d, %s, %t, %.2f)\n", q.First, q.Second, q.Third, q.Fourth)
-	fmt.Printf("Triple: (%d, %s, %t)\n", t.First, t.Second, t.Third)
-	// Output:
-	// Quad: (1, hello, true, 3.14)
-	// Triple: (1, hello, true)
-}
-
-func ExampleCompose() {
-	double := func(n int) int { return n * 2 }
-	addTen := func(n int) int { return n + 10 }
-
-	// Compose: addTen first, then double
-	// Compose(addTen, double)(5) = double(addTen(5)) = double(15) = 30
-	addTenThenDouble := lxtypes.Compose(addTen, double)
-
-	fmt.Println(addTenThenDouble(5))
-	// Output:
-	// 30
-}
-
-func ExampleBiFunction() {
-	concat := lxtypes.BiFunction[string, string, string](func(a, b string) string {
-		return a + b
-	})
-
-	fmt.Println(concat("Hello, ", "World!"))
-	// Output:
-	// Hello, World!
-}
+// ============================================================================
+// BiPredicate Examples
+// ============================================================================
 
 func ExampleBiPredicate() {
 	inRange := lxtypes.BiPredicate[int, int](func(value, max int) bool {
@@ -272,6 +130,42 @@ func ExampleBiPredicate_Negate() {
 	// false
 }
 
+// ============================================================================
+// Consumer Examples
+// ============================================================================
+
+func ExampleConsumer() {
+	printStr := lxtypes.Consumer[string](func(s string) {
+		fmt.Println(s)
+	})
+
+	printStr("Hello, World!")
+	// Output:
+	// Hello, World!
+}
+
+func ExampleConsumer_AndThen() {
+	var results []string
+
+	append1 := lxtypes.Consumer[string](func(s string) {
+		results = append(results, s)
+	})
+	append2 := lxtypes.Consumer[string](func(s string) {
+		results = append(results, strings.ToUpper(s))
+	})
+
+	combined := append1.AndThen(append2)
+	combined("hello")
+
+	fmt.Println(results)
+	// Output:
+	// [hello HELLO]
+}
+
+// ============================================================================
+// BiConsumer Examples
+// ============================================================================
+
 func ExampleBiConsumer() {
 	printPair := lxtypes.BiConsumer[string, int](func(label string, value int) {
 		fmt.Printf("%s: %d\n", label, value)
@@ -300,6 +194,51 @@ func ExampleBiConsumer_AndThen() {
 	// [AB BA]
 }
 
+// ============================================================================
+// Function Examples
+// ============================================================================
+
+func ExampleFunction() {
+	toUpper := lxtypes.Function[string, string](func(s string) string {
+		return strings.ToUpper(s)
+	})
+
+	fmt.Println(toUpper("hello"))
+	// Output:
+	// HELLO
+}
+
+func ExampleCompose() {
+	double := func(n int) int { return n * 2 }
+	addTen := func(n int) int { return n + 10 }
+
+	// Compose: addTen first, then double
+	// Compose(addTen, double)(5) = double(addTen(5)) = double(15) = 30
+	addTenThenDouble := lxtypes.Compose(addTen, double)
+
+	fmt.Println(addTenThenDouble(5))
+	// Output:
+	// 30
+}
+
+// ============================================================================
+// BiFunction Examples
+// ============================================================================
+
+func ExampleBiFunction() {
+	concat := lxtypes.BiFunction[string, string, string](func(a, b string) string {
+		return a + b
+	})
+
+	fmt.Println(concat("Hello, ", "World!"))
+	// Output:
+	// Hello, World!
+}
+
+// ============================================================================
+// Supplier Examples
+// ============================================================================
+
 func ExampleSupplier() {
 	counter := 0
 	getNext := lxtypes.Supplier[int](func() int {
@@ -316,6 +255,10 @@ func ExampleSupplier() {
 	// 3
 }
 
+// ============================================================================
+// BinaryOperator Examples
+// ============================================================================
+
 func ExampleBinaryOperator() {
 	sum := lxtypes.BinaryOperator[int](func(a, b int) int {
 		return a + b
@@ -325,6 +268,10 @@ func ExampleBinaryOperator() {
 	// Output:
 	// 30
 }
+
+// ============================================================================
+// Comparator Examples
+// ============================================================================
 
 func ExampleComparator() {
 	intComparator := lxtypes.Comparator[int](func(a, b int) int {
