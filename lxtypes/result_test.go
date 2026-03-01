@@ -2,247 +2,404 @@ package lxtypes_test
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"testing"
 
 	"github.com/nthanhhai2909/lx/lxtypes"
 )
 
-func TestResultSuccess(t *testing.T) {
-	result := lxtypes.Success(42)
+// Test types
+type Config struct {
+	Host string
+	Port int
+}
 
-	if !result.IsSuccess() {
-		t.Error("Expected Success to return true for IsSuccess()")
-	}
-	if result.IsFailure() {
-		t.Error("Expected Success to return false for IsFailure()")
-	}
-	if got := result.Value(); got != 42 {
-		t.Errorf("Value() = %v, want 42", got)
-	}
+func TestResultSuccess(t *testing.T) {
+	t.Run("integer", func(t *testing.T) {
+		result := lxtypes.ResultSuccess(42)
+
+		value, err := result.Value()
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
+		}
+		if value != 42 {
+			t.Errorf("Value() = %v, want 42", value)
+		}
+	})
+
+	t.Run("string", func(t *testing.T) {
+		result := lxtypes.ResultSuccess("hello")
+
+		value, err := result.Value()
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
+		}
+		if value != "hello" {
+			t.Errorf("Value() = %v, want hello", value)
+		}
+	})
+
+	t.Run("struct", func(t *testing.T) {
+		config := Config{Host: "localhost", Port: 8080}
+		result := lxtypes.ResultSuccess(config)
+
+		value, err := result.Value()
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
+		}
+		if value.Host != "localhost" || value.Port != 8080 {
+			t.Errorf("Value() = %+v, want %+v", value, config)
+		}
+	})
+
+	t.Run("pointer of struct", func(t *testing.T) {
+		config := &Config{Host: "example.com", Port: 3000}
+		result := lxtypes.ResultSuccess(config)
+
+		value, err := result.Value()
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
+		}
+		if value.Host != "example.com" || value.Port != 3000 {
+			t.Errorf("Value() = %+v, want %+v", value, config)
+		}
+	})
+
+	t.Run("zero value", func(t *testing.T) {
+		// Even zero values should succeed
+		result := lxtypes.ResultSuccess(0)
+
+		value, err := result.Value()
+		if err != nil {
+			t.Errorf("Expected no error for zero value, got %v", err)
+		}
+		if value != 0 {
+			t.Errorf("Value() = %v, want 0", value)
+		}
+	})
 }
 
 func TestResultFailure(t *testing.T) {
-	err := errors.New("test error")
-	result := lxtypes.Failure[int](err)
+	testErr := errors.New("test error")
 
-	if result.IsSuccess() {
-		t.Error("Expected Failure to return false for IsSuccess()")
-	}
-	if !result.IsFailure() {
-		t.Error("Expected Failure to return true for IsFailure()")
-	}
-	if got := result.Error(); got.Error() != err.Error() {
-		t.Errorf("Error() = %v, want %v", got, err)
-	}
-}
+	t.Run("integer", func(t *testing.T) {
+		result := lxtypes.ResultFailure[int](testErr)
 
-func TestResultValuePanics(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("Expected Value on Failure to panic")
+		value, err := result.Value()
+		if err == nil {
+			t.Error("Expected error, got nil")
 		}
-	}()
-	result := lxtypes.Failure[int](errors.New("error"))
-	result.Value()
-}
-
-func TestResultErrorPanics(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("Expected Error on Success to panic")
+		if err.Error() != testErr.Error() {
+			t.Errorf("Error = %v, want %v", err, testErr)
 		}
-	}()
-	result := lxtypes.Success(42)
-	result.Error()
+		if value != 0 {
+			t.Errorf("Value should be zero for failure, got %v", value)
+		}
+	})
+
+	t.Run("string", func(t *testing.T) {
+		result := lxtypes.ResultFailure[string](testErr)
+
+		value, err := result.Value()
+		if err == nil {
+			t.Error("Expected error, got nil")
+		}
+		if value != "" {
+			t.Errorf("Value should be empty string for failure, got %v", value)
+		}
+	})
+
+	t.Run("struct", func(t *testing.T) {
+		result := lxtypes.ResultFailure[Config](testErr)
+
+		value, err := result.Value()
+		if err == nil {
+			t.Error("Expected error, got nil")
+		}
+		if value.Host != "" || value.Port != 0 {
+			t.Errorf("Value should be zero Config for failure, got %+v", value)
+		}
+	})
+
+	t.Run("pointer of struct", func(t *testing.T) {
+		result := lxtypes.ResultFailure[*Config](testErr)
+
+		value, err := result.Value()
+		if err == nil {
+			t.Error("Expected error, got nil")
+		}
+		if value != nil {
+			t.Errorf("Value should be nil for failure, got %+v", value)
+		}
+	})
 }
 
 func TestResultValueOr(t *testing.T) {
-	success := lxtypes.Success(42)
-	failure := lxtypes.Failure[int](errors.New("error"))
-
-	if got := success.ValueOr(0); got != 42 {
-		t.Errorf("Success.ValueOr(0) = %v, want 42", got)
-	}
-	if got := failure.ValueOr(99); got != 99 {
-		t.Errorf("Failure.ValueOr(99) = %v, want 99", got)
-	}
-}
-
-func TestResultValueOrElse(t *testing.T) {
-	success := lxtypes.Success(42)
-	failure := lxtypes.Failure[int](errors.New("error"))
-
-	if got := success.ValueOrElse(func(e error) int { return 0 }); got != 42 {
-		t.Errorf("Success.ValueOrElse(...) = %v, want 42", got)
-	}
-	if got := failure.ValueOrElse(func(e error) int { return 99 }); got != 99 {
-		t.Errorf("Failure.ValueOrElse(...) = %v, want 99", got)
-	}
-}
-
-func TestResultMap(t *testing.T) {
-	double := func(n int) int { return n * 2 }
-
-	success := lxtypes.Success(21)
-	mapped := lxtypes.ResultMap(success, double)
-
-	if !mapped.IsSuccess() {
-		t.Error("Expected mapped Success to be Success")
-	}
-	if got := mapped.Value(); got != 42 {
-		t.Errorf("Mapped value = %v, want 42", got)
-	}
-
-	failure := lxtypes.Failure[int](errors.New("error"))
-	mappedFailure := lxtypes.ResultMap(failure, double)
-
-	if !mappedFailure.IsFailure() {
-		t.Error("Expected mapped Failure to be Failure")
-	}
-}
-
-func TestResultAndThen(t *testing.T) {
-	safeDivide := func(a, b int) lxtypes.Result[int] {
-		if b == 0 {
-			return lxtypes.Failure[int](errors.New("division by zero"))
+	t.Run("success returns original", func(t *testing.T) {
+		success := lxtypes.ResultSuccess(42)
+		if got := success.ValueOr(0); got != 42 {
+			t.Errorf("Success.ValueOr(0) = %v, want 42", got)
 		}
-		return lxtypes.Success(a / b)
-	}
-
-	success := lxtypes.Success(10)
-	result := lxtypes.ResultAndThen(success, func(n int) lxtypes.Result[int] {
-		return safeDivide(100, n)
 	})
 
-	if !result.IsSuccess() {
-		t.Error("Expected Success after AndThen")
-	}
-	if got := result.Value(); got != 10 {
-		t.Errorf("Result = %v, want 10", got)
-	}
-
-	// Test chaining that fails
-	successZero := lxtypes.Success(0)
-	resultFailure := lxtypes.ResultAndThen(successZero, func(n int) lxtypes.Result[int] {
-		return safeDivide(100, n)
+	t.Run("failure returns default", func(t *testing.T) {
+		failure := lxtypes.ResultFailure[int](errors.New("error"))
+		if got := failure.ValueOr(99); got != 99 {
+			t.Errorf("Failure.ValueOr(99) = %v, want 99", got)
+		}
 	})
 
-	if !resultFailure.IsFailure() {
-		t.Error("Expected Failure after AndThen with zero")
-	}
+	t.Run("struct with success", func(t *testing.T) {
+		config := Config{Host: "localhost", Port: 8080}
+		success := lxtypes.ResultSuccess(config)
+		defaultConfig := Config{Host: "default", Port: 80}
 
-	// Test Failure propagation
-	failure := lxtypes.Failure[int](errors.New("initial error"))
-	resultProp := lxtypes.ResultAndThen(failure, func(n int) lxtypes.Result[int] {
-		return safeDivide(100, n)
+		got := success.ValueOr(defaultConfig)
+		if got.Host != "localhost" {
+			t.Errorf("ValueOr() = %+v, want %+v", got, config)
+		}
 	})
 
-	if !resultProp.IsFailure() {
-		t.Error("Expected Failure to propagate through AndThen")
-	}
-	if got := resultProp.Error().Error(); got != "initial error" {
-		t.Errorf("Error = %v, want 'initial error'", got)
-	}
+	t.Run("struct with failure", func(t *testing.T) {
+		failure := lxtypes.ResultFailure[Config](errors.New("error"))
+		defaultConfig := Config{Host: "default", Port: 80}
+
+		got := failure.ValueOr(defaultConfig)
+		if got.Host != "default" {
+			t.Errorf("ValueOr() = %+v, want %+v", got, defaultConfig)
+		}
+	})
+
+	t.Run("pointer of struct with success", func(t *testing.T) {
+		config := &Config{Host: "localhost", Port: 8080}
+		success := lxtypes.ResultSuccess(config)
+		defaultConfig := &Config{Host: "default", Port: 80}
+
+		got := success.ValueOr(defaultConfig)
+		if got.Host != "localhost" {
+			t.Errorf("ValueOr() = %+v, want %+v", got, config)
+		}
+	})
+
+	t.Run("pointer of struct with failure", func(t *testing.T) {
+		failure := lxtypes.ResultFailure[*Config](errors.New("error"))
+		defaultConfig := &Config{Host: "default", Port: 80}
+
+		got := failure.ValueOr(defaultConfig)
+		if got.Host != "default" {
+			t.Errorf("ValueOr() = %+v, want %+v", got, defaultConfig)
+		}
+	})
 }
 
-func TestResultOrElse(t *testing.T) {
-	success := lxtypes.Success(42)
-	failure := lxtypes.Failure[int](errors.New("error"))
+func TestResultFromError(t *testing.T) {
+	t.Run("nil error creates success", func(t *testing.T) {
+		value, err := strconv.Atoi("42")
+		result := convertToResult(value, err)
 
-	fallback := func(e error) lxtypes.Result[int] {
-		return lxtypes.Success(99)
-	}
-
-	// Success should ignore OrElse
-	resultSuccess := success.OrElse(fallback)
-	if !resultSuccess.IsSuccess() {
-		t.Error("Expected Success.OrElse to return Success")
-	}
-	if got := resultSuccess.Value(); got != 42 {
-		t.Errorf("Success.OrElse value = %v, want 42", got)
-	}
-
-	// Failure should call fallback
-	resultFailure := failure.OrElse(fallback)
-	if !resultFailure.IsSuccess() {
-		t.Error("Expected Failure.OrElse to return fallback Success")
-	}
-	if got := resultFailure.Value(); got != 99 {
-		t.Errorf("Failure.OrElse value = %v, want 99", got)
-	}
-}
-
-func TestResultRecover(t *testing.T) {
-	failure := lxtypes.Failure[int](errors.New("error"))
-
-	recovered := lxtypes.ResultRecover(failure, func(e error) lxtypes.Result[int] {
-		return lxtypes.Success(99)
+		v, e := result.Value()
+		if e != nil {
+			t.Errorf("Expected no error, got %v", e)
+		}
+		if v != 42 {
+			t.Errorf("Value = %v, want 42", v)
+		}
 	})
 
-	if !recovered.IsSuccess() {
-		t.Error("Expected Recover to return Success")
-	}
-	if got := recovered.Value(); got != 99 {
-		t.Errorf("Recovered value = %v, want 99", got)
-	}
+	t.Run("non-nil error creates failure", func(t *testing.T) {
+		value, err := strconv.Atoi("invalid")
+		result := convertToResult(value, err)
+
+		_, e := result.Value()
+		if e == nil {
+			t.Error("Expected error, got nil")
+		}
+	})
+
+	t.Run("struct with nil error", func(t *testing.T) {
+		config := Config{Host: "localhost", Port: 8080}
+		result := convertToResult(config, nil)
+
+		v, e := result.Value()
+		if e != nil {
+			t.Errorf("Expected no error, got %v", e)
+		}
+		if v.Host != "localhost" {
+			t.Errorf("Value = %+v, want %+v", v, config)
+		}
+	})
+
+	t.Run("struct with error", func(t *testing.T) {
+		result := convertToResult(Config{}, errors.New("config error"))
+
+		_, e := result.Value()
+		if e == nil {
+			t.Error("Expected error, got nil")
+		}
+	})
 }
 
-func TestFromError(t *testing.T) {
-	// Success case
-	value, err := strconv.Atoi("42")
-	result1 := lxtypes.FromError(value, err)
-
-	if !result1.IsSuccess() {
-		t.Error("Expected FromError with nil error to be Success")
+// Helper function to convert (value, error) to Result
+func convertToResult[T any](value T, err error) lxtypes.Result[T] {
+	if err != nil {
+		return lxtypes.ResultFailure[T](err)
 	}
-	if got := result1.Value(); got != 42 {
-		t.Errorf("Value = %v, want 42", got)
-	}
-
-	// Failure case
-	value2, err2 := strconv.Atoi("invalid")
-	result2 := lxtypes.FromError(value2, err2)
-
-	if !result2.IsFailure() {
-		t.Error("Expected FromError with error to be Failure")
-	}
+	return lxtypes.ResultSuccess(value)
 }
 
 func TestResultChaining(t *testing.T) {
-	// Complex chaining scenario
-	parseNum := func(s string) lxtypes.Result[int] {
-		n, err := strconv.Atoi(s)
-		return lxtypes.FromError(n, err)
-	}
-
-	double := func(n int) int { return n * 2 }
-
-	validate := func(n int) lxtypes.Result[int] {
-		if n > 15 {
-			return lxtypes.Success(n)
+	t.Run("chain with success", func(t *testing.T) {
+		result := lxtypes.ResultSuccess(42)
+		value, err := result.Value()
+		if err != nil {
+			t.Errorf("Expected no error, got %v", err)
 		}
-		return lxtypes.Failure[int](errors.New("too small"))
-	}
 
-	result := parseNum("10")
-	doubled := lxtypes.ResultMap(result, double)
-	validated := lxtypes.ResultAndThen(doubled, validate)
-	final := lxtypes.ResultMap(validated, func(n int) int { return n + 5 })
+		finalValue := value + 10
+		if finalValue != 52 {
+			t.Errorf("Expected 52, got %v", finalValue)
+		}
+	})
 
-	if !final.IsSuccess() {
-		t.Error("Expected chained result to be Success")
-	}
-	if got := final.Value(); got != 25 {
-		t.Errorf("Chained result = %v, want 25", got)
-	}
+	t.Run("chain with failure", func(t *testing.T) {
+		result := lxtypes.ResultFailure[int](errors.New("error"))
+		value := result.ValueOr(0) + 10
+		if value != 10 {
+			t.Errorf("Expected 10, got %v", value)
+		}
+	})
 
-	// Chaining that fails
-	result2 := parseNum("invalid")
-	if !result2.IsFailure() {
-		t.Error("Expected parse error")
-	}
-	if got := result2.ValueOr(99); got != 99 {
-		t.Errorf("Failed parse result = %v, want 99", got)
-	}
+	t.Run("struct modification", func(t *testing.T) {
+		result := lxtypes.ResultSuccess(Config{Host: "localhost", Port: 8080})
+		config := result.ValueOr(Config{Host: "default", Port: 80})
+		config.Port += 1
+
+		if config.Port != 8081 {
+			t.Errorf("Expected Port 8081, got %v", config.Port)
+		}
+	})
+
+	t.Run("pointer struct modification", func(t *testing.T) {
+		original := &Config{Host: "localhost", Port: 8080}
+		result := lxtypes.ResultSuccess(original)
+		config := result.ValueOr(&Config{Host: "default", Port: 80})
+		config.Port += 1
+
+		// Should modify the original
+		if original.Port != 8081 {
+			t.Errorf("Expected Port 8081, got %v", original.Port)
+		}
+	})
+}
+
+func TestResultValueErrorPattern(t *testing.T) {
+	t.Run("success with value-error pattern", func(t *testing.T) {
+		result := lxtypes.ResultSuccess(42)
+
+		if value, err := result.Value(); err == nil {
+			if value != 42 {
+				t.Errorf("Expected value 42, got %v", value)
+			}
+		} else {
+			t.Errorf("Expected no error, got %v", err)
+		}
+	})
+
+	t.Run("failure with value-error pattern", func(t *testing.T) {
+		result := lxtypes.ResultFailure[int](errors.New("test error"))
+
+		if value, err := result.Value(); err != nil {
+			if value != 0 {
+				t.Errorf("Expected zero value, got %v", value)
+			}
+			if err.Error() != "test error" {
+				t.Errorf("Expected 'test error', got %v", err)
+			}
+		} else {
+			t.Error("Expected error, got nil")
+		}
+	})
+
+	t.Run("struct with value-error pattern", func(t *testing.T) {
+		config := Config{Host: "localhost", Port: 8080}
+		result := lxtypes.ResultSuccess(config)
+
+		if value, err := result.Value(); err == nil {
+			if value.Host != "localhost" {
+				t.Errorf("Expected localhost, got %v", value.Host)
+			}
+		} else {
+			t.Errorf("Expected no error, got %v", err)
+		}
+	})
+}
+
+func TestResultRealWorldScenarios(t *testing.T) {
+	t.Run("database query simulation", func(t *testing.T) {
+		// Simulate successful database query
+		findUser := func(id int) lxtypes.Result[Config] {
+			if id > 0 {
+				return lxtypes.ResultSuccess(Config{Host: "user-service", Port: 5000})
+			}
+			return lxtypes.ResultFailure[Config](errors.New("user not found"))
+		}
+
+		result := findUser(123)
+		config := result.ValueOr(Config{Host: "default", Port: 80})
+		if config.Host != "user-service" {
+			t.Errorf("Expected user-service, got %v", config.Host)
+		}
+
+		result2 := findUser(-1)
+		config2 := result2.ValueOr(Config{Host: "default", Port: 80})
+		if config2.Host != "default" {
+			t.Errorf("Expected default, got %v", config2.Host)
+		}
+	})
+
+	t.Run("API call simulation", func(t *testing.T) {
+		// Simulate API call
+		callAPI := func(endpoint string) lxtypes.Result[string] {
+			if endpoint != "" {
+				return lxtypes.ResultSuccess(fmt.Sprintf("Response from %s", endpoint))
+			}
+			return lxtypes.ResultFailure[string](errors.New("invalid endpoint"))
+		}
+
+		result := callAPI("/users")
+		if response, err := result.Value(); err == nil {
+			if response != "Response from /users" {
+				t.Errorf("Expected 'Response from /users', got %v", response)
+			}
+		} else {
+			t.Errorf("Expected success, got error: %v", err)
+		}
+	})
+
+	t.Run("file operation simulation", func(t *testing.T) {
+		// Simulate file read
+		readConfig := func(path string) lxtypes.Result[*Config] {
+			if path == "config.json" {
+				return lxtypes.ResultSuccess(&Config{Host: "file-host", Port: 9000})
+			}
+			return lxtypes.ResultFailure[*Config](errors.New("file not found"))
+		}
+
+		result := readConfig("config.json")
+		if config, err := result.Value(); err == nil {
+			if config.Host != "file-host" {
+				t.Errorf("Expected file-host, got %v", config.Host)
+			}
+		} else {
+			t.Errorf("Expected success, got error: %v", err)
+		}
+
+		result2 := readConfig("missing.json")
+		defaultConfig := &Config{Host: "default", Port: 80}
+		config2 := result2.ValueOr(defaultConfig)
+		if config2.Host != "default" {
+			t.Errorf("Expected default, got %v", config2.Host)
+		}
+	})
 }

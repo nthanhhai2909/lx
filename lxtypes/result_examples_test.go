@@ -8,106 +8,258 @@ import (
 	"github.com/nthanhhai2909/lx/lxtypes"
 )
 
-func ExampleSuccess() {
-	result := lxtypes.Success(42)
-	fmt.Println(result.IsSuccess())
-	fmt.Println(result.Value())
-	// Output:
-	// true
-	// 42
+// Database represents a simple struct for examples
+type Database struct {
+	Name string
+	Port int
 }
 
-func ExampleFailure() {
-	result := lxtypes.Failure[int](errors.New("something went wrong"))
-	fmt.Println(result.IsFailure())
-	fmt.Println(result.Error())
+func ExampleResultSuccess() {
+	// Create a successful Result with a value
+	result := lxtypes.ResultSuccess(42)
+
+	// Use Go's idiomatic (value, error) pattern
+	if value, err := result.Value(); err == nil {
+		fmt.Println("Value:", value)
+	}
 	// Output:
-	// true
-	// something went wrong
+	// Value: 42
 }
 
-func ExampleFromError() {
+func ExampleResultSuccess_struct() {
+	// Create a successful Result with a struct
+	db := Database{Name: "users", Port: 5432}
+	result := lxtypes.ResultSuccess(db)
+
+	if value, err := result.Value(); err == nil {
+		fmt.Printf("Database: %s on port %d\n", value.Name, value.Port)
+	}
+	// Output:
+	// Database: users on port 5432
+}
+
+func ExampleResultSuccess_pointerStruct() {
+	// Create a successful Result with a pointer to struct
+	db := &Database{Name: "orders", Port: 3306}
+	result := lxtypes.ResultSuccess(db)
+
+	if value, err := result.Value(); err == nil {
+		fmt.Printf("Database: %s\n", value.Name)
+	}
+	// Output:
+	// Database: orders
+}
+
+func ExampleResultFailure() {
+	// Create a failed Result with an error
+	result := lxtypes.ResultFailure[int](errors.New("operation failed"))
+
+	// Check for error
+	if _, err := result.Value(); err != nil {
+		fmt.Println("Error:", err)
+	}
+	// Output:
+	// Error: operation failed
+}
+
+func ExampleResultFailure_struct() {
+	// Create a failed Result for a struct type
+	result := lxtypes.ResultFailure[Database](errors.New("connection failed"))
+
+	if _, err := result.Value(); err != nil {
+		fmt.Println("Error:", err)
+	}
+	// Output:
+	// Error: connection failed
+}
+
+func ExampleResult_Value() {
 	// Success case
-	value, err := strconv.Atoi("42")
-	result := lxtypes.FromError(value, err)
-	fmt.Println(result.IsSuccess())
-	fmt.Println(result.Value())
+	success := lxtypes.ResultSuccess(42)
+	value, err := success.Value()
+	if err == nil {
+		fmt.Println("Success:", value)
+	}
 
+	// Failure case
+	failure := lxtypes.ResultFailure[int](errors.New("error"))
+	_, err = failure.Value()
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 	// Output:
-	// true
-	// 42
+	// Success: 42
+	// Error: error
+}
+
+func ExampleResult_Value_struct() {
+	// Success with struct
+	db := Database{Name: "cache", Port: 6379}
+	success := lxtypes.ResultSuccess(db)
+
+	if value, err := success.Value(); err == nil {
+		fmt.Printf("Connected to %s\n", value.Name)
+	}
+
+	// Failure with struct
+	failure := lxtypes.ResultFailure[Database](errors.New("timeout"))
+	if _, err := failure.Value(); err != nil {
+		fmt.Println("Connection failed")
+	}
+	// Output:
+	// Connected to cache
+	// Connection failed
 }
 
 func ExampleResult_ValueOr() {
-	success := lxtypes.Success(42)
-	failure := lxtypes.Failure[int](errors.New("error"))
-
+	// Success returns original value
+	success := lxtypes.ResultSuccess(42)
 	fmt.Println(success.ValueOr(0))
+
+	// Failure returns default value
+	failure := lxtypes.ResultFailure[int](errors.New("error"))
 	fmt.Println(failure.ValueOr(99))
 	// Output:
 	// 42
 	// 99
 }
 
-func ExampleResultMap() {
-	result := lxtypes.Success(21)
-	doubled := lxtypes.ResultMap(result, func(n int) int { return n * 2 })
-	fmt.Println(doubled.Value())
+func ExampleResult_ValueOr_struct() {
+	// Success with struct
+	db := Database{Name: "prod", Port: 5432}
+	success := lxtypes.ResultSuccess(db)
+	defaultDB := Database{Name: "local", Port: 5432}
+
+	result := success.ValueOr(defaultDB)
+	fmt.Println(result.Name)
+
+	// Failure with struct
+	failure := lxtypes.ResultFailure[Database](errors.New("error"))
+	result2 := failure.ValueOr(defaultDB)
+	fmt.Println(result2.Name)
 	// Output:
-	// 42
+	// prod
+	// local
 }
 
-func ExampleResultAndThen() {
-	divide := func(a, b int) lxtypes.Result[int] {
-		if b == 0 {
-			return lxtypes.Failure[int](errors.New("division by zero"))
-		}
-		return lxtypes.Success(a / b)
+func ExampleResult_ValueOr_pointerStruct() {
+	// Success with pointer struct
+	db := &Database{Name: "prod", Port: 5432}
+	success := lxtypes.ResultSuccess(db)
+	defaultDB := &Database{Name: "local", Port: 5432}
+
+	result := success.ValueOr(defaultDB)
+	fmt.Println(result.Name)
+
+	// Failure with pointer struct
+	failure := lxtypes.ResultFailure[*Database](errors.New("error"))
+	result2 := failure.ValueOr(defaultDB)
+	fmt.Println(result2.Name)
+	// Output:
+	// prod
+	// local
+}
+
+// Example showing conversion from Go's (value, error) pattern
+func ExampleResult_fromError() {
+	// Parse a string to int
+	value, err := strconv.Atoi("42")
+
+	// Convert to Result
+	var result lxtypes.Result[int]
+	if err != nil {
+		result = lxtypes.ResultFailure[int](err)
+	} else {
+		result = lxtypes.ResultSuccess(value)
 	}
 
-	result := divide(10, 2)
-	chained := lxtypes.ResultAndThen(result, func(n int) lxtypes.Result[int] {
-		return divide(n, 1)
-	})
-
-	fmt.Println(chained.Value())
+	// Use the Result
+	if v, e := result.Value(); e == nil {
+		fmt.Println("Parsed:", v)
+	}
 	// Output:
-	// 5
+	// Parsed: 42
 }
 
-func ExampleResultRecover() {
-	failure := lxtypes.Failure[int](errors.New("error"))
+// Example showing a practical use case: database operations
+func ExampleResult_databaseOperation() {
+	// Simulate a database query
+	findDatabase := func(name string) lxtypes.Result[Database] {
+		if name == "users" {
+			return lxtypes.ResultSuccess(Database{Name: "users", Port: 5432})
+		}
+		return lxtypes.ResultFailure[Database](errors.New("database not found"))
+	}
 
-	recovered := lxtypes.ResultRecover(failure, func(e error) lxtypes.Result[int] {
-		fmt.Println("Recovering from:", e)
-		return lxtypes.Success(99)
-	})
+	// Success case
+	result := findDatabase("users")
+	if db, err := result.Value(); err == nil {
+		fmt.Printf("Found: %s on port %d\n", db.Name, db.Port)
+	}
 
-	fmt.Println(recovered.Value())
+	// Failure case with default
+	result2 := findDatabase("missing")
+	defaultDB := Database{Name: "default", Port: 5432}
+	db := result2.ValueOr(defaultDB)
+	fmt.Printf("Using: %s\n", db.Name)
 	// Output:
-	// Recovering from: error
-	// 99
+	// Found: users on port 5432
+	// Using: default
 }
 
+// Example showing chaining operations
 func ExampleResult_chaining() {
-	// Real-world example: parse and validate
-	parseAge := func(s string) lxtypes.Result[int] {
-		age, err := strconv.Atoi(s)
-		return lxtypes.FromError(age, err)
-	}
-
-	validateAge := func(age int) lxtypes.Result[int] {
-		if age >= 18 {
-			return lxtypes.Success(age)
+	// Parse and validate
+	parsePort := func(s string) lxtypes.Result[int] {
+		port, err := strconv.Atoi(s)
+		if err != nil {
+			return lxtypes.ResultFailure[int](err)
 		}
-		return lxtypes.Failure[int](errors.New("must be 18 or older"))
+		return lxtypes.ResultSuccess(port)
 	}
 
-	result := parseAge("25")
-	validated := lxtypes.ResultAndThen(result, validateAge)
-	doubled := lxtypes.ResultMap(validated, func(age int) int { return age * 2 })
+	validatePort := func(port int) lxtypes.Result[int] {
+		if port > 0 && port < 65536 {
+			return lxtypes.ResultSuccess(port)
+		}
+		return lxtypes.ResultFailure[int](errors.New("invalid port"))
+	}
 
-	fmt.Println(doubled.ValueOr(0))
+	// Parse
+	result := parsePort("8080")
+	port := result.ValueOr(0)
+
+	// Validate
+	validated := validatePort(port)
+	finalPort := validated.ValueOr(80)
+
+	fmt.Println("Port:", finalPort)
 	// Output:
-	// 50
+	// Port: 8080
+}
+
+// Example showing error recovery
+func ExampleResult_errorRecovery() {
+	// Try primary, fallback to secondary
+	connectPrimary := func() lxtypes.Result[string] {
+		return lxtypes.ResultFailure[string](errors.New("primary unavailable"))
+	}
+
+	connectSecondary := func() lxtypes.Result[string] {
+		return lxtypes.ResultSuccess("secondary")
+	}
+
+	// Try primary
+	result := connectPrimary()
+	connection := result.ValueOr("")
+
+	// If failed, try secondary
+	if connection == "" {
+		result2 := connectSecondary()
+		connection = result2.ValueOr("fallback")
+	}
+
+	fmt.Println("Connected to:", connection)
+	// Output:
+	// Connected to: secondary
 }

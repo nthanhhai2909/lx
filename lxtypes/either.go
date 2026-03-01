@@ -1,27 +1,12 @@
 package lxtypes
 
-import (
-	"errors"
-)
-
-var (
-	ErrLeftOnRight = errors.New("lxtypes.Either: cannot get Left value from Right-sided Either - use Right() or RightOr() instead")
-	ErrRightOnLeft = errors.New("lxtypes.Either: cannot get Right value from Left-sided Either - use Left() or LeftOr() instead")
-)
-
 // Either represents a value that can be either Left or Right.
 type Either[L, R any] interface {
-	// IsLeft returns true if this is a Left value.
-	IsLeft() bool
+	// Left returns the Left value and true if this is Left, or zero value and false if Right.
+	Left() (L, bool)
 
-	// IsRight returns true if this is a Right value.
-	IsRight() bool
-
-	// Left returns the Left value. Return an error if this is Right.
-	Left() (L, error)
-
-	// Right returns the Right value. Return an error if this is Left.
-	Right() (R, error)
+	// Right returns the Right value and true if this is Right, or zero value and false if Left.
+	Right() (R, bool)
 
 	// LeftOr returns the Left value or the provided default if Right.
 	LeftOr(defaultValue L) L
@@ -46,21 +31,13 @@ type eitherLeft[L, R any] struct {
 	value L
 }
 
-func (e eitherLeft[L, R]) Left() (L, error) {
-	return e.value, nil
+func (e eitherLeft[L, R]) Left() (L, bool) {
+	return e.value, true
 }
 
-func (e eitherLeft[L, R]) Right() (R, error) {
+func (e eitherLeft[L, R]) Right() (R, bool) {
 	var zero R
-	return zero, ErrRightOnLeft
-}
-
-func (e eitherLeft[L, R]) IsLeft() bool {
-	return true
-}
-
-func (e eitherLeft[L, R]) IsRight() bool {
-	return false
+	return zero, false
 }
 
 func (e eitherLeft[L, R]) LeftOr(defaultValue L) L {
@@ -73,25 +50,17 @@ func (e eitherLeft[L, R]) RightOr(defaultValue R) R {
 
 // ------------------------------------ Either Right implementation ------------------------------------
 
-func (e eitherRight[L, R]) IsLeft() bool {
-	return false
-}
-
-func (e eitherRight[L, R]) IsRight() bool {
-	return true
-}
-
 type eitherRight[L, R any] struct {
 	value R
 }
 
-func (e eitherRight[L, R]) Left() (L, error) {
+func (e eitherRight[L, R]) Left() (L, bool) {
 	var zero L
-	return zero, ErrLeftOnRight
+	return zero, false
 }
 
-func (e eitherRight[L, R]) Right() (R, error) {
-	return e.value, nil
+func (e eitherRight[L, R]) Right() (R, bool) {
+	return e.value, true
 }
 
 func (e eitherRight[L, R]) LeftOr(defaultValue L) L {

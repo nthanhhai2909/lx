@@ -178,7 +178,7 @@ result := intComparator(3, 5)  // -1 (3 < 5)
 
 ### Optional[T]
 
-Represents a value that may or may not be present. Inspired by Java's `Optional<T>`.
+Represents a value that may or may not be present. Inspired by Java's `Optional<T>` but adapted to Go's idiomatic comma-ok pattern.
 
 An `Optional` is either:
 - **Present**: Contains a value (created with `OptionalOf` or `OptionalOfNullable`)
@@ -201,115 +201,239 @@ var nilPtr *int
 opt2 := lxtypes.OptionalOfNullable(nilPtr)  // OptionalEmpty()
 ```
 
-#### Checking Presence
+#### Checking Presence with Comma-Ok Pattern
 
 ```go
 opt := lxtypes.OptionalOf(42)
 
-if opt.IsPresent() {
-    fmt.Println("Has value:", opt.Get())
-}
-
-if opt.IsEmpty() {
+// Use Go's idiomatic comma-ok pattern
+if value, ok := opt.Get(); ok {
+    fmt.Println("Has value:", value)  // Has value: 42
+} else {
     fmt.Println("No value")
 }
+```
+
+#### Working with Structs
+
+```go
+type User struct {
+    Name  string
+    Email string
+    Age   int
+}
+
+// With struct values
+user := User{Name: "Alice", Email: "alice@example.com", Age: 30}
+opt := lxtypes.OptionalOf(user)
+
+if u, ok := opt.Get(); ok {
+    fmt.Printf("User: %s, Email: %s\n", u.Name, u.Email)
+}
+
+// With struct pointers
+userPtr := &User{Name: "Bob", Email: "bob@example.com", Age: 25}
+opt2 := lxtypes.OptionalOf(userPtr)
+
+if u, ok := opt2.Get(); ok {
+    fmt.Printf("User: %s\n", u.Name)
+}
+
+// Safe nil handling with OptionalOfNullable
+var nilUser *User
+opt3 := lxtypes.OptionalOfNullable(nilUser)  // Empty Optional
+
+defaultUser := User{Name: "Guest", Email: "guest@example.com"}
+user = opt3.OrElse(defaultUser)  // Returns defaultUser
 ```
 
 #### Safe Access with Defaults
 
 ```go
 // Static default
-value := opt.OrElse(0)
+opt := lxtypes.OptionalOf(42)
+value := opt.OrElse(0)  // 42
 
-// Computed default
-value := opt.OrElseGet(func() int {
-    return computeDefault()
+empty := lxtypes.OptionalEmpty[int]()
+value2 := empty.OrElse(99)  // 99
+
+// Computed default (lazy evaluation)
+value3 := empty.OrElseGet(func() int {
+    return expensiveComputation()
 })
+```
 
-// Fallback to another Optional
-result := opt.Or(lxtypes.OptionalOf(99))
+#### Practical Example: Database Lookup
+
+```go
+// Simulate a database lookup that might return nil
+func FindUserByID(id int) *User {
+    // Database lookup...
+    if found {
+        return &user
+    }
+    return nil
+}
+
+// Safe handling with Optional
+userPtr := FindUserByID(123)
+opt := lxtypes.OptionalOfNullable(userPtr)
+
+// Use comma-ok pattern
+if user, ok := opt.Get(); ok {
+    fmt.Printf("Found: %s\n", user.Name)
+} else {
+    fmt.Println("User not found")
+}
+
+// Or use default
+defaultUser := User{Name: "Guest", Email: "guest@example.com"}
+user := opt.OrElse(defaultUser)
 ```
 
 **Methods:**
-- `IsPresent() bool` - Check if value exists
-- `IsEmpty() bool` - Check if empty
-- `Get() T` - Get value (panics if empty)
+- `Get() (T, bool)` - Returns (value, true) if present, or (zero, false) if empty (comma-ok pattern)
 - `OrElse(T) T` - Get value or default
-- `OrElseGet(func() T) T` - Get value or computed default
-- `Or(Optional[T]) Optional[T]` - Fallback to another Optional
-- `OrElseSupply(func() Optional[T]) Optional[T]` - Computed fallback Optional
-
+- `OrElseGet(func() T) T` - Get value or computed default (lazy evaluation)
 
 **Use Cases:**
 - Safe dictionary/map lookups
 - Database query results that might not exist
 - Configuration values that are optional
-- Eliminating nil pointer exceptions
+- Eliminating nil pointer panics
+- API responses that may be absent
+- File operations that may fail
 
 ### Result[T]
 
-Represents the result of an operation that may succeed with a value or fail with an error. 
-Specialized for Go's `error` type.
+Represents the result of an operation that may succeed or fail. Adapted to Go's idiomatic (value, error) pattern.
 
 A `Result` is either:
-- **Success**: Contains a value (created with `Success`)
-- **Failure**: Contains an error (created with `Failure`)
+- **Success**: Contains a value (created with `ResultSuccess`)
+- **Failure**: Contains an error (created with `ResultFailure`)
 
 #### Creating Results
 
 ```go
-// Success
-result := lxtypes.Success(42)
+// Success with value
+result := lxtypes.ResultSuccess(42)
 
-// Failure
-result := lxtypes.Failure[int](errors.New("something went wrong"))
-
-// Convert from Go's (value, error) pattern
-value, err := strconv.Atoi("42")
-result := lxtypes.FromError(value, err)  // Success(42)
+// Failure with error
+result := lxtypes.ResultFailure[int](errors.New("operation failed"))
 ```
 
-#### Checking Success
+#### Checking Success with Value-Error Pattern
 
 ```go
 result := divide(10, 2)
 
-if result.IsSuccess() {
-    fmt.Println("Success:", result.Value())
+// Use Go's idiomatic (value, error) pattern
+if value, err := result.Value(); err == nil {
+    fmt.Println("Success:", value)
 } else {
-    fmt.Println("Error:", result.Error())
+    fmt.Println("Error:", err)
 }
 ```
 
-#### Safe Access
+#### Working with Structs
 
 ```go
-// With default
-value := result.ValueOr(0)
+type Config struct {
+    Host string
+    Port int
+}
 
-// With computed default
-value := result.ValueOrElse(func(err error) int {
-    log.Println("Error:", err)
-    return 0
-})
+// With struct values
+config := Config{Host: "localhost", Port: 8080}
+result := lxtypes.ResultSuccess(config)
+
+if cfg, err := result.Value(); err == nil {
+    fmt.Printf("Config: %s:%d\n", cfg.Host, cfg.Port)
+}
+
+// With struct pointers
+configPtr := &Config{Host: "example.com", Port: 443}
+result2 := lxtypes.ResultSuccess(configPtr)
+
+if cfg, err := result2.Value(); err == nil {
+    fmt.Printf("Config: %s\n", cfg.Host)
+}
+
+// Failure with default
+result3 := lxtypes.ResultFailure[Config](errors.New("config not found"))
+defaultConfig := Config{Host: "default", Port: 80}
+config = result3.ValueOr(defaultConfig)  // Returns defaultConfig
+```
+
+#### Safe Access with Defaults
+
+```go
+// Success returns original value
+success := lxtypes.ResultSuccess(42)
+value := success.ValueOr(0)  // 42
+
+// Failure returns default value
+failure := lxtypes.ResultFailure[int](errors.New("error"))
+value2 := failure.ValueOr(99)  // 99
+```
+
+#### Practical Example: API Call
+
+```go
+// Simulate an API call
+func FetchUser(id int) lxtypes.Result[User] {
+    // Make API call...
+    if err != nil {
+        return lxtypes.ResultFailure[User](err)
+    }
+    return lxtypes.ResultSuccess(user)
+}
+
+// Handle the result
+result := FetchUser(123)
+
+// Use value-error pattern
+if user, err := result.Value(); err == nil {
+    fmt.Printf("User: %s\n", user.Name)
+} else {
+    fmt.Printf("Error: %v\n", err)
+}
+
+// Or use default
+defaultUser := User{Name: "Guest"}
+user := result.ValueOr(defaultUser)
+```
+
+#### Converting from Go's (value, error) Pattern
+
+```go
+// Standard library function
+value, err := strconv.Atoi("42")
+
+// Convert to Result
+var result lxtypes.Result[int]
+if err != nil {
+    result = lxtypes.ResultFailure[int](err)
+} else {
+    result = lxtypes.ResultSuccess(value)
+}
+
+// Now use Result methods
+finalValue := result.ValueOr(0)
 ```
 
 **Methods:**
-- `IsSuccess() bool` - Check if successful
-- `IsFailure() bool` - Check if error
-- `Value() T` - Get success value (panics if failure)
-- `ValueOr(T) T` - Get value or default
-- `ValueOrElse(func(error) T) T` - Get value or computed default
-- `Error() error` - Get error value (panics if success)
-- `OrElse(func(error) Result[T]) Result[T]` - Error recovery
-
-**Standalone Functions:**
-- `FromError[T](value T, err error) Result[T]` - Convert from Go's (value, error) pattern
+- `Value() (T, error)` - Returns (value, nil) if success, or (zero, err) if failure (Go's idiomatic pattern)
+- `ValueOr(T) T` - Get value or default (no error checking needed)
 
 **Use Cases:**
-- Wrapping Go's standard library functions
-- Error handling without exceptions
-- Railway-oriented programming
+- Wrapping functions that return (value, error)
+- Standardizing error handling across your codebase
+- Avoiding nil pointer panics with default values
+- Database operations that may fail
+- File I/O operations
+- Network requests
+- Configuration loading
 - Chainable error propagation
 
 ### Either[L, R]
@@ -333,71 +457,46 @@ either := lxtypes.EitherLeft[string, int]("error")
 either := lxtypes.EitherRight[string, int](42)
 ```
 
-#### Checking Which Side
-
-```go
-either := lxtypes.EitherRight[string, int](42)
-
-// Check which side
-if either.IsLeft() {
-    fmt.Println("This is a Left")
-}
-
-if either.IsRight() {
-    fmt.Println("This is a Right")
-}
-```
-
 #### Accessing Values
 
 ```go
-// Pattern matching with IsLeft/IsRight
-if either.IsLeft() {
-    left, err := either.Left()
-    if err == nil {
-        fmt.Println("Left value:", left)
-    }
-} else if either.IsRight() {
-    right, err := either.Right()
-    if err == nil {
-        fmt.Println("Right value:", right)
-    }
+// Check and access Left
+if left, ok := either.Left(); ok {
+    fmt.Println("Left value:", left)
 }
 
-// Or direct access with error checking
-left, err := either.Left()
-if err != nil {
-    // This is a Right, not a Left
-    fmt.Println("Error:", err)
-} else {
-    fmt.Println("Left value:", left)
+// Check and access Right
+if right, ok := either.Right(); ok {
+    fmt.Println("Right value:", right)
+}
+
+// Pattern matching style
+if left, ok := either.Left(); ok {
+    fmt.Println("Error:", left)
+} else if right, ok := either.Right(); ok {
+    fmt.Println("Success:", right)
 }
 ```
 
-#### Safe Access
+#### Safe Access with Defaults
 
 ```go
-// With defaults
+// Get value or default
 leftVal := either.LeftOr("default")
 rightVal := either.RightOr(0)
 ```
 
 **Methods:**
-- `IsLeft() bool` - Check if this is a Left value
-- `IsRight() bool` - Check if this is a Right value
-- `Left() (L, error)` - Get left value, returns error if Right
-- `Right() (R, error)` - Get right value, returns error if Left
-- `LeftOr(L) L` - Get left or default
-- `RightOr(R) R` - Get right or default
-
-**Predefined Errors:**
-- `ErrLeftOnRight` - Returned when calling Left() on a Right-sided Either
-- `ErrRightOnLeft` - Returned when calling Right() on a Left-sided Either
+- `Left() (L, bool)` - Returns left value and true if Left, or zero value and false if Right
+- `Right() (R, bool)` - Returns right value and true if Right, or zero value and false if Left
+- `LeftOr(L) L` - Returns left value or default if Right
+- `RightOr(R) R` - Returns right value or default if Left
 
 **Use Cases:**
 - Validation with custom error types
 - Parsing that returns one of two types
 - Union types before pattern matching
+- Polymorphic return values
 - Polymorphic return values
 
 **Real-World Example**:
@@ -428,11 +527,9 @@ func ValidateUser(name string, age int) lxtypes.Either[ValidationError, User] {
 
 // Usage
 result := ValidateUser("Alice", 30)
-if result.IsRight() {
-    user, _ := result.Right()
+if user, ok := result.Right(); ok {
     fmt.Printf("Valid user: %s, age %d\n", user.Name, user.Age)
-} else if result.IsLeft() {
-    validationErr, _ := result.Left()
+} else if validationErr, ok := result.Left(); ok {
     fmt.Printf("Validation error in %s: %s\n", validationErr.Field, validationErr.Message)
 }
 ```
@@ -671,10 +768,11 @@ This package follows the lx project's core principles:
 - ✅ General binary choice between any two types
 - ✅ Custom error types with rich data
 - ✅ Validation with detailed error information
-- ✅ Safe access with error returns (no panics)
-- ✅ Explicit error handling with predefined errors
+- ✅ Simple (value, bool) pattern like Optional
+- ✅ Type-safe access with boolean checks
 - ✅ Polymorphic return values
 - ✅ Union types representation
+- ✅ No panics - always safe to access
 
 ## Related Packages
 

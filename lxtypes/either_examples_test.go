@@ -9,51 +9,47 @@ import (
 func ExampleEitherLeft() {
 	either := lxtypes.EitherLeft[string, int]("error occurred")
 
-	fmt.Println(either.IsLeft())  // Check if Left
-	fmt.Println(either.IsRight()) // Check if Right
+	// Check with Left()
+	if left, ok := either.Left(); ok {
+		fmt.Println("Left:", left)
+	}
 
-	left, err := either.Left()
-	if err == nil {
-		fmt.Println(left)
+	// Right() returns false
+	if _, ok := either.Right(); !ok {
+		fmt.Println("Not a Right")
 	}
 	// Output:
-	// true
-	// false
-	// error occurred
+	// Left: error occurred
+	// Not a Right
 }
 
 func ExampleEitherRight() {
 	either := lxtypes.EitherRight[string, int](42)
 
-	fmt.Println(either.IsLeft())  // Check if Left
-	fmt.Println(either.IsRight()) // Check if Right
+	// Check with Right()
+	if right, ok := either.Right(); ok {
+		fmt.Println("Right:", right)
+	}
 
-	right, err := either.Right()
-	if err == nil {
-		fmt.Println(right)
+	// Left() returns false
+	if _, ok := either.Left(); !ok {
+		fmt.Println("Not a Left")
 	}
 	// Output:
-	// false
-	// true
-	// 42
+	// Right: 42
+	// Not a Left
 }
 
-func ExampleEither_IsLeft() {
-	left := lxtypes.EitherLeft[string, int]("error")
-	right := lxtypes.EitherRight[string, int](42)
+func ExampleEither_pattern() {
+	// Pattern matching style
+	either := lxtypes.EitherRight[string, int](42)
 
-	// Pattern matching with IsLeft/IsRight
-	if left.IsLeft() {
-		val, _ := left.Left()
-		fmt.Println("Left:", val)
-	}
-
-	if right.IsRight() {
-		val, _ := right.Right()
-		fmt.Println("Right:", val)
+	if left, ok := either.Left(); ok {
+		fmt.Println("Left:", left)
+	} else if right, ok := either.Right(); ok {
+		fmt.Println("Right:", right)
 	}
 	// Output:
-	// Left: error
 	// Right: 42
 }
 
@@ -105,13 +101,35 @@ func ExampleEither_validation() {
 	}
 
 	result := validateUser("Alice", 30)
-	if result.IsRight() {
-		user, _ := result.Right()
+	if user, ok := result.Right(); ok {
 		fmt.Printf("Valid user: %s, age %d\n", user.Name, user.Age)
-	} else if result.IsLeft() {
-		err, _ := result.Left()
+	} else if err, ok := result.Left(); ok {
 		fmt.Printf("Validation error in %s: %s\n", err.Field, err.Message)
 	}
 	// Output:
 	// Valid user: Alice, age 30
+}
+
+func ExampleEither_withStruct() {
+	type Config struct {
+		Host string
+		Port int
+	}
+
+	// Success case
+	success := lxtypes.EitherRight[string, Config](Config{Host: "localhost", Port: 8080})
+
+	if cfg, ok := success.Right(); ok {
+		fmt.Printf("Config: %s:%d\n", cfg.Host, cfg.Port)
+	}
+
+	// Error case
+	failure := lxtypes.EitherLeft[string, Config]("invalid config")
+
+	if err, ok := failure.Left(); ok {
+		fmt.Println("Error:", err)
+	}
+	// Output:
+	// Config: localhost:8080
+	// Error: invalid config
 }

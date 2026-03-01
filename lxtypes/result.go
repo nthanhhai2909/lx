@@ -1,84 +1,74 @@
 package lxtypes
 
-// Result represents the result of an operation that may succeed with a value or fail with an error.
-// This is specifically designed for error handling with Go's error type.
+// Result represents the outcome of an operation that may succeed or fail.
+// It provides a type-safe way to handle operations that can error without using exceptions.
 //
-// A Result is either:
-//   - Success: Contains a value (created with Success)
-//   - Failure: Contains an error (created with Failure)
+// A Result can be created in two ways:
+//   - ResultSuccess(value) - Creates a Result containing a success value
+//   - ResultFailure(err) - Creates a Result containing an error
 //
-// This is inspired by Rust's Result<T, E> but specialized for Go's error handling patterns.
-// For general binary choice between any two types, use Either[L, R].
+// The Value method returns (value, nil) if successful, or (zero, error) if failed.
+// This follows Go's idiomatic (value, error) pattern.
 //
 // Example:
 //
-//	func Divide(a, b int) Result[int] {
-//	    if b == 0 {
-//	        return Failure[int](errors.New("division by zero"))
-//	    }
-//	    return Success(a / b)
+//	// Success case
+//	result := lxtypes.ResultSuccess(42)
+//	if value, err := result.Value(); err == nil {
+//	    fmt.Println("Success:", value)  // Success: 42
 //	}
 //
-//	result := Divide(10, 2)
-//	if result.IsSuccess() {
-//	    fmt.Println("Result:", result.Value())
-//	} else {
-//	    fmt.Println("Error:", result.Error())
+//	// Failure case
+//	result2 := lxtypes.ResultFailure[int](errors.New("failed"))
+//	if value, err := result2.Value(); err != nil {
+//	    fmt.Println("Error:", err)  // Error: failed
 //	}
 //
-//	// Or use ValueOr for a default
-//	value := result.ValueOr(0)
+//	// Use with default value
+//	value := result2.ValueOr(99)  // 99
 type Result[T any] interface {
-	// IsSuccess returns true if the result is successful.
-	IsSuccess() bool
+	// Value returns the success value and nil if successful,
+	// or zero value and the error if failed.
+	// This follows Go's idiomatic (value, error) pattern for result handling.
+	//
+	// Example:
+	//
+	//	result := lxtypes.ResultSuccess(42)
+	//	if value, err := result.Value(); err == nil {
+	//	    fmt.Println(value)  // 42
+	//	}
+	Value() (T, error)
 
-	// IsFailure returns true if the result is a failure.
-	IsFailure() bool
-
-	// Value returns the success value. Panics if the result is a failure.
-	// Use IsSuccess() to check before calling Value(), or use ValueOr() for a safe alternative.
-	Value() T
-
-	// ValueOr returns the success value or the provided default if failure.
+	// ValueOr returns the success value if successful, or the provided default value if failed.
+	// Use this when you want a simple fallback without checking the error.
+	//
+	// Example:
+	//
+	//	failure := lxtypes.ResultFailure[int](errors.New("error"))
+	//	value := failure.ValueOr(99)  // 99
 	ValueOr(defaultValue T) T
-
-	// ValueOrElse returns the success value or computes it from the error if failure.
-	ValueOrElse(fn func(error) T) T
-
-	// Error returns the error. Panics if the result is successful.
-	Error() error
-
-	// OrElse returns this Result if successful, otherwise calls fn with the error.
-	OrElse(fn func(error) Result[T]) Result[T]
 }
 
-// failureResult represents a failed result.
-type failureResult[T any] struct {
-	err error
-}
-
-// Success creates a successful Result with the given value.
-func Success[T any](value T) Result[T] {
-	return successResult[T]{value: value}
-}
-
-// Failure creates a failed Result with the given error.
-func Failure[T any](err error) Result[T] {
-	return failureResult[T]{err: err}
-}
-
-// FromError creates a Result from a (value, error) pair - common in Go.
-// If error is nil, returns Success(value), otherwise returns Failure(error).
+// ResultSuccess creates a successful Result containing the given value.
+// The result will return (value, nil) from Value().
 //
 // Example:
 //
-//	value, err := strconv.Atoi("42")
-//	result := FromError(value, err)  // Success(42)
-func FromError[T any](value T, err error) Result[T] {
-	if err != nil {
-		return Failure[T](err)
-	}
-	return Success(value)
+//	result := lxtypes.ResultSuccess(42)
+//	value, err := result.Value()  // value=42, err=nil
+func ResultSuccess[T any](value T) Result[T] {
+	return successResult[T]{value}
+}
+
+// ResultFailure creates a failed Result containing the given error.
+// The result will return (zero, err) from Value().
+//
+// Example:
+//
+//	result := lxtypes.ResultFailure[int](errors.New("operation failed"))
+//	value, err := result.Value()  // value=0, err=error("operation failed")
+func ResultFailure[T any](err error) Result[T] {
+	return failureResult[T]{err: err}
 }
 
 // -------------------------------------- Success Result implementation --------------------------------------
@@ -86,86 +76,25 @@ type successResult[T any] struct {
 	value T
 }
 
-func (r successResult[T]) IsSuccess() bool {
-	return true
+func (s successResult[T]) Value() (T, error) {
+	return s.value, nil
 }
 
-func (r successResult[T]) IsFailure() bool {
-	return false
-}
-
-func (r successResult[T]) Value() T {
-	return r.value
-}
-
-func (r successResult[T]) ValueOr(defaultValue T) T {
-	return r.value
-}
-
-func (r successResult[T]) ValueOrElse(fn func(error) T) T {
-	return r.value
-}
-
-func (r successResult[T]) Error() error {
-	panic("called Error() on a successful Result")
-}
-
-func (r successResult[T]) OrElse(fn func(error) Result[T]) Result[T] {
-	return r
+func (s successResult[T]) ValueOr(defaultValue T) T {
+	return s.value
 }
 
 // -------------------------------------- Failure Result implementation --------------------------------------
 
-func (r failureResult[T]) IsSuccess() bool {
-	return false
+type failureResult[T any] struct {
+	err error
 }
 
-func (r failureResult[T]) IsFailure() bool {
-	return true
+func (f failureResult[T]) Value() (T, error) {
+	var zero T
+	return zero, f.err
 }
 
-func (r failureResult[T]) Value() T {
-	panic("called Value() on a failed Result")
-}
-
-func (r failureResult[T]) ValueOr(defaultValue T) T {
+func (f failureResult[T]) ValueOr(defaultValue T) T {
 	return defaultValue
-}
-
-func (r failureResult[T]) ValueOrElse(fn func(error) T) T {
-	return fn(r.err)
-}
-
-func (r failureResult[T]) Error() error {
-	return r.err
-}
-
-func (r failureResult[T]) OrElse(fn func(error) Result[T]) Result[T] {
-	return fn(r.err)
-}
-
-// ResultMap transforms the success value using the provided function.
-// If the result is a failure, returns the failure unchanged.
-// This is a standalone function because Go doesn't support type parameters on interface methods.
-func ResultMap[T, U any](res Result[T], fn func(T) U) Result[U] {
-	if res.IsFailure() {
-		return Failure[U](res.Error())
-	}
-	return Success(fn(res.Value()))
-}
-
-// ResultAndThen chains another Result-returning operation.
-// If the result is a failure, returns the failure unchanged.
-// This is a standalone function because Go doesn't support type parameters on interface methods.
-func ResultAndThen[T, U any](res Result[T], fn func(T) Result[U]) Result[U] {
-	if res.IsFailure() {
-		return Failure[U](res.Error())
-	}
-	return fn(res.Value())
-}
-
-// ResultRecover attempts to recover from a failure by calling fn with the error.
-// If the result is successful, returns it unchanged.
-func ResultRecover[T any](res Result[T], fn func(error) Result[T]) Result[T] {
-	return res.OrElse(fn)
 }
