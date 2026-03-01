@@ -81,6 +81,13 @@ go get github.com/nthanhhai2909/lx
 
 **Requirements**: Go 1.25 or higher
 
+> 💡 **Note**: Installing `lx` downloads all packages, but you only import what you need:
+> ```go
+> import "github.com/nthanhhai2909/lx/lxslices"  // Only use slices
+> import "github.com/nthanhhai2909/lx/lxstrings" // Only use strings
+> ```
+> Go's compiler will only include imported packages in your binary.
+
 ---
 
 ## ⚡ Quick Examples

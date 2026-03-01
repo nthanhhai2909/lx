@@ -8,8 +8,16 @@ The `lxtypes` package provides reusable, type-safe generic type definitions insp
 
 ## Installation
 
+Install the lx module (includes all packages):
+
 ```bash
-go get github.com/nthanhhai2909/lx/lxtypes
+go get github.com/nthanhhai2909/lx
+```
+
+Then import only what you need:
+
+```go
+import "github.com/nthanhhai2909/lx/lxtypes"
 ```
 
 ## Type Definitions
