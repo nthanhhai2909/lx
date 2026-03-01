@@ -199,26 +199,39 @@ func ExampleBiConsumer_AndThen() {
 // ============================================================================
 
 func ExampleFunction() {
-	toUpper := lxtypes.Function[string, string](func(s string) string {
-		return strings.ToUpper(s)
+	toString := lxtypes.Function[int, string](func(n int) string {
+		return fmt.Sprintf("Number: %d", n)
 	})
 
-	fmt.Println(toUpper("hello"))
+	fmt.Println(toString(42))
 	// Output:
-	// HELLO
+	// Number: 42
 }
 
-func ExampleCompose() {
-	double := func(n int) int { return n * 2 }
+func ExampleFunction_AndThen() {
+	// Create a Function
+	double := lxtypes.Function[int, int](func(n int) int { return n * 2 })
+
+	// Chain with AndThen
 	addTen := func(n int) int { return n + 10 }
+	doubleThenAddTen := double.AndThen(addTen)
 
-	// Compose: addTen first, then double
-	// Compose(addTen, double)(5) = double(addTen(5)) = double(15) = 30
-	addTenThenDouble := lxtypes.Compose(addTen, double)
-
-	fmt.Println(addTenThenDouble(5))
+	fmt.Println(doubleThenAddTen(5)) // (5 * 2) + 10 = 20
 	// Output:
-	// 30
+	// 20
+}
+
+func ExampleFunction_Compose() {
+	// Create a Function
+	double := lxtypes.Function[int, int](func(n int) int { return n * 2 })
+
+	// Chain with Compose
+	addOne := func(n int) int { return n + 1 }
+	addOneThenDouble := double.Compose(addOne)
+
+	fmt.Println(addOneThenDouble(5)) // (5 + 1) * 2 = 12
+	// Output:
+	// 12
 }
 
 // ============================================================================
@@ -233,6 +246,20 @@ func ExampleBiFunction() {
 	fmt.Println(concat("Hello, ", "World!"))
 	// Output:
 	// Hello, World!
+}
+
+func ExampleBiFunction_AndThen() {
+	// BiFunction that adds two numbers
+	add := lxtypes.BiFunction[int, int, int](func(a, b int) int {
+		return a + b
+	})
+
+	// Chain with AndThen to double the result
+	addThenDouble := add.AndThen(func(n int) int { return n * 2 })
+
+	fmt.Println(addThenDouble(3, 4)) // (3 + 4) * 2 = 14
+	// Output:
+	// 14
 }
 
 // ============================================================================

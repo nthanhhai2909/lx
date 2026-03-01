@@ -28,6 +28,14 @@
 //	isEven := lxtypes.Predicate[int](func(n int) bool { return n%2 == 0 })
 //	fmt.Println(isEven(4))  // true
 //
+//	// Function composition
+//	double := lxtypes.Function[int, int](func(n int) int { return n * 2 })
+//	result := double.AndThen(func(n int) int { return n + 10 })(5)  // 20
+//
+//	// BiFunction composition
+//	add := lxtypes.BiFunction[int, int, int](func(a, b int) int { return a + b })
+//	result := add.AndThen(func(n int) int { return n * 2 })(3, 4)  // 14
+//
 //	// Optional values (Java-style)
 //	opt := lxtypes.Of(42)
 //	value := opt.OrElse(0)  // 42

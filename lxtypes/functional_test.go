@@ -251,24 +251,49 @@ func TestFunction(t *testing.T) {
 	}
 }
 
-func TestCompose(t *testing.T) {
-	double := func(n int) int { return n * 2 }
+func TestFunctionAndThen(t *testing.T) {
+	// Test AndThen method on Function type
+	double := lxtypes.Function[int, int](func(n int) int { return n * 2 })
+	addTen := func(n int) int { return n + 10 }
+
+	// AndThen: double first, then addTen
+	// double.AndThen(addTen)(5) = addTen(double(5)) = addTen(10) = 20
+	doubleThenAddTen := double.AndThen(addTen)
+
+	if got := doubleThenAddTen(5); got != 20 {
+		t.Errorf("Expected 20, got %d", got)
+	}
+
+	// Chain multiple AndThen
+	multiplyThree := func(n int) int { return n * 3 }
+	chained := double.AndThen(addTen).AndThen(multiplyThree)
+	// (5 * 2) = 10, (10 + 10) = 20, (20 * 3) = 60
+
+	if got := chained(5); got != 60 {
+		t.Errorf("Expected 60, got %d", got)
+	}
+}
+
+func TestFunctionCompose(t *testing.T) {
+	// Test Compose method on Function type
+	double := lxtypes.Function[int, int](func(n int) int { return n * 2 })
 	addOne := func(n int) int { return n + 1 }
 
 	// Compose: addOne first, then double
-	// compose(addOne, double)(5) = double(addOne(5)) = double(6) = 12
-	addOneThenDouble := lxtypes.Compose(addOne, double)
+	// double.Compose(addOne)(5) = double(addOne(5)) = double(6) = 12
+	addOneThenDouble := double.Compose(addOne)
 
 	if got := addOneThenDouble(5); got != 12 {
 		t.Errorf("Expected 12, got %d", got)
 	}
 
-	// Can also compose in reverse order
-	// compose(double, addOne)(5) = addOne(double(5)) = addOne(10) = 11
-	doubleThenAddOne := lxtypes.Compose(double, addOne)
+	// Chain multiple Compose
+	subtractTwo := func(n int) int { return n - 2 }
+	chained := double.Compose(addOne).Compose(subtractTwo)
+	// (5 - 2) = 3, (3 + 1) = 4, (4 * 2) = 8
 
-	if got := doubleThenAddOne(5); got != 11 {
-		t.Errorf("Expected 11, got %d", got)
+	if got := chained(5); got != 8 {
+		t.Errorf("Expected 8, got %d", got)
 	}
 }
 
@@ -280,6 +305,29 @@ func TestBiFunction(t *testing.T) {
 
 	if got := add(3, 4); got != 7 {
 		t.Errorf("Expected 7, got %d", got)
+	}
+}
+
+func TestBiFunctionAndThen(t *testing.T) {
+	// BiFunction that adds two numbers
+	add := lxtypes.BiFunction[int, int, int](func(a, b int) int {
+		return a + b
+	})
+
+	// Chain with AndThen to double the result
+	double := func(n int) int { return n * 2 }
+	addThenDouble := add.AndThen(double)
+
+	if got := addThenDouble(3, 4); got != 14 {
+		t.Errorf("Expected 14, got %d", got) // (3 + 4) * 2 = 14
+	}
+
+	// Chain multiple AndThen operations
+	addTen := func(n int) int { return n + 10 }
+	chained := add.AndThen(double).AndThen(addTen)
+
+	if got := chained(3, 4); got != 24 {
+		t.Errorf("Expected 24, got %d", got) // (3 + 4) * 2 + 10 = 24
 	}
 }
 

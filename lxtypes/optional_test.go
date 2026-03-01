@@ -65,60 +65,6 @@ func TestOptionalOrElseGet(t *testing.T) {
 	}
 }
 
-func TestOptionalalMap(t *testing.T) {
-	double := func(n int) int { return n * 2 }
-
-	present := lxtypes.Of(21)
-	mapped := lxtypes.OptionalMap(present, double)
-
-	if !mapped.IsPresent() {
-		t.Error("Expected mapped Of to be present")
-	}
-	if got := mapped.Get(); got != 42 {
-		t.Errorf("Mapped value = %v, want 42", got)
-	}
-
-	empty := lxtypes.Empty[int]()
-	mappedEmpty := lxtypes.OptionalMap(empty, double)
-
-	if !mappedEmpty.IsEmpty() {
-		t.Error("Expected mapped Empty to be empty")
-	}
-}
-
-func TestOptionalAndThen(t *testing.T) {
-	safeDivide := func(n int) lxtypes.Optional[int] {
-		if n == 0 {
-			return lxtypes.Empty[int]()
-		}
-		return lxtypes.Of(100 / n)
-	}
-
-	present := lxtypes.Of(10)
-	result := lxtypes.OptionalAndThen(present, safeDivide)
-
-	if !result.IsPresent() {
-		t.Error("Expected present result after AndThen")
-	}
-	if got := result.Get(); got != 10 {
-		t.Errorf("Result = %v, want 10", got)
-	}
-
-	presentZero := lxtypes.Of(0)
-	resultEmpty := lxtypes.OptionalAndThen(presentZero, safeDivide)
-
-	if !resultEmpty.IsEmpty() {
-		t.Error("Expected empty result after AndThen with zero")
-	}
-
-	empty := lxtypes.Empty[int]()
-	resultOriginal := lxtypes.OptionalAndThen(empty, safeDivide)
-
-	if !resultOriginal.IsEmpty() {
-		t.Error("Expected Empty to propagate through AndThen")
-	}
-}
-
 func TestOptionalOr(t *testing.T) {
 	opt1 := lxtypes.Of(42)
 	opt2 := lxtypes.Of(99)
@@ -151,40 +97,6 @@ func TestOptionalOrElseSupply(t *testing.T) {
 	}
 	if got := empty.OrElseSupply(fallback).Get(); got != 99 {
 		t.Errorf("Empty.OrElseSupply(...) = %v, want 99", got)
-	}
-}
-
-func TestOptionalChaining(t *testing.T) {
-	// Complex chaining scenario with Map and AndThen
-	opt1 := lxtypes.Of(10)
-	opt2 := lxtypes.OptionalMap(opt1, func(n int) int { return n * 2 })
-
-	// Use AndThen to conditionally continue
-	opt3 := lxtypes.OptionalAndThen(opt2, func(n int) lxtypes.Optional[int] {
-		if n > 15 {
-			return lxtypes.Of(n + 5)
-		}
-		return lxtypes.Empty[int]()
-	})
-	result := opt3.OrElse(0)
-
-	if result != 25 {
-		t.Errorf("Chained result = %v, want 25", result)
-	}
-
-	// Chaining that results in Empty
-	opt4 := lxtypes.Of(5)
-	opt5 := lxtypes.OptionalMap(opt4, func(n int) int { return n * 2 })
-	opt6 := lxtypes.OptionalAndThen(opt5, func(n int) lxtypes.Optional[int] {
-		if n > 15 {
-			return lxtypes.Of(n)
-		}
-		return lxtypes.Empty[int]()
-	})
-	filtered := opt6.OrElse(99)
-
-	if filtered != 99 {
-		t.Errorf("Filtered result = %v, want 99", filtered)
 	}
 }
 

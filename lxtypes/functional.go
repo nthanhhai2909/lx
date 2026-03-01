@@ -78,15 +78,42 @@ func (bc BiConsumer[T, U]) AndThen(after BiConsumer[T, U]) BiConsumer[T, U] {
 // Function represents a function that accepts one argument and produces a result.
 type Function[T, U any] func(T) U
 
+// AndThen returns a composed function that first applies this function to its input,
+// and then applies the after function to the result.
+// f.AndThen(g)(x) = g(f(x))
+//
+// Note: Due to Go's limitations, the after function must accept and return the same type U.
+// For chaining functions with different output types, use the standalone Compose function.
+func (f Function[T, U]) AndThen(after func(U) U) Function[T, U] {
+	return func(t T) U {
+		return after(f(t))
+	}
+}
+
+// Compose returns a composed function that first applies the before function to its input,
+// and then applies this function to the result.
+// f.Compose(g)(x) = f(g(x))
+//
+// Note: Due to Go's limitations, the before function must accept and return the same type T.
+// For chaining functions with different input types, use the standalone Compose function.
+func (f Function[T, U]) Compose(before func(T) T) Function[T, U] {
+	return func(t T) U {
+		return f(before(t))
+	}
+}
+
 // BiFunction represents a function that accepts two arguments and produces a result.
 type BiFunction[T, U, R any] func(T, U) R
 
-// Compose returns a composed function that first applies the before function,
-// then applies the after function to the result.
-// Compose(before, after)(x) = after(before(x))
-func Compose[T, U, V any](before func(T) U, after func(U) V) func(T) V {
-	return func(t T) V {
-		return after(before(t))
+// AndThen returns a composed function that first applies this function to its inputs,
+// and then applies the after function to the result.
+// bf.AndThen(g)(x, y) = g(bf(x, y))
+//
+// Note: Due to Go's limitations, the after function must accept and return the same type R.
+// For transforming to different types, use the standalone Compose function with the result.
+func (bf BiFunction[T, U, R]) AndThen(after func(R) R) BiFunction[T, U, R] {
+	return func(t T, u U) R {
+		return after(bf(t, u))
 	}
 }
 

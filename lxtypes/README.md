@@ -12,7 +12,6 @@ The `lxtypes` package provides reusable, type-safe generic type definitions insp
 - **Error handling**: Result[T] (specialized for Go's error type)
 - **Binary choice**: Either[L, R] (general-purpose union type)
 - **Tuple types**: Pair, Triple, Quad for multi-value returns
-- **Utility functions**: Compose, OptionalMap, ResultMap, EitherFold, and more
 
 ## Installation
 
@@ -231,26 +230,6 @@ value := opt.OrElseGet(func() int {
 result := opt.Or(lxtypes.Of(99))
 ```
 
-#### Transforming Optionals
-
-```go
-// Map - transform the value
-opt := lxtypes.Of(21)
-doubled := lxtypes.OptionalMap(opt, func(n int) int {
-    return n * 2
-})  // Of(42)
-
-// AndThen - chain operations that might fail
-safeDivide := func(n int) lxtypes.Optional[int] {
-    if n == 0 {
-        return lxtypes.Empty[int]()
-    }
-    return lxtypes.Of(100 / n)
-}
-
-result := lxtypes.OptionalAndThen(lxtypes.Of(10), safeDivide)  // Of(10)
-```
-
 **Methods:**
 - `IsPresent() bool` - Check if value exists
 - `IsEmpty() bool` - Check if empty
@@ -260,9 +239,6 @@ result := lxtypes.OptionalAndThen(lxtypes.Of(10), safeDivide)  // Of(10)
 - `Or(Optional[T]) Optional[T]` - Fallback to another Optional
 - `OrElseSupply(func() Optional[T]) Optional[T]` - Computed fallback Optional
 
-**Standalone Functions:**
-- `OptionalMap[T, U](opt Optional[T], fn func(T) U) Optional[U]` - Transform value
-- `OptionalAndThen[T, U](opt Optional[T], fn func(T) Optional[U]) Optional[U]` - Chain operations
 
 **Use Cases:**
 - Safe dictionary/map lookups
@@ -318,36 +294,6 @@ value := result.ValueOrElse(func(err error) int {
 })
 ```
 
-#### Transforming Results
-
-```go
-// Map - transform success value
-result := lxtypes.Success(21)
-doubled := lxtypes.ResultMap(result, func(n int) int {
-    return n * 2
-})  // Success(42)
-
-// AndThen - chain operations that might fail
-divide := func(a, b int) lxtypes.Result[int] {
-    if b == 0 {
-        return lxtypes.Failure[int](errors.New("division by zero"))
-    }
-    return lxtypes.Success(a / b)
-}
-
-result := divide(10, 2)
-chained := lxtypes.ResultAndThen(result, func(n int) lxtypes.Result[int] {
-    return divide(n, 2)
-})  // Success(2)
-
-// Recover from errors
-failure := lxtypes.Failure[int](errors.New("error"))
-recovered := lxtypes.ResultRecover(failure, func(e error) lxtypes.Result[int] {
-    log.Println("Recovering from:", e)
-    return lxtypes.Success(99)
-})  // Success(99)
-```
-
 **Methods:**
 - `IsSuccess() bool` - Check if successful
 - `IsFailure() bool` - Check if error
@@ -359,9 +305,6 @@ recovered := lxtypes.ResultRecover(failure, func(e error) lxtypes.Result[int] {
 
 **Standalone Functions:**
 - `FromError[T](value T, err error) Result[T]` - Convert from Go's (value, error) pattern
-- `ResultMap[T, U](res Result[T], fn func(T) U) Result[U]` - Transform success value
-- `ResultAndThen[T, U](res Result[T], fn func(T) Result[U]) Result[U]` - Chain operations
-- `ResultRecover[T](res Result[T], fn func(error) Result[T]) Result[T]` - Error recovery
 
 **Use Cases:**
 - Wrapping Go's standard library functions
@@ -413,34 +356,6 @@ rightVal := either.RightOr(0)
 swapped := either.Swap()  // Either[int, string]
 ```
 
-#### Transforming Either
-
-```go
-// Map left side
-either := lxtypes.Left[string, int]("error")
-mapped := lxtypes.EitherMapLeft(either, func(s string) string {
-    return "Error: " + s
-})
-
-// Map right side
-either := lxtypes.Right[string, int](21)
-mapped := lxtypes.EitherMapRight(either, func(n int) int {
-    return n * 2
-})
-
-// Map both sides
-mapped := lxtypes.EitherMap(either,
-    func(s string) string { return "Error: " + s },
-    func(n int) int { return n * 2 },
-)
-
-// Fold to single value
-result := lxtypes.EitherFold(either,
-    func(s string) string { return "Error: " + s },
-    func(n int) string { return fmt.Sprintf("Value: %d", n) },
-)
-```
-
 **Methods:**
 - `IsLeft() bool` - Check if Left
 - `IsRight() bool` - Check if Right
@@ -450,13 +365,6 @@ result := lxtypes.EitherFold(either,
 - `RightOr(R) R` - Get right or default
 - `Swap() Either[R, L]` - Swap Left and Right
 
-**Standalone Functions:**
-- `EitherMapLeft[L, L2, R](Either[L, R], func(L) L2) Either[L2, R]` - Transform left
-- `EitherMapRight[L, R, R2](Either[L, R], func(R) R2) Either[L, R2]` - Transform right
-- `EitherMap[L, L2, R, R2](Either[L, R], func(L) L2, func(R) R2) Either[L2, R2]` - Transform both
-- `EitherFold[L, R, T](Either[L, R], func(L) T, func(R) T) T` - Reduce to single value
-- `EitherFromResult[T](Result[T]) Either[error, T]` - Convert from Result
-- `EitherToResult[T](Either[error, T]) Result[T]` - Convert to Result
 
 **Use Cases:**
 - Validation with custom error types
@@ -499,21 +407,6 @@ func ValidateUser(name string, age int) lxtypes.Either[ValidationError, User] {
 | **Result[T]** | Operation might fail with Go's error | `ReadFile(path) Result[[]byte]` |
 | **Either[L, R]** | Need custom error types or general binary choice | `Either[ValidationError, User]` |
 
-## Utility Functions
-
-### Compose[T, U, V]
-Composes two functions, applying the first then the second.
-
-```go
-double := func(n int) int { return n * 2 }
-addTen := func(n int) int { return n + 10 }
-
-// Compose: addTen first, then double
-// Compose(addTen, double)(5) = double(addTen(5)) = double(15) = 30
-addTenThenDouble := lxtypes.Compose(addTen, double)
-
-result := addTenThenDouble(5)  // 30
-```
 
 ## Tuple Types
 
@@ -724,17 +617,17 @@ This package follows the lx project's core principles:
 ### Optional[T] Benefits
 - ✅ Explicit presence/absence in type system
 - ✅ Safe nil handling with OfNullable
-- ✅ Chainable transformations with OptionalMap and OptionalAndThen
 - ✅ No more nil pointer panics
 - ✅ Clear API: IsPresent, IsEmpty, Get, OrElse
+- ✅ Flexible fallback options: Or, OrElseGet, OrElseSupply
 
 ### Result[T] Benefits
 - ✅ Specialized for Go's error type (simpler API)
-- ✅ Chainable error propagation
-- ✅ Transform success values easily
+- ✅ Chainable error propagation with OrElse
 - ✅ No exceptions - explicit error handling
 - ✅ FromError helper for Go's (value, error) pattern
 - ✅ Railway-oriented programming pattern
+- ✅ Safe value access with ValueOr and ValueOrElse
 
 ### Either[L, R] Benefits
 - ✅ General binary choice between any two types

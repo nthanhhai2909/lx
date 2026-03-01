@@ -56,12 +56,10 @@ type Optional[T any] interface {
 	OrElseSupply(fn func() Optional[T]) Optional[T]
 }
 
-// presentOption represents an Optional with a value.
 type presentOption[T any] struct {
 	value T
 }
 
-// emptyOption represents an empty Optional.
 type emptyOption[T any] struct{}
 
 // Of creates an Optional containing the given value.
@@ -84,7 +82,6 @@ func Empty[T any]() Optional[T] {
 	return emptyOption[T]{}
 }
 
-// presentOption implementation
 func (o presentOption[T]) IsPresent() bool {
 	return true
 }
@@ -139,24 +136,4 @@ func (o emptyOption[T]) Or(other Optional[T]) Optional[T] {
 
 func (o emptyOption[T]) OrElseSupply(fn func() Optional[T]) Optional[T] {
 	return fn()
-}
-
-// OptionalMap transforms the value in an Optional using the provided function.
-// If the Optional is empty, returns an empty Optional of the new type.
-// This is a standalone function because Go doesn't support type parameters on interface methods.
-func OptionalMap[T, U any](opt Optional[T], fn func(T) U) Optional[U] {
-	if opt.IsEmpty() {
-		return Empty[U]()
-	}
-	return Of(fn(opt.Get()))
-}
-
-// OptionalAndThen chains another Optional-returning operation.
-// If the Optional is empty, returns an empty Optional unchanged.
-// This is a standalone function because Go doesn't support type parameters on interface methods.
-func OptionalAndThen[T, U any](opt Optional[T], fn func(T) Optional[U]) Optional[U] {
-	if opt.IsEmpty() {
-		return Empty[U]()
-	}
-	return fn(opt.Get())
 }
