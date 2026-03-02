@@ -12,6 +12,7 @@ The `lxtypes` package provides reusable, type-safe generic type definitions insp
 - **Error handling**: Result[T] (specialized for Go's error type)
 - **Binary choice**: Either[L, R] (general-purpose union type)
 - **Tuple types**: Pair, Triple, Quad for multi-value returns
+- **Lazy evaluation**: Lazy[T] for deferred computation with caching
 
 ## Installation
 
@@ -627,6 +628,277 @@ t := q.ToTriple()  // Triple with first three elements
 - Complex return values
 - Database rows with multiple typed columns
 - Configuration tuples
+
+## Lazy Evaluation
+
+### Lazy[T]
+
+Represents a value that may be computed immediately (eager) or on first access (deferred). Provides a unified interface for both strategies with automatic caching and thread-safe deferred evaluation.
+
+**Key Features:**
+- **Deferred computation**: Compute values only when needed
+- **Automatic caching**: Results cached after first computation
+- **Thread-safe**: Uses `sync.Once` for safe concurrent access
+- **Error handling**: Supports computations that may fail
+- **Unified interface**: Treat eager and deferred values uniformly
+
+#### Creating Lazy Values
+
+##### LazyEager - Immediate Value
+
+Wraps an already-computed value with no deferred computation.
+
+```go
+// Wrap an immediate value
+lazy := lxtypes.LazyEager(42)
+value, _ := lazy.Get()  // Returns immediately: 42
+
+// Check if evaluated (always true for eager)
+fmt.Println(lazy.IsEvaluated())  // true
+```
+
+##### LazyEagerOrError - Wrap Existing Results
+
+Convert an existing `(value, error)` result into a Lazy.
+
+```go
+result, err := someFunction()
+lazy := lxtypes.LazyEagerOrError(result, err)
+
+// Later access
+value, err := lazy.Get()  // Returns result and err immediately
+```
+
+##### LazyDeferred - Deferred Computation
+
+Compute value lazily on first access. The computation function is called at most once.
+
+```go
+// Create lazy computation
+expensive := lxtypes.LazyDeferred(func() (int, error) {
+    // Expensive operation (database query, file read, etc.)
+    time.Sleep(time.Second)
+    return 42, nil
+})
+
+fmt.Println(expensive.IsEvaluated())  // false (not computed yet)
+
+// Compute on first access
+value, err := expensive.Get()  // Takes 1 second
+fmt.Println(value)                    // 42
+
+// Subsequent calls return cached value
+value2, _ := expensive.Get()  // Returns instantly
+fmt.Println(expensive.IsEvaluated())  // true
+```
+
+#### Methods
+
+##### Get() (T, error)
+
+Returns the value, computing it if necessary. For deferred values, the computation happens on first call and the result is cached.
+
+```go
+lazy := lxtypes.LazyDeferred(func() (string, error) {
+    return "computed", nil
+})
+
+value, err := lazy.Get()
+if err != nil {
+    // Handle error
+}
+fmt.Println(value)  // "computed"
+```
+
+##### MustGet() T
+
+Returns the value, panicking if computation fails. Useful when you're certain the computation will succeed.
+
+```go
+lazy := lxtypes.LazyDeferred(func() (int, error) {
+    return 42, nil
+})
+
+value := lazy.MustGet()  // 42 (panics if error)
+```
+
+##### IsEvaluated() bool
+
+Returns true if the value has been computed (for deferred) or was provided immediately (for eager).
+
+```go
+lazy := lxtypes.LazyDeferred(func() (int, error) {
+    return 42, nil
+})
+
+fmt.Println(lazy.IsEvaluated())  // false
+lazy.Get()
+fmt.Println(lazy.IsEvaluated())  // true
+```
+
+#### Use Cases
+
+**1. Expensive Resource Initialization**
+
+```go
+// Database connection pool that's only created when needed
+dbPool := lxtypes.LazyDeferred(func() (*sql.DB, error) {
+    return sql.Open("postgres", connectionString)
+})
+
+// In fast path, database never initialized
+if cachedResult, ok := cache.Get(key); ok {
+    return cachedResult
+}
+
+// In slow path, database initialized on first access
+db, err := dbPool.Get()
+if err != nil {
+    return err
+}
+result := db.Query(...)
+```
+
+**2. Configuration Loading**
+
+```go
+type Config struct {
+    APIKey string
+    Endpoint string
+}
+
+// Config only loaded when actually needed
+config := lxtypes.LazyDeferred(func() (Config, error) {
+    return loadConfigFromFile("config.json")
+})
+
+// Conditional usage
+if needsAPI {
+    cfg := config.MustGet()
+    callAPI(cfg.APIKey, cfg.Endpoint)
+}
+```
+
+**3. Conditional Computations**
+
+```go
+// Expensive fallback that's only computed if primary fails
+fallbackData := lxtypes.LazyDeferred(func() ([]byte, error) {
+    return fetchFromSlowBackup()
+})
+
+// Try primary source
+data, err := fetchFromPrimary()
+if err != nil {
+    // Fallback computation only happens here
+    data, err = fallbackData.Get()
+}
+```
+
+**4. Thread-Safe Singletons**
+
+```go
+var logger = lxtypes.LazyDeferred(func() (*Logger, error) {
+    return NewLogger("app.log")
+})
+
+// Safe to call from multiple goroutines
+func Log(msg string) {
+    log := logger.MustGet()  // Initialized exactly once
+    log.Write(msg)
+}
+```
+
+**5. Caching Expensive Computations**
+
+```go
+// Compute once, reuse many times
+fibonacci := lxtypes.LazyDeferred(func() ([]int, error) {
+    // Generate first 100 fibonacci numbers
+    fib := make([]int, 100)
+    fib[0], fib[1] = 0, 1
+    for i := 2; i < 100; i++ {
+        fib[i] = fib[i-1] + fib[i-2]
+    }
+    return fib, nil
+})
+
+// Use multiple times without recomputation
+for i := 0; i < 10; i++ {
+    fib, _ := fibonacci.Get()  // Only computed once
+    fmt.Println(fib[i])
+}
+```
+
+#### Error Handling
+
+Lazy supports operations that may fail. Errors are cached along with values.
+
+```go
+// Computation that may fail
+lazy := lxtypes.LazyDeferred(func() (Data, error) {
+    data, err := loadData()
+    if err != nil {
+        return Data{}, fmt.Errorf("failed to load: %w", err)
+    }
+    return data, nil
+})
+
+// Handle error on access
+data, err := lazy.Get()
+if err != nil {
+    log.Printf("Error: %v", err)
+    return
+}
+
+// Or use MustGet if failure should panic
+data := lazy.MustGet()
+```
+
+#### Thread Safety
+
+`LazyDeferred` is thread-safe and ensures the computation function is called exactly once, even with concurrent access.
+
+```go
+lazy := lxtypes.LazyDeferred(func() (int, error) {
+    time.Sleep(100 * time.Millisecond)
+    return 42, nil
+})
+
+// Launch 100 concurrent goroutines
+var wg sync.WaitGroup
+for i := 0; i < 100; i++ {
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
+        value, _ := lazy.Get()  // Function called exactly once
+        fmt.Println(value)
+    }()
+}
+wg.Wait()
+```
+
+#### Eager vs Deferred Comparison
+
+| Feature | LazyEager | LazyDeferred |
+|---------|-----------|--------------|
+| Computation timing | Immediate | On first `Get()` |
+| Performance | Instant access | First access has delay |
+| Use case | Wrapping existing values | Expensive computations |
+| `IsEvaluated()` | Always `true` | `false` until first `Get()` |
+| Thread safety | N/A (immutable) | Thread-safe with `sync.Once` |
+| Memory | Stores value immediately | Stores function until evaluation |
+
+**When to use LazyEager:**
+- Wrapping existing computation results
+- Converting `(value, error)` pairs to Lazy interface
+- No benefit from deferring (value already available)
+
+**When to use LazyDeferred:**
+- Expensive computations (database queries, file I/O, API calls)
+- Conditional usage (may not be needed in all code paths)
+- Singleton initialization
+- Caching computed values across multiple accesses
 
 ## Advanced Examples
 

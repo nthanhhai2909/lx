@@ -22,6 +22,10 @@
 //
 //   - Pair[T, U], Triple[T, U, V], Quad[T, U, V, W] - Multi-value tuples
 //
+// 4. Lazy Evaluation:
+//
+//   - Lazy[T] - Deferred or immediate computation with caching
+//
 // Quick Examples:
 //
 //	// Functional types
@@ -69,6 +73,18 @@
 //	// Tuples
 //	p := lxtypes.NewPair(42, "answer")
 //	fmt.Println(p.First, p.Second)  // 42 answer
+//
+//	// Lazy evaluation - deferred computation
+//	expensive := lxtypes.LazyDeferred(func() (int, error) {
+//	    // Expensive computation only runs when needed
+//	    return 42, nil
+//	})
+//	value, _ := expensive.Get()  // Computed here
+//	value2, _ := expensive.Get() // Returns cached value
+//
+//	// Lazy evaluation - immediate value
+//	immediate := lxtypes.LazyEager(100)
+//	value, _ := immediate.Get()  // Returns immediately
 //
 // For comprehensive documentation, examples, and use cases, see:
 // https://github.com/nthanhhai2909/lx/tree/main/lxtypes#readme
