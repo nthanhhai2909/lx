@@ -32,6 +32,10 @@
 //   - Future[T] - Asynchronous computation with type-safe composition and context support
 //   - FutureAny[T] - Return the first successful result from many futures (first err==nil)
 //
+// 6. Mutable State:
+//
+//   - Ref[T] - Thread-safe mutable value cell (Get, Set, Update)
+//
 // Quick Examples:
 //
 //	// Functional types
@@ -128,6 +132,23 @@
 //	recommendations := lxtypes.FutureDo(func() ([]Product, error) { return fetchRecommendations() })
 //	all := lxtypes.FutureJoin5(user, orders, payment, inventory, recommendations)
 //	dashboard, _ := all.Get(context.Background())  // Tuple5[User, []Order, Payment, Inventory, []Product]
+//
+//	// Mutable state - thread-safe value cell
+//	counter := lxtypes.NewRef(0)
+//	counter.Update(func(v int) int { return v + 1 })
+//	fmt.Println(counter.Get())  // 1
+//
+//	// Safe for concurrent use
+//	var wg sync.WaitGroup
+//	for i := 0; i < 10; i++ {
+//	    wg.Add(1)
+//	    go func() {
+//	        defer wg.Done()
+//	        counter.Update(func(v int) int { return v + 1 })
+//	    }()
+//	}
+//	wg.Wait()
+//	fmt.Println(counter.Get())  // 11
 //
 //
 // For comprehensive documentation, examples, and use cases, see:
