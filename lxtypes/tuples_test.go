@@ -340,6 +340,175 @@ func TestQuad_DifferentTypes(t *testing.T) {
 }
 
 // ============================================================================
+// Tuple5 Tests
+// ============================================================================
+
+func TestNewTuple5(t *testing.T) {
+	tests := []struct {
+		name string
+		v1   int
+		v2   string
+		v3   bool
+		v4   float64
+		v5   []int
+	}{
+		{
+			name: "basic tuple5",
+			v1:   1,
+			v2:   "two",
+			v3:   true,
+			v4:   4.0,
+			v5:   []int{5, 6},
+		},
+		{
+			name: "zero values",
+			v1:   0,
+			v2:   "",
+			v3:   false,
+			v4:   0.0,
+			v5:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxtypes.NewTuple5(tt.v1, tt.v2, tt.v3, tt.v4, tt.v5)
+			if got.V1 != tt.v1 || got.V2 != tt.v2 || got.V3 != tt.v3 || got.V4 != tt.v4 {
+				t.Errorf("NewTuple5() = %v, want {%v, %v, %v, %v, %v}", got, tt.v1, tt.v2, tt.v3, tt.v4, tt.v5)
+			}
+		})
+	}
+}
+
+func TestTuple5_Values(t *testing.T) {
+	tup := lxtypes.NewTuple5(1, "two", true, 4.0, []int{5})
+	v1, v2, v3, v4, v5 := tup.Values()
+
+	if v1 != 1 {
+		t.Errorf("Values() v1 = %v, want 1", v1)
+	}
+	if v2 != "two" {
+		t.Errorf("Values() v2 = %v, want two", v2)
+	}
+	if v3 != true {
+		t.Errorf("Values() v3 = %v, want true", v3)
+	}
+	if v4 != 4.0 {
+		t.Errorf("Values() v4 = %v, want 4.0", v4)
+	}
+	if len(v5) != 1 || v5[0] != 5 {
+		t.Errorf("Values() v5 = %v, want [5]", v5)
+	}
+}
+
+func TestTuple5_DifferentTypes(t *testing.T) {
+	tup := lxtypes.NewTuple5(42, "answer", true, 3.14, []string{"a", "b"})
+	if tup.V1 != 42 || tup.V2 != "answer" || tup.V3 != true || tup.V4 != 3.14 || len(tup.V5) != 2 {
+		t.Errorf("Tuple5 with different types failed")
+	}
+}
+
+// ============================================================================
+// Tuple6 Tests
+// ============================================================================
+
+func TestNewTuple6(t *testing.T) {
+	tests := []struct {
+		name string
+		v1   int
+		v2   string
+		v3   bool
+		v4   float64
+		v5   []int
+		v6   rune
+	}{
+		{
+			name: "basic tuple6",
+			v1:   1,
+			v2:   "two",
+			v3:   true,
+			v4:   4.0,
+			v5:   []int{5},
+			v6:   'a',
+		},
+		{
+			name: "zero values",
+			v1:   0,
+			v2:   "",
+			v3:   false,
+			v4:   0.0,
+			v5:   nil,
+			v6:   0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxtypes.NewTuple6(tt.v1, tt.v2, tt.v3, tt.v4, tt.v5, tt.v6)
+			if got.V1 != tt.v1 || got.V2 != tt.v2 || got.V3 != tt.v3 || got.V4 != tt.v4 || got.V6 != tt.v6 {
+				t.Errorf("NewTuple6() failed")
+			}
+		})
+	}
+}
+
+func TestTuple6_Values(t *testing.T) {
+	tup := lxtypes.NewTuple6(1, "two", true, 4.0, []int{5}, 'a')
+	v1, v2, v3, v4, v5, v6 := tup.Values()
+
+	if v1 != 1 || v2 != "two" || v3 != true || v4 != 4.0 || len(v5) != 1 || v6 != 'a' {
+		t.Errorf("Tuple6.Values() failed")
+	}
+}
+
+// ============================================================================
+// Tuple7 Tests
+// ============================================================================
+
+func TestNewTuple7(t *testing.T) {
+	tup := lxtypes.NewTuple7(1, "two", true, 4.0, []int{5}, 'a', byte(7))
+	if tup.V1 != 1 || tup.V2 != "two" || tup.V3 != true || tup.V4 != 4.0 || tup.V6 != 'a' || tup.V7 != 7 {
+		t.Errorf("NewTuple7() failed")
+	}
+}
+
+func TestTuple7_Values(t *testing.T) {
+	tup := lxtypes.NewTuple7(1, "two", true, 4.0, []int{5}, 'a', byte(7))
+	v1, v2, v3, v4, v5, v6, v7 := tup.Values()
+
+	if v1 != 1 || v2 != "two" || v3 != true || v4 != 4.0 || len(v5) != 1 || v6 != 'a' || v7 != 7 {
+		t.Errorf("Tuple7.Values() failed")
+	}
+}
+
+// ============================================================================
+// Tuple8 Tests
+// ============================================================================
+
+func TestNewTuple8(t *testing.T) {
+	tup := lxtypes.NewTuple8(1, "two", true, 4.0, []int{5}, 'a', byte(7), uint(8))
+	if tup.V1 != 1 || tup.V2 != "two" || tup.V3 != true || tup.V4 != 4.0 || tup.V6 != 'a' || tup.V7 != 7 || tup.V8 != 8 {
+		t.Errorf("NewTuple8() failed")
+	}
+}
+
+func TestTuple8_Values(t *testing.T) {
+	tup := lxtypes.NewTuple8(1, "two", true, 4.0, []int{5}, 'a', byte(7), uint(8))
+	v1, v2, v3, v4, v5, v6, v7, v8 := tup.Values()
+
+	if v1 != 1 || v2 != "two" || v3 != true || v4 != 4.0 || len(v5) != 1 || v6 != 'a' || v7 != 7 || v8 != 8 {
+		t.Errorf("Tuple8.Values() failed")
+	}
+}
+
+func TestTuple8_ZeroValue(t *testing.T) {
+	var tup lxtypes.Tuple8[int, string, bool, float64, []int, rune, byte, uint]
+	if tup.V1 != 0 || tup.V2 != "" || tup.V3 != false || tup.V4 != 0.0 || tup.V5 != nil || tup.V6 != 0 || tup.V7 != 0 || tup.V8 != 0 {
+		t.Errorf("Tuple8 zero value failed")
+	}
+}
+
+// ============================================================================
 // Integration Tests
 // ============================================================================
 

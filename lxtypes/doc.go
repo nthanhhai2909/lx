@@ -1,7 +1,7 @@
 // Package lxtypes provides reusable generic type definitions for functional programming,
-// optional values, and error handling in Go.
+// optional values, error handling, and asynchronous operations in Go.
 //
-// This package includes three main categories of types:
+// This package includes four main categories of types:
 //
 // 1. Functional Interfaces (inspired by Java's java.util.function):
 //
@@ -20,11 +20,16 @@
 //
 // 3. Tuple Types:
 //
-//   - Pair[T, U], Triple[T, U, V], Quad[T, U, V, W] - Multi-value tuples
+//   - Pair[T, U], Triple[T, U, V], Quad[T, U, V, W] - Multi-value tuples for 2-4 values
+//   - Tuple5[...], Tuple6[...], Tuple7[...], Tuple8[...] - Extended tuples for 5-8 values
 //
 // 4. Lazy Evaluation:
 //
 //   - Lazy[T] - Deferred or immediate computation with caching
+//
+// 5. Async Operations:
+//
+//   - Future[T] - Asynchronous computation with type-safe composition and context support
 //
 // Quick Examples:
 //
@@ -74,6 +79,10 @@
 //	p := lxtypes.NewPair(42, "answer")
 //	fmt.Println(p.First, p.Second)  // 42 answer
 //
+//	// Extended tuples for 5-8 values
+//	t5 := lxtypes.NewTuple5(1, "two", true, 4.0, []int{5, 6})
+//	fmt.Println(t5.V1, t5.V2, t5.V3, t5.V4, t5.V5)  // 1 two true 4.0 [5 6]
+//
 //	// Lazy evaluation - deferred computation
 //	expensive := lxtypes.LazyDeferred(func() (int, error) {
 //	    // Expensive computation only runs when needed
@@ -85,6 +94,34 @@
 //	// Lazy evaluation - immediate value
 //	immediate := lxtypes.LazyEager(100)
 //	value, _ := immediate.Get()  // Returns immediately
+//
+//	// Async operations - parallel execution
+//	f1 := lxtypes.FutureDo(func() (int, error) { return fetchData1() })
+//	f2 := lxtypes.FutureDo(func() (int, error) { return fetchData2() })
+//	allData := lxtypes.FutureAll(f1, f2)
+//	results, _ := allData.Get(context.Background())  // [data1, data2]
+//
+//	// Async operations - sequential with type transformation
+//	future := lxtypes.FutureDo(func() (int, error) { return getUserId() })
+//	future = lxtypes.FutureThen(future, func(id int) (User, error) { return fetchUser(id) })
+//	future = lxtypes.FutureThen(future, func(user User) (Account, error) { return fetchAccount(user) })
+//	account, _ := future.Get(context.Background())
+//
+//	// Async operations - join different types
+//	userFuture := lxtypes.FutureDo(func() (User, error) { return fetchUser() })
+//	configFuture := lxtypes.FutureDo(func() (Config, error) { return fetchConfig() })
+//	combined := lxtypes.FutureJoin2(userFuture, configFuture)
+//	result, _ := combined.Get(context.Background())  // Pair[User, Config]
+//
+//	// Async operations - join 5+ different types (microservices)
+//	user := lxtypes.FutureDo(func() (User, error) { return fetchUser() })
+//	orders := lxtypes.FutureDo(func() ([]Order, error) { return fetchOrders() })
+//	payment := lxtypes.FutureDo(func() (Payment, error) { return fetchPayment() })
+//	inventory := lxtypes.FutureDo(func() (Inventory, error) { return fetchInventory() })
+//	recommendations := lxtypes.FutureDo(func() ([]Product, error) { return fetchRecommendations() })
+//	all := lxtypes.FutureJoin5(user, orders, payment, inventory, recommendations)
+//	dashboard, _ := all.Get(context.Background())  // Tuple5[User, []Order, Payment, Inventory, []Product]
+//
 //
 // For comprehensive documentation, examples, and use cases, see:
 // https://github.com/nthanhhai2909/lx/tree/main/lxtypes#readme

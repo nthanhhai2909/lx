@@ -13,6 +13,7 @@ The `lxtypes` package provides reusable, type-safe generic type definitions insp
 - **Binary choice**: Either[L, R] (general-purpose union type)
 - **Tuple types**: Pair, Triple, Quad for multi-value returns
 - **Lazy evaluation**: Lazy[T] for deferred computation with caching
+- **Async operations**: Future[T] for concurrent computations with composability
 
 ## Installation
 
@@ -629,6 +630,87 @@ t := q.ToTriple()  // Triple with first three elements
 - Database rows with multiple typed columns
 - Configuration tuples
 
+### Tuple5[T1, T2, T3, T4, T5]
+A generic five-element tuple for combining five different types.
+
+```go
+// Create a tuple with 5 values
+t := lxtypes.NewTuple5(1, "two", true, 4.0, []int{5, 6})
+fmt.Printf("Values: %d, %s, %t, %.1f, %v\n", t.V1, t.V2, t.V3, t.V4, t.V5)
+
+// Unpack values
+v1, v2, v3, v4, v5 := t.Values()
+
+// Real-world example: Combining service responses
+type User struct{ Name string }
+type Config struct{ Host string }
+type Stats struct{ Count int }
+
+data := lxtypes.NewTuple5(
+    User{"Alice"},
+    []string{"order1", "order2"},
+    Config{"api.example.com"},
+    Stats{100},
+    map[string]int{"total": 42},
+)
+```
+
+**Methods:**
+- `Values() (T1, T2, T3, T4, T5)` - Unpack the tuple into separate values
+
+**Use Cases:**
+- Combining results from 5 different services
+- Complex dashboard data aggregation
+- Multi-source data fetching with FutureJoin5
+
+### Tuple6[T1, T2, T3, T4, T5, T6]
+A generic six-element tuple.
+
+```go
+t := lxtypes.NewTuple6(1, "two", true, 4.0, []int{5}, 'a')
+v1, v2, v3, v4, v5, v6 := t.Values()
+```
+
+**Methods:**
+- `Values() (T1, T2, T3, T4, T5, T6)` - Unpack the tuple into separate values
+
+**Use Cases:**
+- Combining results from 6 different services
+- Complex data pipelines
+- Multi-dimensional data structures
+
+### Tuple7[T1, T2, T3, T4, T5, T6, T7]
+A generic seven-element tuple.
+
+```go
+t := lxtypes.NewTuple7(1, "two", true, 4.0, []int{5}, 'a', byte(7))
+v1, v2, v3, v4, v5, v6, v7 := t.Values()
+```
+
+**Methods:**
+- `Values() (T1, T2, T3, T4, T5, T6, T7)` - Unpack the tuple into separate values
+
+### Tuple8[T1, T2, T3, T4, T5, T6, T7, T8]
+A generic eight-element tuple for combining eight different types.
+
+```go
+t := lxtypes.NewTuple8(1, "two", true, 4.0, []int{5}, 'a', byte(7), uint(8))
+v1, v2, v3, v4, v5, v6, v7, v8 := t.Values()
+
+fmt.Printf("All 8 values: %d, %s, %t, %.1f, %v, %c, %d, %d\n",
+    t.V1, t.V2, t.V3, t.V4, t.V5, t.V6, t.V7, t.V8)
+```
+
+**Methods:**
+- `Values() (T1, T2, T3, T4, T5, T6, T7, T8)` - Unpack the tuple into separate values
+
+**Use Cases:**
+- Combining results from 8 different services
+- Maximum flexibility for parallel data fetching
+- Complex microservice orchestration
+
+**Note:** Tuples 5-8 use a `V1, V2, V3...` naming convention instead of `First, Second, Third...` for consistency and clarity when dealing with many values.
+
 ## Lazy Evaluation
 
 ### Lazy[T]
@@ -900,163 +982,367 @@ wg.Wait()
 - Singleton initialization
 - Caching computed values across multiple accesses
 
-## Advanced Examples
+## Async Operations
 
-### Combining Predicates
+### Future[T]
 
-```go
-isEven := lxtypes.Predicate[int](func(n int) bool { return n%2 == 0 })
-isPositive := lxtypes.Predicate[int](func(n int) bool { return n > 0 })
+Represents a value that will be available in the future through asynchronous computation. Futures support sequential composition through `FutureThen`, parallel execution with `FutureAll` and `FutureJoin*`, and context-aware cancellation.
 
-// Combine with And
-isEvenAndPositive := isEven.And(isPositive)
-fmt.Println(isEvenAndPositive(4))   // true
-fmt.Println(isEvenAndPositive(-2))  // false
+**Key Features:**
+- **Hot start**: Computation begins immediately when future is created
+- **Lock-free**: Efficient channel-based synchronization
+- **Context-aware**: Respects context cancellation and timeouts
+- **Type transformations**: Chain operations with different types via `FutureThen`
+- **Parallel composition**: Combine multiple futures with `FutureAll` and `FutureJoin`
+- **Error propagation**: Errors flow through transformation chains
 
-// Combine with Or
-isEvenOrPositive := isEven.Or(isPositive)
-fmt.Println(isEvenOrPositive(3))   // true
-fmt.Println(isEvenOrPositive(-2))  // true
+#### Creating Futures
 
-// Negate
-isOdd := isEven.Negate()
-fmt.Println(isOdd(3))  // true
-```
+##### FutureDo - Async Computation
 
-### Combining BiPredicates
+Execute a function asynchronously. The computation starts immediately in a background goroutine.
 
 ```go
-inRange := lxtypes.BiPredicate[int, int](func(value, max int) bool {
-    return value >= 0 && value <= max
-})
-lessThan := lxtypes.BiPredicate[int, int](func(a, b int) bool {
-    return a < b
-})
-
-// Combine with And
-validAndLess := inRange.And(lessThan)
-fmt.Println(validAndLess(5, 10))  // true (in range AND less)
-fmt.Println(validAndLess(10, 5))  // false (in range but NOT less)
-
-// Combine with Or
-equals := lxtypes.BiPredicate[int, int](func(a, b int) bool { return a == b })
-validOrEqual := inRange.Or(equals)
-fmt.Println(validOrEqual(5, 10))   // true (in range)
-fmt.Println(validOrEqual(15, 15))  // true (equal)
-fmt.Println(validOrEqual(20, 10))  // false (neither)
-
-// Negate
-notEquals := equals.Negate()
-fmt.Println(notEquals(5, 3))  // true
-```
-
-### Sequential Consumers
-
-```go
-results := []string{}
-
-append1 := lxtypes.Consumer[string](func(s string) {
-    results = append(results, s)
-})
-append2 := lxtypes.Consumer[string](func(s string) {
-    results = append(results, strings.ToUpper(s))
+// Start async computation (hot start)
+future := lxtypes.FutureDo(func() (int, error) {
+    // Simulate expensive operation (API call, database query, etc.)
+    time.Sleep(100 * time.Millisecond)
+    return 42, nil
 })
 
-combined := append1.AndThen(append2)
-combined("hello")
+// Do other work while computation runs...
 
-fmt.Println(results)  // [hello HELLO]
-```
-
-### Complex Comparators
-
-```go
-type Person struct {
-    Name string
-    Age  int
+// Get the result (blocks until ready)
+ctx := context.Background()
+result, err := future.Get(ctx)
+if err != nil {
+    // Handle error
 }
-
-byName := lxtypes.Comparator[Person](func(a, b Person) int {
-    if a.Name < b.Name {
-        return -1
-    }
-    if a.Name > b.Name {
-        return 1
-    }
-    return 0
-})
-
-byAge := lxtypes.Comparator[Person](func(a, b Person) int {
-    return a.Age - b.Age
-})
-
-// Sort by name, then by age
-byNameThenAge := byName.ThenComparing(byAge)
-
-// Sort by age descending
-byAgeDesc := byAge.Reversed()
+fmt.Println(result)  // 42
 ```
 
-## Design Philosophy
+##### FutureOf - Immediate Value
 
-This package follows the lx project's core principles:
+Create a future that's already completed with a value. No goroutine is started.
 
-- **Type-Safe**: Full generic type support for compile-time safety
-- **Composable**: Types support method chaining and composition
-- **Zero Dependencies**: Uses only Go standard library
-- **Idiomatic Go**: Follows Go conventions while providing functional patterns
-- **Industry Standards**: Inspired by Java's Optional and Rust's Result
+```go
+future := lxtypes.FutureOf(100)
 
-## Use Cases
+ctx := context.Background()
+result, _ := future.Get(ctx)  // Returns immediately
+fmt.Println(result)  // 100
+```
 
-- **Higher-order functions**: Pass behavior as parameters
-- **Filter/Map/Reduce operations**: Use with lxslices for functional transformations
-- **Optional values**: Replace nil pointers and sentinel values with type-safe Option
-- **Error handling**: Type-safe error handling with Result instead of exceptions
-- **Safe dictionary lookups**: Return Option instead of value + bool
-- **Strategy pattern**: Inject different behaviors without interfaces
-- **Composition**: Build complex operations from simple ones
-- **Sorting**: Custom comparison logic with Comparator
-- **Null safety**: Eliminate null pointer exceptions with OfNullable
+##### FutureError - Immediate Error
 
-## Key Features
+Create a future that's already completed with an error.
 
-### Optional[T] Benefits
-- ✅ Explicit presence/absence in type system
-- ✅ Safe nil handling with OfNullable
-- ✅ No more nil pointer panics
-- ✅ Clear API: IsPresent, IsEmpty, Get, OrElse
-- ✅ Flexible fallback options: Or, OrElseGet, OrElseSupply
+```go
+future := lxtypes.FutureError[int](errors.New("failed"))
 
-### Result[T] Benefits
-- ✅ Specialized for Go's error type (simpler API)
-- ✅ Chainable error propagation with OrElse
-- ✅ No exceptions - explicit error handling
-- ✅ FromError helper for Go's (value, error) pattern
-- ✅ Railway-oriented programming pattern
-- ✅ Safe value access with ValueOr and ValueOrElse
+ctx := context.Background()
+_, err := future.Get(ctx)  // Returns immediately
+fmt.Println(err)  // failed
+```
 
-### Either[L, R] Benefits
-- ✅ General binary choice between any two types
-- ✅ Custom error types with rich data
-- ✅ Validation with detailed error information
-- ✅ Simple (value, bool) pattern like Optional
-- ✅ Type-safe access with boolean checks
-- ✅ Polymorphic return values
-- ✅ Union types representation
-- ✅ No panics - always safe to access
+#### Sequential Composition with FutureThen
 
-## Related Packages
+Chain dependent operations that transform types. Each step runs only after the previous succeeds.
 
-- **lxslices**: Functional slice operations (uses Predicate types)
-- **lxptrs**: Pointer utilities
-- **lxconstraints**: Generic type constraints
+```go
+// Step 1: Get user ID
+userIdFuture := lxtypes.FutureDo(func() (int, error) {
+    return 123, nil
+})
 
-## Contributing
+// Step 2: Fetch user details using ID (int -> User)
+userFuture := lxtypes.FutureThen(userIdFuture, func(id int) (User, error) {
+    time.Sleep(50 * time.Millisecond)
+    return User{ID: id, Name: "Alice"}, nil
+})
 
-See the main [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
+// Step 3: Fetch user's card (User -> Card)
+cardFuture := lxtypes.FutureThen(userFuture, func(user User) (Card, error) {
+    time.Sleep(50 * time.Millisecond)
+    return Card{UserID: user.ID, Number: "****1234"}, nil
+})
 
-## License
+ctx := context.Background()
+card, err := cardFuture.Get(ctx)
+// Total time: ~100ms (sequential), card contains result
+```
 
-Apache 2.0 - See [LICENSE](../LICENSE) for details.
+**Error Propagation:**
 
+If any step in the chain fails, the error propagates and subsequent transformations don't execute.
+
+```go
+future := lxtypes.FutureDo(func() (int, error) {
+    return 0, errors.New("initial error")
+})
+
+// This transformation won't execute
+future2 := lxtypes.FutureThen(future, func(n int) (string, error) {
+    return "won't run", nil
+})
+
+ctx := context.Background()
+_, err := future2.Get(ctx)
+fmt.Println(err)  // initial error
+```
+
+#### Parallel Execution
+
+##### FutureAll - Same Type
+
+Execute multiple futures of the same type concurrently and combine results into a slice.
+
+```go
+// Start 3 parallel operations
+service1 := lxtypes.FutureDo(func() (Data, error) {
+    return fetchFromService1()  // 100ms
+})
+service2 := lxtypes.FutureDo(func() (Data, error) {
+    return fetchFromService2()  // 100ms
+})
+service3 := lxtypes.FutureDo(func() (Data, error) {
+    return fetchFromService3()  // 100ms
+})
+
+// Combine all results
+allData := lxtypes.FutureAll(service1, service2, service3)
+
+ctx := context.Background()
+results, err := allData.Get(ctx)
+// Total time: ~100ms (parallel, not 300ms)
+// results: []Data{data1, data2, data3}
+
+// Transform combined results
+response := lxtypes.FutureThen(allData, func(data []Data) (Response, error) {
+    return combineData(data), nil
+})
+```
+
+**Error Handling:**
+
+If any future fails, `FutureAll` returns the first error encountered. All futures continue executing in the background.
+
+```go
+f1 := lxtypes.FutureDo(func() (int, error) { return 1, nil })
+f2 := lxtypes.FutureDo(func() (int, error) { return 0, errors.New("failed") })
+f3 := lxtypes.FutureDo(func() (int, error) { return 3, nil })
+
+allFuture := lxtypes.FutureAll(f1, f2, f3)
+
+ctx := context.Background()
+_, err := allFuture.Get(ctx)
+fmt.Println(err)  // failed
+```
+
+##### FutureJoin2 - Two Different Types
+
+Combine two futures of different types into a `Pair`.
+
+```go
+userFuture := lxtypes.FutureDo(func() (User, error) {
+    return fetchUser()  // 50ms
+})
+
+configFuture := lxtypes.FutureDo(func() (Config, error) {
+    return fetchConfig()  // 50ms
+})
+
+// Join into Pair[User, Config]
+combined := lxtypes.FutureJoin2(userFuture, configFuture)
+
+ctx := context.Background()
+result, err := combined.Get(ctx)
+// result.First = User, result.Second = Config
+```
+
+##### FutureJoin3 - Three Different Types
+
+Combine three futures into a `Triple`.
+
+```go
+userFuture := lxtypes.FutureDo(func() (User, error) {
+    return fetchUser()
+})
+
+configFuture := lxtypes.FutureDo(func() (Config, error) {
+    return fetchConfig()
+})
+
+statsFuture := lxtypes.FutureDo(func() (Stats, error) {
+    return fetchStats()
+})
+
+// Join into Triple[User, Config, Stats]
+combined := lxtypes.FutureJoin3(userFuture, configFuture, statsFuture)
+
+ctx := context.Background()
+result, err := combined.Get(ctx)
+// result.First = User, result.Second = Config, result.Third = Stats
+```
+
+##### FutureJoin4 - Four Different Types
+
+Combine four futures into a `Quad`.
+
+```go
+joined := lxtypes.FutureJoin4(future1, future2, future3, future4)
+
+ctx := context.Background()
+result, err := joined.Get(ctx)
+// result.First, result.Second, result.Third, result.Fourth
+```
+
+##### FutureJoin5 - Five Different Types
+
+Combine five futures of different types into a `Tuple5`. Perfect for coordinating multiple microservices.
+
+```go
+// Fetch from 5 different services
+userFuture := lxtypes.FutureDo(func() (User, error) {
+    return fetchUser()
+})
+ordersFuture := lxtypes.FutureDo(func() ([]Order, error) {
+    return fetchOrders()
+})
+paymentFuture := lxtypes.FutureDo(func() (Payment, error) {
+    return fetchPayment()
+})
+inventoryFuture := lxtypes.FutureDo(func() (Inventory, error) {
+    return fetchInventory()
+})
+recommendationsFuture := lxtypes.FutureDo(func() ([]Product, error) {
+    return fetchRecommendations()
+})
+
+// Combine all 5 futures
+combined := lxtypes.FutureJoin5(userFuture, ordersFuture, paymentFuture, inventoryFuture, recommendationsFuture)
+
+ctx := context.Background()
+result, err := combined.Get(ctx)
+// Access: result.V1 (User), result.V2 ([]Order), result.V3 (Payment), result.V4 (Inventory), result.V5 ([]Product)
+
+// Transform into dashboard response
+response := lxtypes.FutureThen(combined, func(data lxtypes.Tuple5[User, []Order, Payment, Inventory, []Product]) (Dashboard, error) {
+    return Dashboard{
+        User:            data.V1,
+        Orders:          data.V2,
+        Payment:         data.V3,
+        Inventory:       data.V4,
+        Recommendations: data.V5,
+    }, nil
+})
+```
+
+##### FutureJoin6 - Six Different Types
+
+Combine six futures into a `Tuple6`.
+
+```go
+combined := lxtypes.FutureJoin6(f1, f2, f3, f4, f5, f6)
+result, err := combined.Get(ctx)
+// Access: result.V1, result.V2, result.V3, result.V4, result.V5, result.V6
+```
+
+##### FutureJoin7 - Seven Different Types
+
+Combine seven futures into a `Tuple7`.
+
+```go
+combined := lxtypes.FutureJoin7(f1, f2, f3, f4, f5, f6, f7)
+result, err := combined.Get(ctx)
+// Access: result.V1 through result.V7
+```
+
+##### FutureJoin8 - Eight Different Types
+
+Combine eight futures into a `Tuple8`. Maximum flexibility for complex parallel operations.
+
+```go
+combined := lxtypes.FutureJoin8(f1, f2, f3, f4, f5, f6, f7, f8)
+result, err := combined.Get(ctx)
+// Access: result.V1 through result.V8
+```
+
+##### Which One to Use?
+
+| Scenario | Function | Return Type | Example |
+|----------|----------|-------------|---------|
+| **All same type** | `FutureAll` | `Future[[]T]` | Fetch from N database shards, all returning `[]Record` |
+| **2 different types** | `FutureJoin2` | `Future[Pair[T, U]]` | Fetch `User` and `Config` in parallel |
+| **3 different types** | `FutureJoin3` | `Future[Triple[T, U, V]]` | Fetch `User`, `Config`, and `Stats` in parallel |
+| **4 different types** | `FutureJoin4` | `Future[Quad[T, U, V, W]]` | Fetch `User`, `Config`, `Stats`, and `Permissions` |
+| **5 different types** | `FutureJoin5` | `Future[Tuple5[...]]` | Fetch from 5 different microservices |
+| **6 different types** | `FutureJoin6` | `Future[Tuple6[...]]` | Fetch from 6 different services |
+| **7 different types** | `FutureJoin7` | `Future[Tuple7[...]]` | Fetch from 7 different services |
+| **8 different types** | `FutureJoin8` | `Future[Tuple8[...]]` | Maximum 8 different services in one call |
+| **9+ different types** | Nest `FutureJoin*` calls | Multiple tuples | Combine smaller tuples into larger structures |
+
+**Example - Fetching from 5 services (Dashboard Use Case):**
+
+```go
+// Start all 5 service calls in parallel
+userFuture := lxtypes.FutureDo(func() (User, error) {
+    return fetchUserService()
+})
+ordersFuture := lxtypes.FutureDo(func() ([]Order, error) {
+    return fetchOrderService()
+})
+paymentFuture := lxtypes.FutureDo(func() (Payment, error) {
+    return fetchPaymentService()
+})
+inventoryFuture := lxtypes.FutureDo(func() (Inventory, error) {
+    return fetchInventoryService()
+})
+recommendationsFuture := lxtypes.FutureDo(func() ([]Product, error) {
+    return fetchRecommendationService()
+})
+
+// Combine all 5 - all execute in parallel
+allData := lxtypes.FutureJoin5(userFuture, ordersFuture, paymentFuture, inventoryFuture, recommendationsFuture)
+
+// Transform into response
+response := lxtypes.FutureThen(allData, func(data lxtypes.Tuple5[User, []Order, Payment, Inventory, []Product]) (DashboardResponse, error) {
+    return DashboardResponse{
+        User:            data.V1,
+        Orders:          data.V2,
+        Payment:         data.V3,
+        Inventory:       data.V4,
+        Recommendations: data.V5,
+    }, nil
+})
+
+ctx := context.Background()
+result, err := response.Get(ctx)
+```
+
+**Example - Mixing same and different types:**
+
+```go
+// Start 2 same-type futures
+f1 := lxtypes.FutureDo(func() (int, error) {
+    return 1, nil
+})
+f2 := lxtypes.FutureDo(func() (int, error) {
+    return 2, nil
+})
+
+// Start 1 different-type future
+f3 := lxtypes.FutureDo(func() (string, error) {
+    return "three", nil
+})
+
+// Combine first two with FutureAll (same type)
+allInts := lxtypes.FutureAll(f1, f2)
+
+// Combine all three with FutureJoin3 (mixed types)
+allMixed := lxtypes.FutureJoin3(f1, f2, f3)
+
+// Access results
+ints, _ := allInts.Get(ctx)  // []int{1, 2}
+mixed, _ := allMixed.Get(ctx)  // Triple[int, int, string]
+```
