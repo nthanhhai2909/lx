@@ -14,6 +14,7 @@ The `lxtypes` package provides reusable, type-safe generic type definitions insp
 - **Tuple types**: Pair, Triple, Quad for multi-value returns
 - **Lazy evaluation**: Lazy[T] for deferred computation with caching
 - **Async operations**: Future[T] for concurrent computations with composability
+- **Mutable state**: Ref[T] for thread-safe shared mutable values
 
 ## Installation
 
@@ -1398,3 +1399,99 @@ allMixed := lxtypes.FutureJoin3(f1, f2, f3)
 ints, _ := allInts.Get(ctx)  // []int{1, 2}
 mixed, _ := allMixed.Get(ctx)  // Triple[int, int, string]
 ```
+
+## Mutable State
+
+### Ref[T]
+
+`Ref[T]` is a thread-safe mutable value cell. It wraps a single value of any type and protects concurrent access with a read-write mutex. Unlike `Lazy[T]` (compute-once) or `Future[T]` (async computation), `Ref[T]` is designed for **shared mutable state** that changes over time.
+
+#### Creating a Ref
+
+```go
+counter := lxtypes.NewRef(0)
+config  := lxtypes.NewRef(AppConfig{Host: "localhost", Port: 8080})
+```
+
+#### Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Get` | `Get() T` | Returns the current value (read-lock) |
+| `Set` | `Set(value T)` | Replaces the value (write-lock) |
+| `Update` | `Update(fn func(T) T)` | Atomically transforms the value (write-lock) |
+
+#### Use Case 1 — Shared counter across goroutines
+
+```go
+counter := lxtypes.NewRef(0)
+
+var wg sync.WaitGroup
+for i := 0; i < 100; i++ {
+    wg.Add(1)
+    go func() {
+        defer wg.Done()
+        counter.Update(func(v int) int { return v + 1 })
+    }()
+}
+wg.Wait()
+
+fmt.Println(counter.Get())  // 100
+```
+
+#### Use Case 2 — Hot-reloadable config / shared state
+
+```go
+type AppConfig struct {
+    Host    string
+    Timeout time.Duration
+}
+
+cfg := lxtypes.NewRef(AppConfig{Host: "localhost", Timeout: 5 * time.Second})
+
+// Reload on signal (in another goroutine)
+go func() {
+    newCfg := loadConfigFromFile()
+    cfg.Set(newCfg)
+}()
+
+// Use the current config safely
+current := cfg.Get()
+fmt.Println("Connecting to", current.Host)
+```
+
+#### Use Case 3 — Capturing old value inside Update
+
+```go
+var auditLog []string
+
+counter := lxtypes.NewRef(0)
+
+counter.Update(func(v int) int {
+    // Capture the old value for auditing before returning the new value
+    auditLog = append(auditLog, fmt.Sprintf("changed from %d", v))
+    return v + 1
+})
+
+fmt.Println(counter.Get())    // 1
+fmt.Println(auditLog[0])      // changed from 0
+```
+
+#### Comparison: Ref[T] vs Lazy[T] vs Future[T]
+
+| Feature | `Ref[T]` | `Lazy[T]` | `Future[T]` |
+|---------|----------|-----------|-------------|
+| **Mutable** | ✅ Yes | ❌ No (compute-once) | ❌ No (compute-once) |
+| **Thread-safe** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Purpose** | Shared mutable state | Deferred / cached value | Async computation |
+| **Concurrency** | Multiple reads/writes | Safe single computation | Background goroutine |
+| **Get** | Returns current value | Computes or returns cache | Blocks until done |
+
+#### When to Use Ref[T]
+
+- You need **shared mutable state** that multiple goroutines read and write.
+- You want to **atomically transform** a value without external locking.
+- You need a **hot-reloadable** configuration or feature flag that changes at runtime.
+- You are building a **counter**, **accumulator**, or any value that evolves over time.
+
+Prefer `Lazy[T]` when the value is computed once and never changed. Prefer `Future[T]` when the value is the result of a single asynchronous operation. Use `Ref[T]` when the value genuinely changes over time and must be safe for concurrent access.
