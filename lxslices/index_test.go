@@ -1384,3 +1384,535 @@ func TestGet(t *testing.T) {
 		})
 	})
 }
+
+func TestBinarySearch_Int(t *testing.T) {
+	tests := []struct {
+		name          string
+		slice         []int
+		target        int
+		expectedIndex int
+	}{
+		{
+			name:          "find element at beginning",
+			slice:         []int{1, 3, 5, 7, 9},
+			target:        1,
+			expectedIndex: 0,
+		},
+		{
+			name:          "find element in middle",
+			slice:         []int{1, 3, 5, 7, 9},
+			target:        5,
+			expectedIndex: 2,
+		},
+		{
+			name:          "find element at end",
+			slice:         []int{1, 3, 5, 7, 9},
+			target:        9,
+			expectedIndex: 4,
+		},
+		{
+			name:          "element not found - less than min",
+			slice:         []int{1, 3, 5, 7, 9},
+			target:        0,
+			expectedIndex: -1,
+		},
+		{
+			name:          "element not found - greater than max",
+			slice:         []int{1, 3, 5, 7, 9},
+			target:        10,
+			expectedIndex: -1,
+		},
+		{
+			name:          "element not found - in range",
+			slice:         []int{1, 3, 5, 7, 9},
+			target:        4,
+			expectedIndex: -1,
+		},
+		{
+			name:          "single element - found",
+			slice:         []int{42},
+			target:        42,
+			expectedIndex: 0,
+		},
+		{
+			name:          "single element - not found",
+			slice:         []int{42},
+			target:        1,
+			expectedIndex: -1,
+		},
+		{
+			name:          "two elements - find first",
+			slice:         []int{1, 2},
+			target:        1,
+			expectedIndex: 0,
+		},
+		{
+			name:          "two elements - find second",
+			slice:         []int{1, 2},
+			target:        2,
+			expectedIndex: 1,
+		},
+		{
+			name:          "empty slice",
+			slice:         []int{},
+			target:        1,
+			expectedIndex: -1,
+		},
+		{
+			name:          "nil slice",
+			slice:         nil,
+			target:        1,
+			expectedIndex: -1,
+		},
+		{
+			name:          "large sorted slice",
+			slice:         []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
+			target:        8,
+			expectedIndex: 7,
+		},
+		{
+			name:          "negative numbers",
+			slice:         []int{-10, -5, 0, 5, 10},
+			target:        -5,
+			expectedIndex: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			idx := lxslices.BinarySearch(tt.slice, tt.target)
+			if idx != tt.expectedIndex {
+				t.Errorf("BinarySearch(%v, %d) = %d; want %d",
+					tt.slice, tt.target, idx, tt.expectedIndex)
+			}
+		})
+	}
+}
+
+func TestBinarySearch_String(t *testing.T) {
+	tests := []struct {
+		name          string
+		slice         []string
+		target        string
+		expectedIndex int
+	}{
+		{
+			name:          "find element at beginning",
+			slice:         []string{"apple", "banana", "cherry", "date", "elderberry"},
+			target:        "apple",
+			expectedIndex: 0,
+		},
+		{
+			name:          "find element in middle",
+			slice:         []string{"apple", "banana", "cherry", "date", "elderberry"},
+			target:        "cherry",
+			expectedIndex: 2,
+		},
+		{
+			name:          "find element at end",
+			slice:         []string{"apple", "banana", "cherry", "date", "elderberry"},
+			target:        "elderberry",
+			expectedIndex: 4,
+		},
+		{
+			name:          "element not found - less than min",
+			slice:         []string{"apple", "banana", "cherry", "date", "elderberry"},
+			target:        "aardvark",
+			expectedIndex: -1,
+		},
+		{
+			name:          "element not found - greater than max",
+			slice:         []string{"apple", "banana", "cherry", "date", "elderberry"},
+			target:        "zebra",
+			expectedIndex: -1,
+		},
+		{
+			name:          "element not found - in range",
+			slice:         []string{"alpha", "beta", "gamma"},
+			target:        "delta",
+			expectedIndex: -1,
+		},
+		{
+			name:          "single element - found",
+			slice:         []string{"hello"},
+			target:        "hello",
+			expectedIndex: 0,
+		},
+		{
+			name:          "single element - not found",
+			slice:         []string{"hello"},
+			target:        "world",
+			expectedIndex: -1,
+		},
+		{
+			name:          "two elements - find first",
+			slice:         []string{"alpha", "beta"},
+			target:        "alpha",
+			expectedIndex: 0,
+		},
+		{
+			name:          "two elements - find second",
+			slice:         []string{"alpha", "beta"},
+			target:        "beta",
+			expectedIndex: 1,
+		},
+		{
+			name:          "empty slice",
+			slice:         []string{},
+			target:        "test",
+			expectedIndex: -1,
+		},
+		{
+			name:          "nil slice",
+			slice:         nil,
+			target:        "test",
+			expectedIndex: -1,
+		},
+		{
+			name:          "large sorted slice",
+			slice:         []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"},
+			target:        "h",
+			expectedIndex: 7,
+		},
+		{
+			name:          "size equals slice length",
+			slice:         []string{"alpha", "beta", "gamma"},
+			target:        "gamma",
+			expectedIndex: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			idx := lxslices.BinarySearch(tt.slice, tt.target)
+			if idx != tt.expectedIndex {
+				t.Errorf("BinarySearch(%v, %q) = %d; want %d",
+					tt.slice, tt.target, idx, tt.expectedIndex)
+			}
+		})
+	}
+}
+
+func TestBinarySearch_Float(t *testing.T) {
+	tests := []struct {
+		name          string
+		slice         []float64
+		target        float64
+		expectedIndex int
+	}{
+		{
+			name:          "find element at beginning",
+			slice:         []float64{1.1, 2.2, 3.3, 4.4, 5.5},
+			target:        1.1,
+			expectedIndex: 0,
+		},
+		{
+			name:          "find element in middle",
+			slice:         []float64{1.1, 2.2, 3.3, 4.4, 5.5},
+			target:        3.3,
+			expectedIndex: 2,
+		},
+		{
+			name:          "find element at end",
+			slice:         []float64{1.1, 2.2, 3.3, 4.4, 5.5},
+			target:        5.5,
+			expectedIndex: 4,
+		},
+		{
+			name:          "element not found - less than min",
+			slice:         []float64{1.1, 2.2, 3.3, 4.4, 5.5},
+			target:        0.5,
+			expectedIndex: -1,
+		},
+		{
+			name:          "element not found - greater than max",
+			slice:         []float64{1.1, 2.2, 3.3, 4.4, 5.5},
+			target:        6.0,
+			expectedIndex: -1,
+		},
+		{
+			name:          "element not found - in range",
+			slice:         []float64{1.1, 2.2, 3.3, 4.4, 5.5},
+			target:        3.0,
+			expectedIndex: -1,
+		},
+		{
+			name:          "single element - found",
+			slice:         []float64{42.5},
+			target:        42.5,
+			expectedIndex: 0,
+		},
+		{
+			name:          "single element - not found",
+			slice:         []float64{42.5},
+			target:        1.0,
+			expectedIndex: -1,
+		},
+		{
+			name:          "two elements - find first",
+			slice:         []float64{1.5, 2.5},
+			target:        1.5,
+			expectedIndex: 0,
+		},
+		{
+			name:          "two elements - find second",
+			slice:         []float64{1.5, 2.5},
+			target:        2.5,
+			expectedIndex: 1,
+		},
+		{
+			name:          "empty slice",
+			slice:         []float64{},
+			target:        1.0,
+			expectedIndex: -1,
+		},
+		{
+			name:          "nil slice",
+			slice:         nil,
+			target:        1.0,
+			expectedIndex: -1,
+		},
+		{
+			name:          "large sorted slice",
+			slice:         []float64{1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.1, 11.1, 12.2, 13.3, 14.4, 15.5},
+			target:        8.8,
+			expectedIndex: 7,
+		},
+		{
+			name:          "negative floats",
+			slice:         []float64{-10.5, -5.5, 0.0, 5.5, 10.5},
+			target:        -5.5,
+			expectedIndex: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			idx := lxslices.BinarySearch(tt.slice, tt.target)
+			if idx != tt.expectedIndex {
+				t.Errorf("BinarySearch(%v, %f) = %d; want %d",
+					tt.slice, tt.target, idx, tt.expectedIndex)
+			}
+		})
+	}
+}
+
+func TestBinarySearchFunc_Struct(t *testing.T) {
+	type Person struct {
+		Name string
+		Age  int
+	}
+
+	people := []Person{
+		{"Alice", 25},
+		{"Bob", 30},
+		{"Charlie", 35},
+		{"Diana", 40},
+		{"Eve", 45},
+	}
+
+	// Comparator for searching by Age
+	ageComparator := func(target, elem Person) int {
+		if target.Age < elem.Age {
+			return -1
+		}
+		if target.Age > elem.Age {
+			return 1
+		}
+		return 0
+	}
+
+	tests := []struct {
+		name          string
+		slice         []Person
+		target        Person
+		expectedIndex int
+	}{
+		{
+			name:          "find person by age - middle",
+			slice:         people,
+			target:        Person{"", 35},
+			expectedIndex: 2,
+		},
+		{
+			name:          "find person by age - beginning",
+			slice:         people,
+			target:        Person{"", 25},
+			expectedIndex: 0,
+		},
+		{
+			name:          "find person by age - end",
+			slice:         people,
+			target:        Person{"", 45},
+			expectedIndex: 4,
+		},
+		{
+			name:          "person not found - age too low",
+			slice:         people,
+			target:        Person{"", 20},
+			expectedIndex: -1,
+		},
+		{
+			name:          "person not found - age too high",
+			slice:         people,
+			target:        Person{"", 50},
+			expectedIndex: -1,
+		},
+		{
+			name:          "person not found - age in range",
+			slice:         people,
+			target:        Person{"", 33},
+			expectedIndex: -1,
+		},
+		{
+			name:          "empty slice",
+			slice:         []Person{},
+			target:        Person{"", 30},
+			expectedIndex: -1,
+		},
+		{
+			name:          "nil slice",
+			slice:         nil,
+			target:        Person{"", 30},
+			expectedIndex: -1,
+		},
+		{
+			name:          "single element - found",
+			slice:         []Person{{"Bob", 30}},
+			target:        Person{"", 30},
+			expectedIndex: 0,
+		},
+		{
+			name:          "single element - not found",
+			slice:         []Person{{"Bob", 30}},
+			target:        Person{"", 25},
+			expectedIndex: -1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			idx := lxslices.BinarySearchFunc(tt.slice, tt.target, ageComparator)
+			if idx != tt.expectedIndex {
+				t.Errorf("BinarySearchFunc(%v, %v, ageComparator) = %d; want %d",
+					tt.slice, tt.target, idx, tt.expectedIndex)
+			}
+		})
+	}
+}
+
+func TestBinarySearchFunc_IntWithCustomComparator(t *testing.T) {
+	// Test with descending order
+	descendingInts := []int{90, 70, 50, 30, 10}
+
+	// Comparator for descending order
+	descendingComparator := func(target, elem int) int {
+		if target > elem {
+			return -1
+		}
+		if target < elem {
+			return 1
+		}
+		return 0
+	}
+
+	tests := []struct {
+		name          string
+		slice         []int
+		target        int
+		expectedIndex int
+	}{
+		{
+			name:          "find in descending order - middle",
+			slice:         descendingInts,
+			target:        50,
+			expectedIndex: 2,
+		},
+		{
+			name:          "find in descending order - beginning",
+			slice:         descendingInts,
+			target:        90,
+			expectedIndex: 0,
+		},
+		{
+			name:          "find in descending order - end",
+			slice:         descendingInts,
+			target:        10,
+			expectedIndex: 4,
+		},
+		{
+			name:          "not found in descending order",
+			slice:         descendingInts,
+			target:        40,
+			expectedIndex: -1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			idx := lxslices.BinarySearchFunc(tt.slice, tt.target, descendingComparator)
+			if idx != tt.expectedIndex {
+				t.Errorf("BinarySearchFunc(%v, %d, descendingComparator) = %d; want %d",
+					tt.slice, tt.target, idx, tt.expectedIndex)
+			}
+		})
+	}
+}
+
+func TestBinarySearchFunc_StringWithReverseComparator(t *testing.T) {
+	// Test with reverse alphabetical order
+	reverseStrings := []string{"zebra", "yankee", "xray", "whiskey", "alpha"}
+
+	// Comparator for reverse alphabetical order
+	reverseComparator := func(target, elem string) int {
+		if target > elem {
+			return -1
+		}
+		if target < elem {
+			return 1
+		}
+		return 0
+	}
+
+	tests := []struct {
+		name          string
+		slice         []string
+		target        string
+		expectedIndex int
+	}{
+		{
+			name:          "find in reverse order",
+			slice:         reverseStrings,
+			target:        "xray",
+			expectedIndex: 2,
+		},
+		{
+			name:          "find at beginning",
+			slice:         reverseStrings,
+			target:        "zebra",
+			expectedIndex: 0,
+		},
+		{
+			name:          "find at end",
+			slice:         reverseStrings,
+			target:        "alpha",
+			expectedIndex: 4,
+		},
+		{
+			name:          "not found",
+			slice:         reverseStrings,
+			target:        "bravo",
+			expectedIndex: -1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			idx := lxslices.BinarySearchFunc(tt.slice, tt.target, reverseComparator)
+			if idx != tt.expectedIndex {
+				t.Errorf("BinarySearchFunc(%v, %q, reverseComparator) = %d; want %d",
+					tt.slice, tt.target, idx, tt.expectedIndex)
+			}
+		})
+	}
+}
