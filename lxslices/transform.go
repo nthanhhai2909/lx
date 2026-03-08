@@ -26,7 +26,7 @@ func FlatMap[T, U any](slice []T, fn func(T) []U) []U {
 	return result
 }
 
-// Reverse returns a new slice with the elements in reverse order.
+// Reverse reverses the elements of the slice in-place and returns it.
 func Reverse[T any](slice []T) []T {
 	for i, j := 0, len(slice)-1; i < j; i, j = i+1, j-1 {
 		slice[i], slice[j] = slice[j], slice[i]
