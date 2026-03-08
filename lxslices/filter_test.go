@@ -1,6 +1,7 @@
 package lxslices_test
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
@@ -785,6 +786,243 @@ func TestFilter_Struct(t *testing.T) {
 					t.Errorf("Filter()[%d] = %v; want %v", i, result[i], tt.expected[i])
 					return
 				}
+			}
+		})
+	}
+}
+
+func TestPartition_Int(t *testing.T) {
+	tests := []struct {
+		name      string
+		slice     []int
+		predicate func(int) bool
+		wantMatch []int
+		wantRest  []int
+	}{
+		{
+			name:      "integers by parity",
+			slice:     []int{1, 2, 3, 4, 5, 6},
+			predicate: func(v int) bool { return v%2 == 0 },
+			wantMatch: []int{2, 4, 6},
+			wantRest:  []int{1, 3, 5},
+		},
+		{
+			name:      "all match",
+			slice:     []int{2, 4, 6},
+			predicate: func(v int) bool { return v%2 == 0 },
+			wantMatch: []int{2, 4, 6},
+			wantRest:  nil,
+		},
+		{
+			name:      "none match",
+			slice:     []int{1, 3, 5},
+			predicate: func(v int) bool { return v%2 == 0 },
+			wantMatch: nil,
+			wantRest:  []int{1, 3, 5},
+		},
+		{
+			name:      "empty slice",
+			slice:     []int{},
+			predicate: func(v int) bool { return true },
+			wantMatch: nil,
+			wantRest:  nil,
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(v int) bool { return true },
+			wantMatch: nil,
+			wantRest:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			match, rest := lxslices.Partition(tt.slice, tt.predicate)
+
+			// Normalize empty/nil slices for DeepEqual comparison if needed,
+			// though DeepEqual strictly compares nil vs empty.
+			// Our function appends to nil slices initially, so it returns nil if empty.
+			if len(match) == 0 && len(tt.wantMatch) == 0 {
+				match = nil
+				tt.wantMatch = nil
+			}
+			if len(rest) == 0 && len(tt.wantRest) == 0 {
+				rest = nil
+				tt.wantRest = nil
+			}
+
+			if !reflect.DeepEqual(match, tt.wantMatch) {
+				t.Errorf("Partition() match = %v; want %v", match, tt.wantMatch)
+			}
+			if !reflect.DeepEqual(rest, tt.wantRest) {
+				t.Errorf("Partition() rest = %v; want %v", rest, tt.wantRest)
+			}
+		})
+	}
+}
+
+func TestPartition_String(t *testing.T) {
+	tests := []struct {
+		name      string
+		slice     []string
+		predicate func(string) bool
+		wantMatch []string
+		wantRest  []string
+	}{
+		{
+			name:      "strings starting with 'a'",
+			slice:     []string{"apple", "banana", "apricot", "cherry"},
+			predicate: func(s string) bool { return strings.HasPrefix(s, "a") },
+			wantMatch: []string{"apple", "apricot"},
+			wantRest:  []string{"banana", "cherry"},
+		},
+		{
+			name:      "all match",
+			slice:     []string{"a", "b", "c"},
+			predicate: func(s string) bool { return len(s) == 1 },
+			wantMatch: []string{"a", "b", "c"},
+			wantRest:  nil,
+		},
+		{
+			name:      "none match",
+			slice:     []string{"a", "b", "c"},
+			predicate: func(s string) bool { return len(s) > 5 },
+			wantMatch: nil,
+			wantRest:  []string{"a", "b", "c"},
+		},
+		{
+			name:      "empty slice",
+			slice:     []string{},
+			predicate: func(s string) bool { return true },
+			wantMatch: nil,
+			wantRest:  nil,
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(s string) bool { return true },
+			wantMatch: nil,
+			wantRest:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			match, rest := lxslices.Partition(tt.slice, tt.predicate)
+
+			if len(match) == 0 && len(tt.wantMatch) == 0 {
+				match = nil
+				tt.wantMatch = nil
+			}
+			if len(rest) == 0 && len(tt.wantRest) == 0 {
+				rest = nil
+				tt.wantRest = nil
+			}
+
+			if !reflect.DeepEqual(match, tt.wantMatch) {
+				t.Errorf("Partition() match = %v; want %v", match, tt.wantMatch)
+			}
+			if !reflect.DeepEqual(rest, tt.wantRest) {
+				t.Errorf("Partition() rest = %v; want %v", rest, tt.wantRest)
+			}
+		})
+	}
+}
+
+func TestPartition_Struct(t *testing.T) {
+	type User struct {
+		ID     int
+		Name   string
+		Active bool
+	}
+
+	tests := []struct {
+		name      string
+		slice     []User
+		predicate func(User) bool
+		wantMatch []User
+		wantRest  []User
+	}{
+		{
+			name: "partition active users",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", false},
+				{3, "Charlie", true},
+			},
+			predicate: func(u User) bool { return u.Active },
+			wantMatch: []User{
+				{1, "Alice", true},
+				{3, "Charlie", true},
+			},
+			wantRest: []User{
+				{2, "Bob", false},
+			},
+		},
+		{
+			name: "partition by starting letter",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", false},
+				{3, "Andrew", true},
+			},
+			predicate: func(u User) bool { return strings.HasPrefix(u.Name, "A") },
+			wantMatch: []User{
+				{1, "Alice", true},
+				{3, "Andrew", true},
+			},
+			wantRest: []User{
+				{2, "Bob", false},
+			},
+		},
+		{
+			name: "none match",
+			slice: []User{
+				{1, "Alice", true},
+				{2, "Bob", true},
+			},
+			predicate: func(u User) bool { return !u.Active },
+			wantMatch: nil,
+			wantRest: []User{
+				{1, "Alice", true},
+				{2, "Bob", true},
+			},
+		},
+		{
+			name:      "empty slice",
+			slice:     []User{},
+			predicate: func(u User) bool { return u.Active },
+			wantMatch: nil,
+			wantRest:  nil,
+		},
+		{
+			name:      "nil slice",
+			slice:     nil,
+			predicate: func(u User) bool { return u.Active },
+			wantMatch: nil,
+			wantRest:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			match, rest := lxslices.Partition(tt.slice, tt.predicate)
+
+			if len(match) == 0 && len(tt.wantMatch) == 0 {
+				match = nil
+				tt.wantMatch = nil
+			}
+			if len(rest) == 0 && len(tt.wantRest) == 0 {
+				rest = nil
+				tt.wantRest = nil
+			}
+
+			if !reflect.DeepEqual(match, tt.wantMatch) {
+				t.Errorf("Partition() match = %+v; want %+v", match, tt.wantMatch)
+			}
+			if !reflect.DeepEqual(rest, tt.wantRest) {
+				t.Errorf("Partition() rest = %+v; want %+v", rest, tt.wantRest)
 			}
 		})
 	}

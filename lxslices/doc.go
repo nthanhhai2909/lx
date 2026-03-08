@@ -15,6 +15,7 @@
 //
 // 2. Filtering (filter.go)
 //   - Filter - Keep elements matching a predicate
+//   - Partition - Split elements by a predicate
 //   - Find, FindLast - Locate specific elements
 //   - Any, All, None - Check predicates across elements
 //   - Count - Count elements matching a predicate

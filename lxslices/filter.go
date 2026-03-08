@@ -36,6 +36,20 @@ func Filter[T any](slice []T, predicate func(T) bool) []T {
 	return result
 }
 
+// Partition returns two new slices: the first containing all elements that satisfy the predicate,
+// and the second containing all elements that do not.
+// The original slice is not modified.
+func Partition[T any](slice []T, predicate func(T) bool) (matching []T, rest []T) {
+	for _, e := range slice {
+		if predicate(e) {
+			matching = append(matching, e)
+		} else {
+			rest = append(rest, e)
+		}
+	}
+	return matching, rest
+}
+
 // Any returns true if at least one element satisfies the predicate.
 // It is equivalent to the any() function in Python.
 func Any[T any](slice []T, predicate func(T) bool) bool {
