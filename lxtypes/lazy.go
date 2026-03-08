@@ -1,6 +1,9 @@
 package lxtypes
 
-import "sync"
+import (
+	"sync"
+	"sync/atomic"
+)
 
 // Package lxtypes provides common type utilities and abstractions.
 //
@@ -111,13 +114,13 @@ type deferredLazy[T any] struct {
 	once      sync.Once
 	cache     T
 	err       error
-	evaluated bool
+	evaluated atomic.Bool
 }
 
 func (d *deferredLazy[T]) Get() (T, error) {
 	d.once.Do(func() {
 		d.cache, d.err = d.fn()
-		d.evaluated = true
+		d.evaluated.Store(true)
 	})
 	return d.cache, d.err
 }
@@ -131,5 +134,5 @@ func (d *deferredLazy[T]) MustGet() T {
 }
 
 func (d *deferredLazy[T]) IsEvaluated() bool {
-	return d.evaluated
+	return d.evaluated.Load()
 }
