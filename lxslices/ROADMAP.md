@@ -36,7 +36,8 @@ The `lxslices` package is well-structured with comprehensive functionality acros
 **Transform** (`transform.go`):
 - `Map`, `FlatMap`, `Reverse`
 - `GroupBy`, `UniqueGroupBy`
-- `Chunk`, `Concat`, `Zip`, `Unzip`
+- `Chunk`, `PartitionN`, `SplitAt`
+- `Concat`, `Zip`, `Unzip`
 - `Copy`, `Clone`
 
 **Sampling** (`sampling.go`):
@@ -46,22 +47,7 @@ The `lxslices` package is well-structured with comprehensive functionality acros
 
 ## 🎯 Suggested Functions to Add
 
-### 1. **Partitioning Functions** (HIGH PRIORITY)
-
-```go
-// PartitionN splits a slice into N chunks of approximately equal size
-func PartitionN[T any](slice []T, n int) [][]T
-
-// SplitAt splits a slice at the given index
-// Returns (slice[:index], slice[index:])
-func SplitAt[T any](slice []T, index int) ([]T, []T)
-```
-
-**Why**: Very common operation for data processing, batch operations, pagination.
-
----
-
-### 2. **Window/Sliding Operations** (HIGH PRIORITY)
+### 1. **Window/Sliding Operations** (HIGH PRIORITY)
 
 ```go
 // Window returns all sliding windows of specified size
@@ -76,7 +62,7 @@ func WindowFunc[T, U any](slice []T, size int, fn func([]T) U) []U
 
 ---
 
-### 3. **Advanced Search & Lookup** (MEDIUM PRIORITY)
+### 2. **Advanced Search & Lookup** (MEDIUM PRIORITY)
 
 ```go
 // BinarySearch performs binary search on a sorted slice
@@ -97,7 +83,7 @@ func FindAllValues[T any](slice []T, predicate func(T) bool) []T
 
 ---
 
-### 4. **Comparison & Equality** (MEDIUM PRIORITY)
+### 3. **Comparison & Equality** (MEDIUM PRIORITY)
 
 ```go
 // Equal checks if two slices are equal (same length and elements)
@@ -123,7 +109,7 @@ func HasSuffix[T comparable](slice, suffix []T) bool
 
 ---
 
-### 5. **Flattening Operations** (MEDIUM PRIORITY)
+### 4. **Flattening Operations** (MEDIUM PRIORITY)
 
 ```go
 // Flatten flattens a slice of slices into a single slice
@@ -137,7 +123,7 @@ func Flatten[T any](slices [][]T) []T
 
 ---
 
-### 6. **Take/Drop Operations** (MEDIUM PRIORITY)
+### 5. **Take/Drop Operations** (MEDIUM PRIORITY)
 
 ```go
 // Take returns first n elements (or all if n > len)
@@ -163,7 +149,7 @@ func DropWhile[T any](slice []T, predicate func(T) bool) []T
 
 ---
 
-### 7. **Repetition & Generation** (LOW-MEDIUM PRIORITY)
+### 6. **Repetition & Generation** (LOW-MEDIUM PRIORITY)
 
 ```go
 // Repeat creates a slice with value repeated n times
@@ -183,7 +169,7 @@ func RangeStep[T lxconstraints.Integer](start, end, step T) []T
 
 ---
 
-### 8. **Advanced Aggregations** (LOW-MEDIUM PRIORITY)
+### 7. **Advanced Aggregations** (LOW-MEDIUM PRIORITY)
 
 ```go
 // Product returns the product of all elements
@@ -203,7 +189,7 @@ func MinMax[T lxconstraints.Ordered](slice []T) (T, T, bool)
 
 ---
 
-### 9. **Join/String Operations** (LOW PRIORITY)
+### 8. **Join/String Operations** (LOW PRIORITY)
 
 ```go
 // Join converts slice to string with separator (for string slices)
@@ -217,7 +203,7 @@ func JoinFunc[T any](slice []T, sep string, fn func(T) string) string
 
 ---
 
-### 10. **Deduplication & Distinct** (LOW PRIORITY)
+### 9. **Deduplication & Distinct** (LOW PRIORITY)
 
 ```go
 // UniqueBy returns unique elements based on key function
@@ -231,7 +217,7 @@ func DistinctBy[T any, K comparable](slice []T, keyFn func(T) K) []T
 
 ---
 
-### 11. **Shuffle** (LOW PRIORITY)
+### 10. **Shuffle** (LOW PRIORITY)
 
 ```go
 // Shuffle randomly shuffles the slice in place
@@ -245,7 +231,7 @@ func ShuffleCopy[T any](slice []T) []T
 
 ---
 
-### 12. **Intersperse** (LOW PRIORITY)
+### 11. **Intersperse** (LOW PRIORITY)
 
 ```go
 // Intersperse inserts separator between each element
@@ -257,7 +243,7 @@ func Intersperse[T any](slice []T, sep T) []T
 
 ---
 
-### 13. **Compact/Deduplicate Consecutive** (LOW PRIORITY)
+### 12. **Compact/Deduplicate Consecutive** (LOW PRIORITY)
 
 ```go
 // Compact removes consecutive duplicate elements
@@ -272,7 +258,7 @@ func CompactFunc[T any](slice []T, equal func(T, T) bool) []T
 
 ---
 
-### 14. **Zip Variations** (LOW PRIORITY)
+### 13. **Zip Variations** (LOW PRIORITY)
 
 ```go
 // Zip3 combines three slices
