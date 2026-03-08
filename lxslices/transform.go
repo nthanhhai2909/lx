@@ -101,6 +101,53 @@ func Chunk[T any](slice []T, size int) [][]T {
 	return chunks
 }
 
+// PartitionN splits a slice into N chunks of approximately equal size.
+// The earlier chunks will be larger if the slice cannot be split evenly.
+// If n <= 0, it panics.
+// If the input slice is nil, it returns nil.
+// If the input slice is empty, it returns an empty slice of slices.
+func PartitionN[T any](slice []T, n int) [][]T {
+	if n <= 0 {
+		return [][]T{}
+	}
+	if n == 1 {
+		return [][]T{slice}
+	}
+	if slice == nil {
+		return nil
+	}
+
+	length := len(slice)
+	if length == 0 {
+		return [][]T{}
+	}
+
+	chunks := make([][]T, 0, n)
+	chunkSize := length / n
+	remainder := length % n
+
+	start := 0
+	for i := 0; i < n; i++ {
+		end := start + chunkSize
+		// Distribute the remainder among the first chunks
+		if remainder > 0 {
+			end++
+			remainder--
+		}
+		if end > length {
+			end = length
+		}
+		// Even if start == end, we should append an empty chunk if length < n
+		if start < length {
+			chunks = append(chunks, slice[start:end])
+		} else {
+			chunks = append(chunks, []T{})
+		}
+		start = end
+	}
+	return chunks
+}
+
 // Concat concatenates multiple slices into a single slice.
 // Behavior:
 // - If no slices are provided, returns nil.

@@ -10,6 +10,208 @@ import (
 	"github.com/nthanhhai2909/lx/lxtypes"
 )
 
+func TestPartitionN_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		n        int
+		expected [][]int
+	}{
+		{
+			name:     "evenly divided",
+			slice:    []int{1, 2, 3, 4, 5, 6},
+			n:        3,
+			expected: [][]int{{1, 2}, {3, 4}, {5, 6}},
+		},
+		{
+			name:     "unevenly divided (remainder 1)",
+			slice:    []int{1, 2, 3, 4, 5, 6, 7},
+			n:        3,
+			expected: [][]int{{1, 2, 3}, {4, 5}, {6, 7}},
+		},
+		{
+			name:     "unevenly divided (remainder 2)",
+			slice:    []int{1, 2, 3, 4, 5, 6, 7, 8},
+			n:        3,
+			expected: [][]int{{1, 2, 3}, {4, 5, 6}, {7, 8}},
+		},
+		{
+			name:     "n larger than slice length",
+			slice:    []int{1, 2},
+			n:        4,
+			expected: [][]int{{1}, {2}, {}, {}},
+		},
+		{
+			name:     "n equals slice length",
+			slice:    []int{1, 2, 3},
+			n:        3,
+			expected: [][]int{{1}, {2}, {3}},
+		},
+		{
+			name:     "n is 1",
+			slice:    []int{1, 2, 3},
+			n:        1,
+			expected: [][]int{{1, 2, 3}},
+		},
+		{
+			name:     "empty slice",
+			slice:    []int{},
+			n:        3,
+			expected: [][]int{},
+		},
+		{
+			name:     "nil slice",
+			slice:    nil,
+			n:        3,
+			expected: nil,
+		},
+		{
+			name:     "n <= 0",
+			slice:    []int{1, 2, 3},
+			n:        0,
+			expected: [][]int{},
+		},
+		{
+			name:     "n is negative",
+			slice:    []int{1, 2, 3},
+			n:        -1,
+			expected: [][]int{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.PartitionN(tt.slice, tt.n)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("PartitionN(%v, %d) = %v; want %v", tt.slice, tt.n, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestPartitionN_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []string
+		n        int
+		expected [][]string
+	}{
+		{
+			name:     "evenly divided strings",
+			slice:    []string{"a", "b", "c", "d"},
+			n:        2,
+			expected: [][]string{{"a", "b"}, {"c", "d"}},
+		},
+		{
+			name:     "unevenly divided strings (remainder 1)",
+			slice:    []string{"a", "b", "c", "d", "e"},
+			n:        2,
+			expected: [][]string{{"a", "b", "c"}, {"d", "e"}},
+		},
+		{
+			name:     "n larger than slice length",
+			slice:    []string{"a", "b"},
+			n:        3,
+			expected: [][]string{{"a"}, {"b"}, {}},
+		},
+		{
+			name:     "n is 1",
+			slice:    []string{"a", "b", "c"},
+			n:        1,
+			expected: [][]string{{"a", "b", "c"}},
+		},
+		{
+			name:     "empty slice",
+			slice:    []string{},
+			n:        2,
+			expected: [][]string{},
+		},
+		{
+			name:     "nil slice",
+			slice:    nil,
+			n:        2,
+			expected: nil,
+		},
+		{
+			name:     "n <= 0",
+			slice:    []string{"a", "b", "c"},
+			n:        0,
+			expected: [][]string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.PartitionN(tt.slice, tt.n)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("PartitionN(%v, %d) = %v; want %v", tt.slice, tt.n, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestPartitionN_Struct(t *testing.T) {
+	type Item struct{ ID int }
+	tests := []struct {
+		name     string
+		slice    []Item
+		n        int
+		expected [][]Item
+	}{
+		{
+			name:     "evenly divided structs",
+			slice:    []Item{{1}, {2}, {3}, {4}},
+			n:        2,
+			expected: [][]Item{{{1}, {2}}, {{3}, {4}}},
+		},
+		{
+			name:     "unevenly divided structs",
+			slice:    []Item{{1}, {2}, {3}},
+			n:        2,
+			expected: [][]Item{{{1}, {2}}, {{3}}},
+		},
+		{
+			name:     "n larger than slice length",
+			slice:    []Item{{1}},
+			n:        2,
+			expected: [][]Item{{{1}}, {}},
+		},
+		{
+			name:     "n is 1",
+			slice:    []Item{{1}, {2}},
+			n:        1,
+			expected: [][]Item{{{1}, {2}}},
+		},
+		{
+			name:     "empty slice",
+			slice:    []Item{},
+			n:        2,
+			expected: [][]Item{},
+		},
+		{
+			name:     "nil slice",
+			slice:    nil,
+			n:        2,
+			expected: nil,
+		},
+		{
+			name:     "n <= 0",
+			slice:    []Item{{1}},
+			n:        0,
+			expected: [][]Item{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.PartitionN(tt.slice, tt.n)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("PartitionN(%v, %d) = %v; want %v", tt.slice, tt.n, result, tt.expected)
+			}
+		})
+	}
+}
+
 func TestMap_IntToInt(t *testing.T) {
 	tests := []struct {
 		name     string
