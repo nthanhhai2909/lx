@@ -768,3 +768,438 @@ func TestAverage_Empty(t *testing.T) {
 		t.Errorf("Average(nil int) = (%v, %v); want (0, false)", v, ok)
 	}
 }
+
+func TestMedian_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		expected float64
+		found    bool
+	}{
+		{
+			name:     "odd length sorted",
+			slice:    []int{1, 2, 3, 4, 5},
+			expected: 3.0,
+			found:    true,
+		},
+		{
+			name:     "odd length unsorted",
+			slice:    []int{5, 1, 3, 2, 4},
+			expected: 3.0,
+			found:    true,
+		},
+		{
+			name:     "even length sorted",
+			slice:    []int{1, 2, 3, 4},
+			expected: 2.5,
+			found:    true,
+		},
+		{
+			name:     "even length unsorted",
+			slice:    []int{4, 1, 3, 2},
+			expected: 2.5,
+			found:    true,
+		},
+		{
+			name:     "single element",
+			slice:    []int{42},
+			expected: 42.0,
+			found:    true,
+		},
+		{
+			name:     "two elements",
+			slice:    []int{10, 20},
+			expected: 15.0,
+			found:    true,
+		},
+		{
+			name:     "negative numbers",
+			slice:    []int{-5, -1, -3},
+			expected: -3.0,
+			found:    true,
+		},
+		{
+			name:     "mixed positive and negative",
+			slice:    []int{-2, -1, 0, 1, 2},
+			expected: 0.0,
+			found:    true,
+		},
+		{
+			name:     "empty slice",
+			slice:    []int{},
+			expected: 0.0,
+			found:    false,
+		},
+		{
+			name:     "nil slice",
+			slice:    nil,
+			expected: 0.0,
+			found:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, found := lxslices.Median(tt.slice)
+			if result != tt.expected || found != tt.found {
+				t.Errorf("Median() = (%v, %v); want (%v, %v)", result, found, tt.expected, tt.found)
+			}
+		})
+	}
+}
+
+func TestMedian_Float64(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []float64
+		expected float64
+		found    bool
+	}{
+		{
+			name:     "odd length floats",
+			slice:    []float64{1.5, 2.5, 3.5, 4.5, 5.5},
+			expected: 3.5,
+			found:    true,
+		},
+		{
+			name:     "even length floats",
+			slice:    []float64{1.0, 2.0, 3.0, 4.0},
+			expected: 2.5,
+			found:    true,
+		},
+		{
+			name:     "decimals",
+			slice:    []float64{0.1, 0.2, 0.3},
+			expected: 0.2,
+			found:    true,
+		},
+		{
+			name:     "empty slice",
+			slice:    []float64{},
+			expected: 0.0,
+			found:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, found := lxslices.Median(tt.slice)
+			if math.Abs(result-tt.expected) > 1e-10 || found != tt.found {
+				t.Errorf("Median() = (%v, %v); want (%v, %v)", result, found, tt.expected, tt.found)
+			}
+		})
+	}
+}
+
+func TestMedian_DoesNotModifyOriginal(t *testing.T) {
+	original := []int{5, 1, 3, 2, 4}
+	expected := []int{5, 1, 3, 2, 4}
+
+	lxslices.Median(original)
+
+	if len(original) != len(expected) {
+		t.Errorf("Median modified slice length: got %d, want %d", len(original), len(expected))
+	}
+	for i := range original {
+		if original[i] != expected[i] {
+			t.Errorf("Median modified original slice at index %d: got %v, want %v", i, original, expected)
+			break
+		}
+	}
+}
+
+func TestMode_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		expected int
+		found    bool
+	}{
+		{
+			name:     "clear mode",
+			slice:    []int{1, 2, 2, 3, 3, 3, 4},
+			expected: 3,
+			found:    true,
+		},
+		{
+			name:     "mode at beginning",
+			slice:    []int{5, 5, 5, 1, 2, 3},
+			expected: 5,
+			found:    true,
+		},
+		{
+			name:     "all same",
+			slice:    []int{7, 7, 7, 7},
+			expected: 7,
+			found:    true,
+		},
+		{
+			name:     "all unique",
+			slice:    []int{1, 2, 3, 4, 5},
+			expected: 0, // Don't care which is returned
+			found:    true,
+		},
+		{
+			name:     "single element",
+			slice:    []int{42},
+			expected: 42,
+			found:    true,
+		},
+		{
+			name:     "two elements same",
+			slice:    []int{10, 10},
+			expected: 10,
+			found:    true,
+		},
+		{
+			name:     "negative numbers",
+			slice:    []int{-1, -1, -2, -3},
+			expected: -1,
+			found:    true,
+		},
+		{
+			name:     "empty slice",
+			slice:    []int{},
+			expected: 0,
+			found:    false,
+		},
+		{
+			name:     "nil slice",
+			slice:    nil,
+			expected: 0,
+			found:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, found := lxslices.Mode(tt.slice)
+			if found != tt.found {
+				t.Errorf("Mode() found = %v; want %v", found, tt.found)
+			}
+			if tt.name != "all unique" && found {
+				if result != tt.expected {
+					t.Errorf("Mode() = %v; want %v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
+
+func TestMode_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []string
+		expected string
+		found    bool
+	}{
+		{
+			name:     "clear mode",
+			slice:    []string{"apple", "banana", "apple", "cherry", "apple"},
+			expected: "apple",
+			found:    true,
+		},
+		{
+			name:     "all same",
+			slice:    []string{"hello", "hello", "hello"},
+			expected: "hello",
+			found:    true,
+		},
+		{
+			name:     "single element",
+			slice:    []string{"world"},
+			expected: "world",
+			found:    true,
+		},
+		{
+			name:     "empty slice",
+			slice:    []string{},
+			expected: "",
+			found:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, found := lxslices.Mode(tt.slice)
+			if result != tt.expected || found != tt.found {
+				t.Errorf("Mode() = (%v, %v); want (%v, %v)", result, found, tt.expected, tt.found)
+			}
+		})
+	}
+}
+
+func TestMinMax_Int(t *testing.T) {
+	tests := []struct {
+		name        string
+		slice       []int
+		expectedMin int
+		expectedMax int
+		found       bool
+	}{
+		{
+			name:        "positive numbers",
+			slice:       []int{3, 1, 4, 1, 5, 9, 2, 6},
+			expectedMin: 1,
+			expectedMax: 9,
+			found:       true,
+		},
+		{
+			name:        "negative numbers",
+			slice:       []int{-5, -1, -3, -2, -4},
+			expectedMin: -5,
+			expectedMax: -1,
+			found:       true,
+		},
+		{
+			name:        "mixed positive and negative",
+			slice:       []int{-10, 0, 10, -5, 5},
+			expectedMin: -10,
+			expectedMax: 10,
+			found:       true,
+		},
+		{
+			name:        "single element",
+			slice:       []int{42},
+			expectedMin: 42,
+			expectedMax: 42,
+			found:       true,
+		},
+		{
+			name:        "two elements",
+			slice:       []int{10, 20},
+			expectedMin: 10,
+			expectedMax: 20,
+			found:       true,
+		},
+		{
+			name:        "all same",
+			slice:       []int{5, 5, 5, 5},
+			expectedMin: 5,
+			expectedMax: 5,
+			found:       true,
+		},
+		{
+			name:        "empty slice",
+			slice:       []int{},
+			expectedMin: 0,
+			expectedMax: 0,
+			found:       false,
+		},
+		{
+			name:        "nil slice",
+			slice:       nil,
+			expectedMin: 0,
+			expectedMax: 0,
+			found:       false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			min, max, found := lxslices.MinMax(tt.slice)
+			if min != tt.expectedMin || max != tt.expectedMax || found != tt.found {
+				t.Errorf("MinMax() = (%v, %v, %v); want (%v, %v, %v)",
+					min, max, found, tt.expectedMin, tt.expectedMax, tt.found)
+			}
+		})
+	}
+}
+
+func TestMinMax_Float64(t *testing.T) {
+	tests := []struct {
+		name        string
+		slice       []float64
+		expectedMin float64
+		expectedMax float64
+		found       bool
+	}{
+		{
+			name:        "positive floats",
+			slice:       []float64{3.14, 1.41, 2.71, 1.73, 4.56},
+			expectedMin: 1.41,
+			expectedMax: 4.56,
+			found:       true,
+		},
+		{
+			name:        "negative floats",
+			slice:       []float64{-1.1, -2.2, -0.5, -3.3},
+			expectedMin: -3.3,
+			expectedMax: -0.5,
+			found:       true,
+		},
+		{
+			name:        "mixed floats",
+			slice:       []float64{-1.5, 0.0, 1.5},
+			expectedMin: -1.5,
+			expectedMax: 1.5,
+			found:       true,
+		},
+		{
+			name:        "single float",
+			slice:       []float64{3.14},
+			expectedMin: 3.14,
+			expectedMax: 3.14,
+			found:       true,
+		},
+		{
+			name:        "empty slice",
+			slice:       []float64{},
+			expectedMin: 0.0,
+			expectedMax: 0.0,
+			found:       false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			min, max, found := lxslices.MinMax(tt.slice)
+			if min != tt.expectedMin || max != tt.expectedMax || found != tt.found {
+				t.Errorf("MinMax() = (%v, %v, %v); want (%v, %v, %v)",
+					min, max, found, tt.expectedMin, tt.expectedMax, tt.found)
+			}
+		})
+	}
+}
+
+func TestMinMax_String(t *testing.T) {
+	tests := []struct {
+		name        string
+		slice       []string
+		expectedMin string
+		expectedMax string
+		found       bool
+	}{
+		{
+			name:        "alphabetical strings",
+			slice:       []string{"dog", "cat", "zebra", "ant", "bear"},
+			expectedMin: "ant",
+			expectedMax: "zebra",
+			found:       true,
+		},
+		{
+			name:        "single string",
+			slice:       []string{"hello"},
+			expectedMin: "hello",
+			expectedMax: "hello",
+			found:       true,
+		},
+		{
+			name:        "empty slice",
+			slice:       []string{},
+			expectedMin: "",
+			expectedMax: "",
+			found:       false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			min, max, found := lxslices.MinMax(tt.slice)
+			if min != tt.expectedMin || max != tt.expectedMax || found != tt.found {
+				t.Errorf("MinMax() = (%v, %v, %v); want (%v, %v, %v)",
+					min, max, found, tt.expectedMin, tt.expectedMax, tt.found)
+			}
+		})
+	}
+}

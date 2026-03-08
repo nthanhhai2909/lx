@@ -63,26 +63,6 @@ func Flatten[T any](slices [][]T) []T
 
 ---
 
-### 6. **Repetition & Generation** (LOW-MEDIUM PRIORITY)
-
-```go
-// Repeat creates a slice with value repeated n times
-func Repeat[T any](value T, n int) []T
-
-// RepeatSlice repeats a slice n times
-func RepeatSlice[T any](slice []T, n int) []T
-
-// Range creates a slice of numbers from start to end (exclusive)
-func Range[T lxconstraints.Integer](start, end T) []T
-
-// RangeStep creates a slice with specified step
-func RangeStep[T lxconstraints.Integer](start, end, step T) []T
-```
-
-**Why**: Useful for initialization, testing, data generation.
-
----
-
 ### 7. **Advanced Aggregations** (LOW-MEDIUM PRIORITY)
 
 ```go
