@@ -1054,3 +1054,130 @@ func TestClone_Struct(t *testing.T) {
 		t.Fatalf("Modifying clone should not affect source")
 	}
 }
+
+func TestChunk_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		size     int
+		expected [][]int
+	}{
+		{
+			name:     "perfectly divisible",
+			slice:    []int{1, 2, 3, 4, 5, 6},
+			size:     2,
+			expected: [][]int{{1, 2}, {3, 4}, {5, 6}},
+		},
+		{
+			name:     "not perfectly divisible",
+			slice:    []int{1, 2, 3, 4, 5},
+			size:     2,
+			expected: [][]int{{1, 2}, {3, 4}, {5}},
+		},
+		{
+			name:     "size larger than slice",
+			slice:    []int{1, 2, 3},
+			size:     10,
+			expected: [][]int{{1, 2, 3}},
+		},
+		{
+			name:     "size equals slice length",
+			slice:    []int{1, 2, 3},
+			size:     3,
+			expected: [][]int{{1, 2, 3}},
+		},
+		{
+			name:     "empty slice",
+			slice:    []int{},
+			size:     2,
+			expected: [][]int{},
+		},
+		{
+			name:     "nil slice",
+			slice:    nil,
+			size:     2,
+			expected: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Chunk(tt.slice, tt.size)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("Chunk() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestChunk_PanicNegativeZero(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Chunk did not panic on zero size")
+		}
+	}()
+	lxslices.Chunk([]int{1, 2, 3}, 0)
+}
+
+func TestChunk_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []string
+		size     int
+		expected [][]string
+	}{
+		{
+			name:     "chunk strings",
+			slice:    []string{"a", "b", "c"},
+			size:     2,
+			expected: [][]string{{"a", "b"}, {"c"}},
+		},
+		{
+			name:     "empty slice",
+			slice:    []string{},
+			size:     2,
+			expected: [][]string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Chunk(tt.slice, tt.size)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("Chunk() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestChunk_Struct(t *testing.T) {
+	type Item struct{ ID int }
+	tests := []struct {
+		name     string
+		slice    []Item
+		size     int
+		expected [][]Item
+	}{
+		{
+			name:     "chunk structs",
+			slice:    []Item{{1}, {2}, {3}, {4}},
+			size:     2,
+			expected: [][]Item{{{1}, {2}}, {{3}, {4}}},
+		},
+		{
+			name:     "single element chunk",
+			slice:    []Item{{1}, {2}},
+			size:     1,
+			expected: [][]Item{{{1}}, {{2}}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := lxslices.Chunk(tt.slice, tt.size)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("Chunk() = %v; want %v", result, tt.expected)
+			}
+		})
+	}
+}

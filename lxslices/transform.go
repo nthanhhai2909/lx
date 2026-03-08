@@ -74,6 +74,33 @@ func AssociateBy[T any, K comparable](slice []T, fn func(T) K) (map[K]T, error) 
 	return result, nil
 }
 
+// Chunk splits a slice into a slice of consecutive smaller slices (chunks) of the specified size.
+// The last chunk may be smaller than the given size if the slice length is not perfectly divisible.
+// If size is <= 0, it panics.
+// If the input slice is nil, it returns nil.
+// If the input slice is empty, it returns an empty slice of slices.
+func Chunk[T any](slice []T, size int) [][]T {
+	if size <= 0 {
+		panic("lxslices.Chunk: size must be greater than 0")
+	}
+	if slice == nil {
+		return nil
+	}
+	if len(slice) == 0 {
+		return [][]T{}
+	}
+
+	chunks := make([][]T, 0, (len(slice)+size-1)/size)
+	for i := 0; i < len(slice); i += size {
+		end := i + size
+		if end > len(slice) {
+			end = len(slice)
+		}
+		chunks = append(chunks, slice[i:end])
+	}
+	return chunks
+}
+
 // Concat concatenates multiple slices into a single slice.
 // Behavior:
 // - If no slices are provided, returns nil.
