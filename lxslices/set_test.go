@@ -212,10 +212,10 @@ func TestDifference_Int(t *testing.T) {
 			expected: nil,
 		},
 		{
-			name:     "duplicates preserved",
+			name:     "duplicates removed",
 			s1:       []int{1, 2, 2, 3},
 			s2:       []int{4},
-			expected: []int{1, 2, 2, 3},
+			expected: []int{1, 2, 3},
 		},
 		{
 			name:     "empty s1",
@@ -379,10 +379,10 @@ func TestIntersection_Int(t *testing.T) {
 			expected: nil,
 		},
 		{
-			name:     "duplicates preserved",
+			name:     "duplicates removed",
 			s1:       []int{1, 2, 2, 3},
 			s2:       []int{2},
-			expected: []int{2, 2},
+			expected: []int{2},
 		},
 		{
 			name:     "empty s1",
@@ -439,10 +439,10 @@ func TestIntersection_String(t *testing.T) {
 			expected: nil,
 		},
 		{
-			name:     "duplicates preserved",
+			name:     "duplicates removed",
 			s1:       []string{"a", "b", "b", "c"},
 			s2:       []string{"b"},
-			expected: []string{"b", "b"},
+			expected: []string{"b"},
 		},
 		{
 			name:     "empty s1",
@@ -504,10 +504,10 @@ func TestIntersection_Struct(t *testing.T) {
 			expected: nil,
 		},
 		{
-			name:     "duplicates preserved",
+			name:     "duplicates removed",
 			s1:       []Item{{1, "a"}, {2, "b"}, {2, "b"}},
 			s2:       []Item{{2, "b"}},
-			expected: []Item{{2, "b"}, {2, "b"}},
+			expected: []Item{{2, "b"}},
 		},
 		{
 			name:     "empty s1",

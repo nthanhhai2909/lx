@@ -18,8 +18,7 @@ func Unique[T comparable](slice []T) []T {
 }
 
 // Difference returns a new slice containing elements that are in slice1 but not in slice2.
-// The order of elements from slice1 is preserved. Duplicates in slice1 are preserved when
-// they are not present in slice2 (i.e., this is not a set-deduplication operation).
+// The order of elements from slice1 is preserved. Duplicates in slice1 are removed.
 func Difference[T comparable](slice1, slice2 []T) []T {
 	if len(slice1) == 0 {
 		return nil
@@ -30,17 +29,20 @@ func Difference[T comparable](slice1, slice2 []T) []T {
 		m[e] = struct{}{}
 	}
 	var result []T
+	seen := make(map[T]struct{})
 	for _, e := range slice1 {
 		if _, found := m[e]; !found {
-			result = append(result, e)
+			if _, ok := seen[e]; !ok {
+				seen[e] = struct{}{}
+				result = append(result, e)
+			}
 		}
 	}
 	return result
 }
 
 // Intersection returns a new slice containing elements that appear in both slice1 and slice2.
-// The order of elements from slice1 is preserved. Each occurrence in slice1 is kept if it
-// exists in slice2 (i.e., duplicates in slice1 are preserved when the value exists in slice2).
+// The order of elements from slice1 is preserved. Duplicates in slice1 are removed.
 func Intersection[T comparable](slice1, slice2 []T) []T {
 	if len(slice1) == 0 || len(slice2) == 0 {
 		return nil
@@ -50,9 +52,13 @@ func Intersection[T comparable](slice1, slice2 []T) []T {
 		m[e] = struct{}{}
 	}
 	var result []T
+	seen := make(map[T]struct{})
 	for _, e := range slice1 {
 		if _, found := m[e]; found {
-			result = append(result, e)
+			if _, ok := seen[e]; !ok {
+				seen[e] = struct{}{}
+				result = append(result, e)
+			}
 		}
 	}
 	return result
