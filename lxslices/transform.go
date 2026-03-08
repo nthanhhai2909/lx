@@ -42,12 +42,11 @@ func ForEachIndexed[T any](slice []T, fn func(int, T)) {
 	}
 }
 
-// Reverse reverses the elements of the slice in-place and returns it.
-func Reverse[T any](slice []T) []T {
+// Reverse reverses the elements of the slice in-place.
+func Reverse[T any](slice []T) {
 	for i, j := 0, len(slice)-1; i < j; i, j = i+1, j-1 {
 		slice[i], slice[j] = slice[j], slice[i]
 	}
-	return slice
 }
 
 // GroupBy groups the elements of the slice by the given function.

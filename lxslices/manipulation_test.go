@@ -716,9 +716,9 @@ func TestRotateLeft_Int(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := lxslices.RotateLeft(tt.slice, tt.k)
-			if !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("RotateLeft(%v,%d) = %v; want %v", tt.slice, tt.k, got, tt.expected)
+			lxslices.RotateLeft(tt.slice, tt.k)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("RotateLeft resulted in %v; want %v", tt.slice, tt.expected)
 			}
 		})
 	}
@@ -740,9 +740,9 @@ func TestRotateLeft_String(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := lxslices.RotateLeft(tt.slice, tt.k)
-			if !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("RotateLeft(%v,%d) = %v; want %v", tt.slice, tt.k, got, tt.expected)
+			lxslices.RotateLeft(tt.slice, tt.k)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("RotateLeft resulted in %v; want %v", tt.slice, tt.expected)
 			}
 		})
 	}
@@ -765,9 +765,9 @@ func TestRotateLeft_Struct(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := lxslices.RotateLeft(tt.slice, tt.k)
-			if !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("RotateLeft(%v,%d) = %v; want %v", tt.slice, tt.k, got, tt.expected)
+			lxslices.RotateLeft(tt.slice, tt.k)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("RotateLeft resulted in %v; want %v", tt.slice, tt.expected)
 			}
 		})
 	}
@@ -788,9 +788,9 @@ func TestRotateRight_Int(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := lxslices.RotateRight(tt.slice, tt.k)
-			if !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("RotateRight(%v,%d) = %v; want %v", tt.slice, tt.k, got, tt.expected)
+			lxslices.RotateRight(tt.slice, tt.k)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("RotateRight resulted in %v; want %v", tt.slice, tt.expected)
 			}
 		})
 	}
@@ -811,9 +811,9 @@ func TestRotateRight_String(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := lxslices.RotateRight(tt.slice, tt.k)
-			if !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("RotateRight(%v,%d) = %v; want %v", tt.slice, tt.k, got, tt.expected)
+			lxslices.RotateRight(tt.slice, tt.k)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("RotateRight resulted in %v; want %v", tt.slice, tt.expected)
 			}
 		})
 	}
@@ -835,9 +835,9 @@ func TestRotateRight_Struct(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := lxslices.RotateRight(tt.slice, tt.k)
-			if !reflect.DeepEqual(got, tt.expected) {
-				t.Errorf("RotateRight(%v,%d) = %v; want %v", tt.slice, tt.k, got, tt.expected)
+			lxslices.RotateRight(tt.slice, tt.k)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("RotateRight resulted in %v; want %v", tt.slice, tt.expected)
 			}
 		})
 	}

@@ -401,78 +401,107 @@ func TestForEachIndexed(t *testing.T) {
 	})
 }
 
-func TestReverse(t *testing.T) {
-	t.Run("integers", func(t *testing.T) {
-		slice := []int{1, 2, 3, 4, 5}
-		expected := []int{5, 4, 3, 2, 1}
-		result := lxslices.Reverse(slice)
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("Reverse() = %v; want %v", result, expected)
-		}
-	})
+func TestReverse_Int(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []int
+		expected []int
+	}{
+		{name: "integers", slice: []int{1, 2, 3, 4, 5}, expected: []int{5, 4, 3, 2, 1}},
+		{name: "even number of elements", slice: []int{1, 2, 3, 4}, expected: []int{4, 3, 2, 1}},
+		{name: "single element", slice: []int{42}, expected: []int{42}},
+		{name: "empty slice", slice: []int{}, expected: []int{}},
+		{name: "nil slice", slice: nil, expected: nil},
+	}
 
-	t.Run("strings", func(t *testing.T) {
-		slice := []string{"a", "b", "c"}
-		expected := []string{"c", "b", "a"}
-		result := lxslices.Reverse(slice)
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("Reverse() = %v; want %v", result, expected)
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lxslices.Reverse(tt.slice)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("Reverse() = %v; want %v", tt.slice, tt.expected)
+			}
+		})
+	}
+}
 
-	t.Run("empty slice", func(t *testing.T) {
-		slice := []int{}
-		expected := []int{}
-		result := lxslices.Reverse(slice)
-		if len(result) != 0 {
-			t.Errorf("Reverse() = %v; want empty slice", result)
-		}
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("Reverse() = %v; want %v", result, expected)
-		}
-	})
+func TestReverse_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		slice    []string
+		expected []string
+	}{
+		{name: "odd number of elements", slice: []string{"a", "b", "c"}, expected: []string{"c", "b", "a"}},
+		{name: "even number of elements", slice: []string{"a", "b", "c", "d"}, expected: []string{"d", "c", "b", "a"}},
+		{name: "single element", slice: []string{"go"}, expected: []string{"go"}},
+		{name: "empty slice", slice: []string{}, expected: []string{}},
+		{name: "nil slice", slice: nil, expected: nil},
+	}
 
-	t.Run("nil slice", func(t *testing.T) {
-		var slice []int
-		var expected []int
-		result := lxslices.Reverse(slice)
-		if len(result) != 0 {
-			t.Errorf("Reverse() = %v; want empty slice", result)
-		}
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("Reverse() = %v; want %v", result, expected)
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lxslices.Reverse(tt.slice)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("Reverse() = %v; want %v", tt.slice, tt.expected)
+			}
+		})
+	}
+}
 
-	t.Run("single element", func(t *testing.T) {
-		slice := []int{42}
-		expected := []int{42}
-		result := lxslices.Reverse(slice)
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("Reverse() = %v; want %v", result, expected)
-		}
-	})
+func TestReverse_Struct(t *testing.T) {
+	type Person struct {
+		Name string
+		Age  int
+	}
+	tests := []struct {
+		name     string
+		slice    []Person
+		expected []Person
+	}{
+		{
+			name: "odd number of elements",
+			slice: []Person{
+				{"Alice", 30},
+				{"Bob", 25},
+				{"Charlie", 35},
+			},
+			expected: []Person{
+				{"Charlie", 35},
+				{"Bob", 25},
+				{"Alice", 30},
+			},
+		},
+		{
+			name: "even number of elements",
+			slice: []Person{
+				{"Alice", 30},
+				{"Bob", 25},
+				{"Charlie", 35},
+				{"Dave", 40},
+			},
+			expected: []Person{
+				{"Dave", 40},
+				{"Charlie", 35},
+				{"Bob", 25},
+				{"Alice", 30},
+			},
+		},
+		{
+			name:     "single element",
+			slice:    []Person{{"Alice", 30}},
+			expected: []Person{{"Alice", 30}},
+		},
+		{name: "empty slice", slice: []Person{}, expected: []Person{}},
+		{name: "nil slice", slice: nil, expected: nil},
+	}
 
-	t.Run("structs", func(t *testing.T) {
-		type Person struct {
-			Name string
-			Age  int
-		}
-		slice := []Person{
-			{"Alice", 30},
-			{"Bob", 25},
-			{"Charlie", 35},
-		}
-		expected := []Person{
-			{"Charlie", 35},
-			{"Bob", 25},
-			{"Alice", 30},
-		}
-		result := lxslices.Reverse(slice)
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("Reverse() = %v; want %v", result, expected)
-		}
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lxslices.Reverse(tt.slice)
+			if !reflect.DeepEqual(tt.slice, tt.expected) {
+				t.Errorf("Reverse() = %v; want %v", tt.slice, tt.expected)
+			}
+		})
+	}
 }
 
 func TestGroupBy(t *testing.T) {
