@@ -625,3 +625,263 @@ func TestGetIntOr(t *testing.T) {
 		})
 	}
 }
+
+func TestGetBool(t *testing.T) {
+	tests := []struct {
+		name          string
+		key           string
+		preset        string
+		setVar        bool
+		expectedValue bool
+		expectedOk    bool
+	}{
+		// true values
+		{
+			name:          `"1" returns true`,
+			key:           "TEST_GETBOOL_1",
+			preset:        "1",
+			setVar:        true,
+			expectedValue: true,
+			expectedOk:    true,
+		},
+		{
+			name:          `"t" returns true`,
+			key:           "TEST_GETBOOL_t",
+			preset:        "t",
+			setVar:        true,
+			expectedValue: true,
+			expectedOk:    true,
+		},
+		{
+			name:          `"T" returns true`,
+			key:           "TEST_GETBOOL_T",
+			preset:        "T",
+			setVar:        true,
+			expectedValue: true,
+			expectedOk:    true,
+		},
+		{
+			name:          `"true" returns true`,
+			key:           "TEST_GETBOOL_true",
+			preset:        "true",
+			setVar:        true,
+			expectedValue: true,
+			expectedOk:    true,
+		},
+		{
+			name:          `"TRUE" returns true`,
+			key:           "TEST_GETBOOL_TRUE",
+			preset:        "TRUE",
+			setVar:        true,
+			expectedValue: true,
+			expectedOk:    true,
+		},
+		{
+			name:          `"True" returns true`,
+			key:           "TEST_GETBOOL_True",
+			preset:        "True",
+			setVar:        true,
+			expectedValue: true,
+			expectedOk:    true,
+		},
+		// false values
+		{
+			name:          `"0" returns false`,
+			key:           "TEST_GETBOOL_0",
+			preset:        "0",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    true,
+		},
+		{
+			name:          `"f" returns false`,
+			key:           "TEST_GETBOOL_f",
+			preset:        "f",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    true,
+		},
+		{
+			name:          `"F" returns false`,
+			key:           "TEST_GETBOOL_F",
+			preset:        "F",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    true,
+		},
+		{
+			name:          `"false" returns false`,
+			key:           "TEST_GETBOOL_false",
+			preset:        "false",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    true,
+		},
+		{
+			name:          `"FALSE" returns false`,
+			key:           "TEST_GETBOOL_FALSE",
+			preset:        "FALSE",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    true,
+		},
+		{
+			name:          `"False" returns false`,
+			key:           "TEST_GETBOOL_False",
+			preset:        "False",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    true,
+		},
+		// invalid values
+		{
+			name:          "invalid string returns false",
+			key:           "TEST_GETBOOL_INVALID",
+			preset:        "not_a_bool",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    false,
+		},
+		{
+			name:          "numeric string other than 0/1 returns false",
+			key:           "TEST_GETBOOL_NUMERIC",
+			preset:        "42",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    false,
+		},
+		{
+			name:          "empty value returns false",
+			key:           "TEST_GETBOOL_EMPTY",
+			preset:        "",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    false,
+		},
+		{
+			name:          "whitespace value returns false",
+			key:           "TEST_GETBOOL_WHITESPACE",
+			preset:        "   ",
+			setVar:        true,
+			expectedValue: false,
+			expectedOk:    false,
+		},
+		{
+			name:          "non-existent variable returns false",
+			key:           "TEST_GETBOOL_NONEXISTENT",
+			setVar:        false,
+			expectedValue: false,
+			expectedOk:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setVar {
+				os.Setenv(tt.key, tt.preset)
+				defer os.Unsetenv(tt.key)
+			}
+
+			value, ok := lxenv.GetBool(tt.key)
+			if value != tt.expectedValue || ok != tt.expectedOk {
+				t.Errorf("GetBool(%q) = (%v, %v), want (%v, %v)", tt.key, value, ok, tt.expectedValue, tt.expectedOk)
+			}
+		})
+	}
+}
+
+func TestGetBoolOr(t *testing.T) {
+	tests := []struct {
+		name         string
+		key          string
+		preset       string
+		setVar       bool
+		defaultValue bool
+		expected     bool
+	}{
+		{
+			name:         "true value returns true",
+			key:          "TEST_GETBOOLOR_TRUE",
+			preset:       "true",
+			setVar:       true,
+			defaultValue: false,
+			expected:     true,
+		},
+		{
+			name:         "false value returns false",
+			key:          "TEST_GETBOOLOR_FALSE",
+			preset:       "false",
+			setVar:       true,
+			defaultValue: true,
+			expected:     false,
+		},
+		{
+			name:         `"1" returns true`,
+			key:          "TEST_GETBOOLOR_1",
+			preset:       "1",
+			setVar:       true,
+			defaultValue: false,
+			expected:     true,
+		},
+		{
+			name:         `"0" returns false`,
+			key:          "TEST_GETBOOLOR_0",
+			preset:       "0",
+			setVar:       true,
+			defaultValue: true,
+			expected:     false,
+		},
+		{
+			name:         "invalid value returns default",
+			key:          "TEST_GETBOOLOR_INVALID",
+			preset:       "not_a_bool",
+			setVar:       true,
+			defaultValue: true,
+			expected:     true,
+		},
+		{
+			name:         "empty value returns default",
+			key:          "TEST_GETBOOLOR_EMPTY",
+			preset:       "",
+			setVar:       true,
+			defaultValue: true,
+			expected:     true,
+		},
+		{
+			name:         "whitespace value returns default",
+			key:          "TEST_GETBOOLOR_WHITESPACE",
+			preset:       "   ",
+			setVar:       true,
+			defaultValue: true,
+			expected:     true,
+		},
+		{
+			name:         "non-existent variable returns default",
+			key:          "TEST_GETBOOLOR_NONEXISTENT",
+			setVar:       false,
+			defaultValue: true,
+			expected:     true,
+		},
+		{
+			name:         "false default value",
+			key:          "TEST_GETBOOLOR_FALSE_DEFAULT",
+			setVar:       false,
+			defaultValue: false,
+			expected:     false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setVar {
+				os.Setenv(tt.key, tt.preset)
+				defer os.Unsetenv(tt.key)
+			}
+
+			result := lxenv.GetBoolOr(tt.key, tt.defaultValue)
+			if result != tt.expected {
+				t.Errorf("GetBoolOr(%q, %v) = %v, want %v", tt.key, tt.defaultValue, result, tt.expected)
+			}
+		})
+	}
+}
