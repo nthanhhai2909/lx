@@ -367,3 +367,261 @@ func TestHas(t *testing.T) {
 		})
 	}
 }
+
+func TestLookup(t *testing.T) {
+	tests := []struct {
+		name          string
+		key           string
+		preset        string
+		setVar        bool
+		expectedValue string
+		expectedOk    bool
+	}{
+		{
+			name:          "existing variable with value",
+			key:           "TEST_LOOKUP_EXISTING",
+			preset:        "hello",
+			setVar:        true,
+			expectedValue: "hello",
+			expectedOk:    true,
+		},
+		{
+			name:          "existing variable with empty value",
+			key:           "TEST_LOOKUP_EMPTY_VALUE",
+			preset:        "",
+			setVar:        true,
+			expectedValue: "",
+			expectedOk:    true,
+		},
+		{
+			name:          "existing variable with whitespace value",
+			key:           "TEST_LOOKUP_WHITESPACE",
+			preset:        "   ",
+			setVar:        true,
+			expectedValue: "   ",
+			expectedOk:    true,
+		},
+		{
+			name:          "existing variable with special characters",
+			key:           "TEST_LOOKUP_SPECIAL",
+			preset:        "hello@world!#$%",
+			setVar:        true,
+			expectedValue: "hello@world!#$%",
+			expectedOk:    true,
+		},
+		{
+			name:          "existing variable with numeric value",
+			key:           "TEST_LOOKUP_NUMERIC",
+			preset:        "12345",
+			setVar:        true,
+			expectedValue: "12345",
+			expectedOk:    true,
+		},
+		{
+			name:          "non-existent variable",
+			key:           "TEST_LOOKUP_NONEXISTENT",
+			setVar:        false,
+			expectedValue: "",
+			expectedOk:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setVar {
+				os.Setenv(tt.key, tt.preset)
+				defer os.Unsetenv(tt.key)
+			}
+
+			value, ok := lxenv.Lookup(tt.key)
+			if value != tt.expectedValue || ok != tt.expectedOk {
+				t.Errorf("Lookup(%q) = (%q, %v), want (%q, %v)", tt.key, value, ok, tt.expectedValue, tt.expectedOk)
+			}
+		})
+	}
+}
+
+func TestGetInt(t *testing.T) {
+	tests := []struct {
+		name          string
+		key           string
+		preset        string
+		setVar        bool
+		expectedValue int
+		expectedOk    bool
+	}{
+		{
+			name:          "valid integer",
+			key:           "TEST_GETINT_VALID",
+			preset:        "42",
+			setVar:        true,
+			expectedValue: 42,
+			expectedOk:    true,
+		},
+		{
+			name:          "negative integer",
+			key:           "TEST_GETINT_NEGATIVE",
+			preset:        "-10",
+			setVar:        true,
+			expectedValue: -10,
+			expectedOk:    true,
+		},
+		{
+			name:          "zero",
+			key:           "TEST_GETINT_ZERO",
+			preset:        "0",
+			setVar:        true,
+			expectedValue: 0,
+			expectedOk:    true,
+		},
+		{
+			name:          "float value returns false",
+			key:           "TEST_GETINT_FLOAT",
+			preset:        "3.14",
+			setVar:        true,
+			expectedValue: 0,
+			expectedOk:    false,
+		},
+		{
+			name:          "string value returns false",
+			key:           "TEST_GETINT_STRING",
+			preset:        "not_a_number",
+			setVar:        true,
+			expectedValue: 0,
+			expectedOk:    false,
+		},
+		{
+			name:          "empty value returns false",
+			key:           "TEST_GETINT_EMPTY",
+			preset:        "",
+			setVar:        true,
+			expectedValue: 0,
+			expectedOk:    false,
+		},
+		{
+			name:          "non-existent variable returns false",
+			key:           "TEST_GETINT_NONEXISTENT",
+			setVar:        false,
+			expectedValue: 0,
+			expectedOk:    false,
+		},
+		{
+			name:          "whitespace value returns false",
+			key:           "TEST_GETINT_WHITESPACE",
+			preset:        "   ",
+			setVar:        true,
+			expectedValue: 0,
+			expectedOk:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setVar {
+				os.Setenv(tt.key, tt.preset)
+				defer os.Unsetenv(tt.key)
+			}
+
+			value, ok := lxenv.GetInt(tt.key)
+			if value != tt.expectedValue || ok != tt.expectedOk {
+				t.Errorf("GetInt(%q) = (%d, %v), want (%d, %v)", tt.key, value, ok, tt.expectedValue, tt.expectedOk)
+			}
+		})
+	}
+}
+
+func TestGetIntOr(t *testing.T) {
+	tests := []struct {
+		name         string
+		key          string
+		preset       string
+		setVar       bool
+		defaultValue int
+		expected     int
+	}{
+		{
+			name:         "valid integer returns parsed value",
+			key:          "TEST_GETINTOR_VALID",
+			preset:       "42",
+			setVar:       true,
+			defaultValue: 100,
+			expected:     42,
+		},
+		{
+			name:         "negative integer returns parsed value",
+			key:          "TEST_GETINTOR_NEGATIVE",
+			preset:       "-10",
+			setVar:       true,
+			defaultValue: 100,
+			expected:     -10,
+		},
+		{
+			name:         "zero returns zero",
+			key:          "TEST_GETINTOR_ZERO",
+			preset:       "0",
+			setVar:       true,
+			defaultValue: 100,
+			expected:     0,
+		},
+		{
+			name:         "float value returns default",
+			key:          "TEST_GETINTOR_FLOAT",
+			preset:       "3.14",
+			setVar:       true,
+			defaultValue: 100,
+			expected:     100,
+		},
+		{
+			name:         "string value returns default",
+			key:          "TEST_GETINTOR_STRING",
+			preset:       "not_a_number",
+			setVar:       true,
+			defaultValue: 100,
+			expected:     100,
+		},
+		{
+			name:         "empty value returns default",
+			key:          "TEST_GETINTOR_EMPTY",
+			preset:       "",
+			setVar:       true,
+			defaultValue: 100,
+			expected:     100,
+		},
+		{
+			name:         "non-existent variable returns default",
+			key:          "TEST_GETINTOR_NONEXISTENT",
+			setVar:       false,
+			defaultValue: 100,
+			expected:     100,
+		},
+		{
+			name:         "whitespace value returns default",
+			key:          "TEST_GETINTOR_WHITESPACE",
+			preset:       "   ",
+			setVar:       true,
+			defaultValue: 100,
+			expected:     100,
+		},
+		{
+			name:         "zero default value",
+			key:          "TEST_GETINTOR_ZERO_DEFAULT",
+			setVar:       false,
+			defaultValue: 0,
+			expected:     0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setVar {
+				os.Setenv(tt.key, tt.preset)
+				defer os.Unsetenv(tt.key)
+			}
+
+			result := lxenv.GetIntOr(tt.key, tt.defaultValue)
+			if result != tt.expected {
+				t.Errorf("GetIntOr(%q, %d) = %d, want %d", tt.key, tt.defaultValue, result, tt.expected)
+			}
+		})
+	}
+}
