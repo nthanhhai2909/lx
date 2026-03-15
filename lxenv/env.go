@@ -148,6 +148,21 @@ func GetIntOr(key string, defaultValue int) int {
 	return defaultValue
 }
 
+// MustGetInt retrieves an environment variable as an integer.
+// Panics if the variable is not set or cannot be parsed as an integer.
+//
+// Example:
+//
+//	port := lxenv.MustGetInt("PORT")
+//	// port: 8080
+func MustGetInt(key string) int {
+	value, ok := GetInt(key)
+	if !ok {
+		panic("lxenv: environment variable " + key + " is not set or not a valid integer")
+	}
+	return value
+}
+
 // GetBool retrieves an environment variable as a boolean.
 // Returns (value, true) if the variable is set and can be parsed as a boolean.
 // Accepts: "1", "t", "T", "true", "TRUE", "True" for true.

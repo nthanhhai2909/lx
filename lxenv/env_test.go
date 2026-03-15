@@ -928,6 +928,119 @@ func TestGetIntOr(t *testing.T) {
 	}
 }
 
+func TestMustGetInt(t *testing.T) {
+	tests := []struct {
+		name      string
+		key       string
+		value     string
+		setEnv    bool
+		want      int
+		wantPanic bool
+	}{
+		{
+			name:   "valid integer",
+			key:    "TEST_MUSTGETINT_VALID",
+			value:  "8080",
+			setEnv: true,
+			want:   8080,
+		},
+		{
+			name:      "missing key panics",
+			key:       "TEST_MUSTGETINT_MISSING",
+			setEnv:    false,
+			wantPanic: true,
+		},
+		{
+			name:      "invalid integer panics",
+			key:       "TEST_MUSTGETINT_INVALID",
+			value:     "not_an_int",
+			setEnv:    true,
+			wantPanic: true,
+		},
+		{
+			name:      "empty value treated as missing (panics)",
+			key:       "TEST_MUSTGETINT_EMPTY",
+			value:     "",
+			setEnv:    true,
+			wantPanic: true,
+		},
+		{
+			name:      "whitespace value treated as invalid (panics)",
+			key:       "TEST_MUSTGETINT_SPACE",
+			value:     "   ",
+			setEnv:    true,
+			wantPanic: true,
+		},
+		{
+			name:   "negative integer",
+			key:    "TEST_MUSTGETINT_NEGATIVE",
+			value:  "-42",
+			setEnv: true,
+			want:   -42,
+		},
+		{
+			name:   "plus-sign integer",
+			key:    "TEST_MUSTGETINT_PLUS",
+			value:  "+123",
+			setEnv: true,
+			want:   123,
+		},
+		{
+			name:      "leading/trailing spaces (panics)",
+			key:       "TEST_MUSTGETINT_SPACED",
+			value:     " 123 ",
+			setEnv:    true,
+			wantPanic: true,
+		},
+		{
+			name:      "overflow value panics",
+			key:       "TEST_MUSTGETINT_OVERFLOW",
+			value:     "999999999999999999999999999999",
+			setEnv:    true,
+			wantPanic: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setEnv {
+				os.Setenv(tt.key, tt.value)
+				defer os.Unsetenv(tt.key)
+			} else {
+				os.Unsetenv(tt.key)
+			}
+
+			var (
+				got      int
+				didPanic bool
+			)
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						didPanic = true
+					}
+				}()
+				got = lxenv.MustGetInt(tt.key)
+			}()
+
+			if tt.wantPanic {
+				if !didPanic {
+					t.Fatalf("MustGetInt(%q) did not panic", tt.key)
+				}
+				return
+			}
+
+			if didPanic {
+				t.Fatalf("MustGetInt(%q) panicked unexpectedly", tt.key)
+			}
+
+			if got != tt.want {
+				t.Fatalf("MustGetInt(%q) = %d, want %d", tt.key, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestGetBool(t *testing.T) {
 	tests := []struct {
 		name          string
