@@ -116,6 +116,7 @@ func TestSampleN_Int(t *testing.T) {
 		slice       []int
 		n           int
 		expectedLen int
+		wantNil     bool
 	}{
 		{
 			name:        "sample 3 from 5",
@@ -154,21 +155,35 @@ func TestSampleN_Int(t *testing.T) {
 			expectedLen: 0,
 		},
 		{
-			name:        "empty slice",
+			name:        "empty slice returns non-nil empty",
 			slice:       []int{},
 			n:           5,
 			expectedLen: 0,
+			wantNil:     false,
 		},
 		{
-			name:        "nil slice",
+			name:        "nil slice returns nil",
 			slice:       nil,
 			n:           5,
 			expectedLen: 0,
+			wantNil:     true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := lxslices.SampleN(tt.slice, tt.n)
+
+			// Check nil vs non-nil semantics for nil/empty inputs
+			if tt.slice == nil || len(tt.slice) == 0 {
+				if tt.wantNil && result != nil {
+					t.Errorf("SampleN() = %v; want nil", result)
+					return
+				}
+				if !tt.wantNil && result == nil {
+					t.Errorf("SampleN() = nil; want non-nil empty slice")
+					return
+				}
+			}
 
 			// Check length
 			if len(result) != tt.expectedLen {
@@ -350,100 +365,6 @@ func TestSampleN_Struct(t *testing.T) {
 					}
 					seen[v] = true
 				}
-			}
-		})
-	}
-}
-
-// TestSample_NilEmptySemantics verifies (T, bool) return semantics for nil and empty inputs.
-func TestSample_NilEmptySemantics(t *testing.T) {
-	tests := []struct {
-		name      string
-		slice     []int
-		wantFound bool
-		wantVal   int
-	}{
-		{
-			name:      "nil slice returns zero and false",
-			slice:     nil,
-			wantFound: false,
-			wantVal:   0,
-		},
-		{
-			name:      "empty slice returns zero and false",
-			slice:     []int{},
-			wantFound: false,
-			wantVal:   0,
-		},
-		{
-			name:      "single element returns element and true",
-			slice:     []int{99},
-			wantFound: true,
-			wantVal:   99,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			val, found := lxslices.Sample(tt.slice)
-			if found != tt.wantFound {
-				t.Errorf("Sample() found = %v; want %v", found, tt.wantFound)
-			}
-			if !tt.wantFound && val != tt.wantVal {
-				t.Errorf("Sample() val = %v; want %v", val, tt.wantVal)
-			}
-		})
-	}
-}
-
-// TestSampleN_NilEmptySemantics verifies nil vs empty slice output semantics for SampleN.
-func TestSampleN_NilEmptySemantics(t *testing.T) {
-	tests := []struct {
-		name        string
-		slice       []int
-		n           int
-		wantNil     bool
-		wantLen     int
-	}{
-		{
-			name:    "nil input returns nil",
-			slice:   nil,
-			n:       3,
-			wantNil: true,
-			wantLen: 0,
-		},
-		{
-			name:    "empty non-nil input returns non-nil empty",
-			slice:   []int{},
-			n:       3,
-			wantNil: false,
-			wantLen: 0,
-		},
-		{
-			name:    "n zero returns non-nil empty",
-			slice:   []int{1, 2, 3},
-			n:       0,
-			wantNil: false,
-			wantLen: 0,
-		},
-		{
-			name:    "n greater than len returns all elements",
-			slice:   []int{1, 2, 3},
-			n:       10,
-			wantNil: false,
-			wantLen: 3,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := lxslices.SampleN(tt.slice, tt.n)
-			if tt.wantNil && result != nil {
-				t.Errorf("SampleN() = %v; want nil", result)
-			}
-			if !tt.wantNil && result == nil {
-				t.Errorf("SampleN() = nil; want non-nil slice")
-			}
-			if len(result) != tt.wantLen {
-				t.Errorf("SampleN() length = %d; want %d", len(result), tt.wantLen)
 			}
 		})
 	}

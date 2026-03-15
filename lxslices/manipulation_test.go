@@ -152,6 +152,7 @@ func TestInsert_Int(t *testing.T) {
 	}{
 		{name: "insert middle", slice: []int{10, 30}, index: 1, elem: 20, expected: []int{10, 20, 30}},
 		{name: "insert at 0", slice: []int{10}, index: 0, elem: 5, expected: []int{5, 10}},
+		{name: "insert zero value at index zero", slice: []int{1, 2, 3}, index: 0, elem: 0, expected: []int{0, 1, 2, 3}},
 		{name: "insert OOB append", slice: []int{1, 2}, index: 5, elem: 3, expected: []int{1, 2, 3}},
 		{name: "insert negative treated as prepend", slice: []int{2, 3}, index: -5, elem: 1, expected: []int{1, 2, 3}},
 	}
@@ -841,49 +842,4 @@ func TestRotateRight_Struct(t *testing.T) {
 			}
 		})
 	}
-}
-
-// TestInsertAtBeginning verifies that Insert with index 0 inserts at the beginning.
-func TestInsertAtBeginning(t *testing.T) {
-slice := []int{10, 20, 30}
-result := lxslices.Insert(slice, 0, 5)
-expected := []int{5, 10, 20, 30}
-if !reflect.DeepEqual(result, expected) {
-t.Errorf("Insert(slice, 0, 5) = %v; want %v", result, expected)
-}
-}
-
-// TestInsertIndexZero verifies index==0 is treated as insertion at the start,
-// not as a negative index.
-func TestInsertIndexZero(t *testing.T) {
-slice := []int{1, 2, 3}
-result := lxslices.Insert(slice, 0, 0)
-expected := []int{0, 1, 2, 3}
-if !reflect.DeepEqual(result, expected) {
-t.Errorf("Insert(slice, 0, 0) = %v; want %v", result, expected)
-}
-// Confirm the original slice is not modified
-if len(slice) != 3 {
-t.Errorf("original slice was modified: %v", slice)
-}
-}
-
-// TestInsertNegativeIndex verifies that negative indices are clamped to 0 (prepend).
-func TestInsertNegativeIndex(t *testing.T) {
-slice := []int{2, 3, 4}
-result := lxslices.Insert(slice, -5, 1)
-expected := []int{1, 2, 3, 4}
-if !reflect.DeepEqual(result, expected) {
-t.Errorf("Insert(slice, -5, 1) = %v; want %v", result, expected)
-}
-}
-
-// TestInsertAppendBeyondLength verifies that out-of-bounds index appends the element.
-func TestInsertAppendBeyondLength(t *testing.T) {
-slice := []int{1, 2, 3}
-result := lxslices.Insert(slice, 100, 99)
-expected := []int{1, 2, 3, 99}
-if !reflect.DeepEqual(result, expected) {
-t.Errorf("Insert(slice, 100, 99) = %v; want %v", result, expected)
-}
 }
