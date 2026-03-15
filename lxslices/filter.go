@@ -25,9 +25,13 @@ func FindLast[T any](slice []T, predicate func(T) bool) (T, bool) {
 }
 
 // Filter returns a new slice containing only the elements that satisfy the predicate.
-// The original slice is not modified.
+// Returns nil if input is nil. Returns a non-nil empty slice if the input is non-nil
+// but no elements match. The original slice is not modified.
 func Filter[T any](slice []T, predicate func(T) bool) []T {
-	var result []T
+	if slice == nil {
+		return nil
+	}
+	result := make([]T, 0, len(slice))
 	for _, e := range slice {
 		if predicate(e) {
 			result = append(result, e)

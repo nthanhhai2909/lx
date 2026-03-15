@@ -1,6 +1,7 @@
 package lxslices_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/nthanhhai2909/lx/lxslices"
@@ -703,4 +704,34 @@ func TestUnion_Struct(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestDifferenceNilInput verifies that Difference returns nil when slice1 is nil.
+func TestDifferenceNilInput(t *testing.T) {
+result := lxslices.Difference[int](nil, []int{1, 2, 3})
+if result != nil {
+t.Errorf("Difference(nil, ...) = %v; want nil", result)
+}
+}
+
+// TestDifferenceEmptyInput verifies that Difference returns the original empty
+// non-nil slice when slice1 is empty but non-nil.
+func TestDifferenceEmptyInput(t *testing.T) {
+empty := []int{}
+result := lxslices.Difference(empty, []int{1, 2, 3})
+if result == nil {
+t.Error("Difference([]int{}, ...) = nil; want non-nil empty slice")
+}
+if len(result) != 0 {
+t.Errorf("Difference([]int{}, ...) length = %d; want 0", len(result))
+}
+}
+
+// TestDifferenceNormal verifies standard Difference behavior.
+func TestDifferenceNormal(t *testing.T) {
+result := lxslices.Difference([]int{1, 2, 3, 4}, []int{2, 4})
+expected := []int{1, 3}
+if !reflect.DeepEqual(result, expected) {
+t.Errorf("Difference() = %v; want %v", result, expected)
+}
 }

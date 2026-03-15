@@ -19,16 +19,20 @@ func Unique[T comparable](slice []T) []T {
 
 // Difference returns a new slice containing elements that are in slice1 but not in slice2.
 // The order of elements from slice1 is preserved. Duplicates in slice1 are removed.
+// Returns nil if slice1 is nil. Returns an empty non-nil slice if slice1 is empty but non-nil.
 func Difference[T comparable](slice1, slice2 []T) []T {
-	if len(slice1) == 0 {
+	if slice1 == nil {
 		return nil
+	}
+	if len(slice1) == 0 {
+		return slice1
 	}
 
 	m := make(map[T]struct{}, len(slice2))
 	for _, e := range slice2 {
 		m[e] = struct{}{}
 	}
-	var result []T
+	result := make([]T, 0, len(slice1))
 	seen := make(map[T]struct{})
 	for _, e := range slice1 {
 		if _, found := m[e]; !found {
