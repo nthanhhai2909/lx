@@ -540,25 +540,6 @@ func SecureToken(n int) (string, error)
 ---
 
 ### **TIER 4: Nice to Have** (Future Consideration)
-
-#### 13. **`lxenv`** - Environment Variable Utilities
-**Priority**: 🔵 LOW
-
-**Core Functions**:
-```go
-func Get(key string) string
-func GetOr(key, defaultValue string) string
-func GetInt(key string) (int, error)
-func GetIntOr(key string, defaultValue int) int
-func GetBool(key string) (bool, error)
-func GetBoolOr(key string, defaultValue bool) bool
-func MustGet(key string) string
-func Set(key, value string) error
-func Unset(key string) error
-func All() map[string]string
-func Load(filename string) error // .env file
-```
-
 ---
 
 #### 14. **`lxconcurrent`** - Concurrency Utilities
