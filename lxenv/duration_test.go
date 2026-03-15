@@ -253,3 +253,94 @@ func TestGetDurationOr(t *testing.T) {
 		})
 	}
 }
+
+func TestMustGetDuration(t *testing.T) {
+	tests := []struct {
+		name      string
+		key       string
+		preset    string
+		setVar    bool
+		want      time.Duration
+		wantPanic bool
+	}{
+		{
+			name:   "standard duration",
+			key:    "TEST_MUST_DURATION_STD",
+			preset: "1h30m",
+			setVar: true,
+			want:   90 * time.Minute,
+		},
+		{
+			name:   "extended days",
+			key:    "TEST_MUST_DURATION_DAYS",
+			preset: "3d",
+			setVar: true,
+			want:   72 * time.Hour,
+		},
+		{
+			name:   "combination with spaces",
+			key:    "TEST_MUST_DURATION_COMBO",
+			preset: "1d 2h 30m",
+			setVar: true,
+			want:   26*time.Hour + 30*time.Minute,
+		},
+		{
+			name:   "negative duration",
+			key:    "TEST_MUST_DURATION_NEG",
+			preset: "-1.5h",
+			setVar: true,
+			want:   -90 * time.Minute,
+		},
+		{
+			name:      "missing key panics",
+			key:       "TEST_MUST_DURATION_MISSING",
+			setVar:    false,
+			wantPanic: true,
+		},
+		{
+			name:      "invalid duration panics",
+			key:       "TEST_MUST_DURATION_INVALID",
+			preset:    "not_a_duration",
+			setVar:    true,
+			wantPanic: true,
+		},
+		{
+			name:      "empty value panics",
+			key:       "TEST_MUST_DURATION_EMPTY",
+			preset:    "",
+			setVar:    true,
+			wantPanic: true,
+		},
+		{
+			name:   "whitespace allowed",
+			key:    "TEST_MUST_DURATION_SPACE",
+			preset: " 1d ",
+			setVar: true,
+			want:   24 * time.Hour,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setVar {
+				os.Setenv(tt.key, tt.preset)
+				defer os.Unsetenv(tt.key)
+			} else {
+				os.Unsetenv(tt.key)
+			}
+
+			if tt.wantPanic {
+				defer func() {
+					if r := recover(); r == nil {
+						t.Fatalf("MustGetDuration(%q) did not panic", tt.key)
+					}
+				}()
+			}
+
+			got := MustGetDuration(tt.key)
+			if !tt.wantPanic && got != tt.want {
+				t.Fatalf("MustGetDuration(%q) = %v, want %v", tt.key, got, tt.want)
+			}
+		})
+	}
+}

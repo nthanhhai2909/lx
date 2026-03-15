@@ -48,6 +48,21 @@ func GetDurationOr(key string, defaultValue time.Duration) time.Duration {
 	return defaultValue
 }
 
+// MustGetDuration retrieves an environment variable as a duration.
+// Panics if the variable is not set or cannot be parsed as a duration.
+//
+// Example:
+//
+//	timeout := lxenv.MustGetDuration("TIMEOUT")
+//	// timeout: 30s
+func MustGetDuration(key string) time.Duration {
+	value, ok := GetDuration(key)
+	if !ok {
+		panic("lxenv: environment variable " + key + " is not set or not a valid duration")
+	}
+	return value
+}
+
 // parseDuration parses a duration string that supports extended units:
 // y (years), w (weeks), d (days).
 //
