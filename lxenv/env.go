@@ -200,6 +200,21 @@ func GetBoolOr(key string, defaultValue bool) bool {
 	return defaultValue
 }
 
+// MustGetBool retrieves an environment variable as a boolean.
+// Panics if the variable is not set or cannot be parsed as a boolean.
+//
+// Example:
+//
+//	debug := lxenv.MustGetBool("DEBUG")
+//	// debug: true
+func MustGetBool(key string) bool {
+	value, ok := GetBool(key)
+	if !ok {
+		panic("lxenv: environment variable " + key + " is not set or not a valid boolean")
+	}
+	return value
+}
+
 // Require ensures the provided keys exist in the environment.
 // Returns ErrKeyNotFound wrapped with the missing keys when any key is unset.
 func Require(keys ...string) error {

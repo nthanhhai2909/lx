@@ -1301,6 +1301,79 @@ func TestGetBoolOr(t *testing.T) {
 	}
 }
 
+func TestMustGetBool(t *testing.T) {
+	tests := []struct {
+		name      string
+		key       string
+		value     string
+		setEnv    bool
+		want      bool
+		wantPanic bool
+	}{
+		// true values
+		{name: `"1" returns true`, key: "TEST_MUSTGETBOOL_1", value: "1", setEnv: true, want: true},
+		{name: `"t" returns true`, key: "TEST_MUSTGETBOOL_t", value: "t", setEnv: true, want: true},
+		{name: `"T" returns true`, key: "TEST_MUSTGETBOOL_T", value: "T", setEnv: true, want: true},
+		{name: `"true" returns true`, key: "TEST_MUSTGETBOOL_true", value: "true", setEnv: true, want: true},
+		{name: `"TRUE" returns true`, key: "TEST_MUSTGETBOOL_TRUE", value: "TRUE", setEnv: true, want: true},
+		{name: `"True" returns true`, key: "TEST_MUSTGETBOOL_True", value: "True", setEnv: true, want: true},
+		// false values
+		{name: `"0" returns false`, key: "TEST_MUSTGETBOOL_0", value: "0", setEnv: true, want: false},
+		{name: `"f" returns false`, key: "TEST_MUSTGETBOOL_f", value: "f", setEnv: true, want: false},
+		{name: `"F" returns false`, key: "TEST_MUSTGETBOOL_F", value: "F", setEnv: true, want: false},
+		{name: `"false" returns false`, key: "TEST_MUSTGETBOOL_false", value: "false", setEnv: true, want: false},
+		{name: `"FALSE" returns false`, key: "TEST_MUSTGETBOOL_FALSE", value: "FALSE", setEnv: true, want: false},
+		{name: `"False" returns false`, key: "TEST_MUSTGETBOOL_False", value: "False", setEnv: true, want: false},
+		// edge / invalid
+		{name: "invalid string panics", key: "TEST_MUSTGETBOOL_INVALID", value: "not_a_bool", setEnv: true, wantPanic: true},
+		{name: "missing key panics", key: "TEST_MUSTGETBOOL_MISSING", setEnv: false, wantPanic: true},
+		{name: "empty value panics", key: "TEST_MUSTGETBOOL_EMPTY", value: "", setEnv: true, wantPanic: true},
+		{name: "whitespace value panics", key: "TEST_MUSTGETBOOL_SPACE", value: "   ", setEnv: true, wantPanic: true},
+		{name: "trimmed value invalid (panics)", key: "TEST_MUSTGETBOOL_SPACED", value: " true ", setEnv: true, wantPanic: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setEnv {
+				if err := os.Setenv(tt.key, tt.value); err != nil {
+					t.Fatalf("failed to set env %s: %v", tt.key, err)
+				}
+				defer func() { _ = os.Unsetenv(tt.key) }()
+			} else {
+				_ = os.Unsetenv(tt.key)
+			}
+
+			var (
+				got      bool
+				didPanic bool
+			)
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						didPanic = true
+					}
+				}()
+				got = lxenv.MustGetBool(tt.key)
+			}()
+
+			if tt.wantPanic {
+				if !didPanic {
+					t.Fatalf("MustGetBool(%q) did not panic", tt.key)
+				}
+				return
+			}
+
+			if didPanic {
+				t.Fatalf("MustGetBool(%q) panicked unexpectedly", tt.key)
+			}
+
+			if got != tt.want {
+				t.Fatalf("MustGetBool(%q) = %v, want %v", tt.key, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestRequire(t *testing.T) {
 	tests := []struct {
 		name       string
