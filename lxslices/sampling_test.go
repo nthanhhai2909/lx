@@ -26,17 +26,21 @@ func TestSample_Int(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxslices.Sample(tt.slice)
+			result, found := lxslices.Sample(tt.slice)
 
+			if !found {
+				t.Errorf("Sample() returned found=false for non-empty slice %v", tt.slice)
+				return
+			}
 			// Check that result is one of the elements in the slice
-			found := false
+			inSlice := false
 			for _, v := range tt.slice {
 				if v == result {
-					found = true
+					inSlice = true
 					break
 				}
 			}
-			if !found {
+			if !inSlice {
 				t.Errorf("Sample() = %v; not found in slice %v", result, tt.slice)
 			}
 		})
@@ -45,26 +49,26 @@ func TestSample_Int(t *testing.T) {
 
 func TestSample_EmptyAndNil(t *testing.T) {
 	tests := []struct {
-		name     string
-		slice    []int
-		expected int
+		name  string
+		slice []int
 	}{
 		{
-			name:     "empty slice",
-			slice:    []int{},
-			expected: 0,
+			name:  "empty slice",
+			slice: []int{},
 		},
 		{
-			name:     "nil slice",
-			slice:    nil,
-			expected: 0,
+			name:  "nil slice",
+			slice: nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxslices.Sample(tt.slice)
-			if result != tt.expected {
-				t.Errorf("Sample() = %v; want %v", result, tt.expected)
+			result, found := lxslices.Sample(tt.slice)
+			if found {
+				t.Errorf("Sample() returned found=true for empty/nil slice; got value %v", result)
+			}
+			if result != 0 {
+				t.Errorf("Sample() = %v; want zero value 0 for empty/nil slice", result)
 			}
 		})
 	}
@@ -86,16 +90,20 @@ func TestSample_String(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxslices.Sample(tt.slice)
+			result, found := lxslices.Sample(tt.slice)
 
-			found := false
+			if !found {
+				t.Errorf("Sample() returned found=false for non-empty slice %v", tt.slice)
+				return
+			}
+			inSlice := false
 			for _, v := range tt.slice {
 				if v == result {
-					found = true
+					inSlice = true
 					break
 				}
 			}
-			if !found {
+			if !inSlice {
 				t.Errorf("Sample() = %v; not found in slice %v", result, tt.slice)
 			}
 		})
@@ -108,6 +116,7 @@ func TestSampleN_Int(t *testing.T) {
 		slice       []int
 		n           int
 		expectedLen int
+		wantNil     bool
 	}{
 		{
 			name:        "sample 3 from 5",
@@ -146,21 +155,35 @@ func TestSampleN_Int(t *testing.T) {
 			expectedLen: 0,
 		},
 		{
-			name:        "empty slice",
+			name:        "empty slice returns non-nil empty",
 			slice:       []int{},
 			n:           5,
 			expectedLen: 0,
+			wantNil:     false,
 		},
 		{
-			name:        "nil slice",
+			name:        "nil slice returns nil",
 			slice:       nil,
 			n:           5,
 			expectedLen: 0,
+			wantNil:     true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := lxslices.SampleN(tt.slice, tt.n)
+
+			// Check nil vs non-nil semantics for nil/empty inputs
+			if tt.slice == nil || len(tt.slice) == 0 {
+				if tt.wantNil && result != nil {
+					t.Errorf("SampleN() = %v; want nil", result)
+					return
+				}
+				if !tt.wantNil && result == nil {
+					t.Errorf("SampleN() = nil; want non-nil empty slice")
+					return
+				}
+			}
 
 			// Check length
 			if len(result) != tt.expectedLen {

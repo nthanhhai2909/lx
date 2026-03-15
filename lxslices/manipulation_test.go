@@ -152,6 +152,7 @@ func TestInsert_Int(t *testing.T) {
 	}{
 		{name: "insert middle", slice: []int{10, 30}, index: 1, elem: 20, expected: []int{10, 20, 30}},
 		{name: "insert at 0", slice: []int{10}, index: 0, elem: 5, expected: []int{5, 10}},
+		{name: "insert zero value at index zero", slice: []int{1, 2, 3}, index: 0, elem: 0, expected: []int{0, 1, 2, 3}},
 		{name: "insert OOB append", slice: []int{1, 2}, index: 5, elem: 3, expected: []int{1, 2, 3}},
 		{name: "insert negative treated as prepend", slice: []int{2, 3}, index: -5, elem: 1, expected: []int{1, 2, 3}},
 	}

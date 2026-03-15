@@ -21,20 +21,21 @@ func Prepend[T any](slice []T, elems ...T) []T {
 }
 
 // Insert inserts elem at the specified index and returns the new slice.
-// If index <= 0 the element is inserted at the beginning. If index >= len(slice)
-// the element is appended to the end.
+// If index < 0, it is clamped to 0 (insertion at the beginning).
+// If index >= len(slice), the element is appended to the end.
+// Inserting into a nil slice returns a new non-nil slice containing just elem.
 func Insert[T any](slice []T, index int, elem T) []T {
-	if index <= 0 {
-		return Prepend(slice, elem)
+	if index < 0 {
+		index = 0
 	}
 	if index >= len(slice) {
-		return Append(slice, elem)
+		return append(append([]T{}, slice...), elem)
 	}
-	res := make([]T, 0, len(slice)+1)
-	res = append(res, slice[:index]...)
-	res = append(res, elem)
-	res = append(res, slice[index:]...)
-	return res
+	result := make([]T, len(slice)+1)
+	copy(result, slice[:index])
+	result[index] = elem
+	copy(result[index+1:], slice[index:])
+	return result
 }
 
 // Remove removes the first occurrence of value from the slice and returns the result.
