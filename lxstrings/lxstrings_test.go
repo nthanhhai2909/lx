@@ -1751,3 +1751,25 @@ func TestEndWithAnyIgnoreCase(t *testing.T) {
 		})
 	}
 }
+
+func TestRuneCount(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int
+	}{
+		{"", 0},
+		{"hello", 5},
+		{"こんにちは", 5},
+		{"😊emoji", 6}, // emoji + 'emoji' => 1 + 5
+		{"\u00A0\u00A0", 2},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := lxstrings.RuneCount(tt.input)
+			if got != tt.expected {
+				t.Errorf("RuneCount(%q) = %d; want %d", tt.input, got, tt.expected)
+			}
+		})
+	}
+}

@@ -3,6 +3,7 @@ package lxstrings
 import (
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 const (
@@ -194,6 +195,18 @@ func LastIndexIgnoreCase(str, sub string) int {
 // Length returns the length of the string.
 func Length(s string) int {
 	return len(s)
+}
+
+// RuneCount returns the number of runes (Unicode code points) in the string.
+// This is useful when you need the character count as seen by users rather
+// than the byte length returned by Length.
+//
+// Example:
+//
+//    RuneCount("こんにちは") // 5
+//
+func RuneCount(s string) int {
+	return utf8.RuneCountInString(s)
 }
 
 // LowerCase converts the string to lowercase.
@@ -590,14 +603,14 @@ func StartWith(str, prefix string) bool {
 	return strings.HasPrefix(str, prefix)
 }
 
-// StartByIgnoreCase checks if the string starts with the specified prefix, ignoring case.
+// StartWithIgnoreCase checks if the string starts with the specified prefix, ignoring case.
 func StartWithIgnoreCase(str, prefix string) bool {
 	sLower := LowerCase(str)
 	prefixLower := LowerCase(prefix)
 	return strings.HasPrefix(sLower, prefixLower)
 }
 
-// StartByAny checks if the string starts with any of the specified prefixes.
+// StartWithAny checks if the string starts with any of the specified prefixes.
 func StartWithAny(str string, prefixes ...string) bool {
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(str, prefix) {
@@ -607,7 +620,7 @@ func StartWithAny(str string, prefixes ...string) bool {
 	return false
 }
 
-// StartByAnyIgnoreCase checks if the string starts with any of the specified prefixes, ignoring case.
+// StartWithAnyIgnoreCase checks if the string starts with any of the specified prefixes, ignoring case.
 func StartWithAnyIgnoreCase(str string, prefixes ...string) bool {
 	sLower := LowerCase(str)
 	for _, prefix := range prefixes {
