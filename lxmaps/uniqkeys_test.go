@@ -111,3 +111,62 @@ func TestUniqKeys_Int(t *testing.T) {
 		})
 	}
 }
+
+func TestUniqKeys_Struct(t *testing.T) {
+	// comparable struct type for keys
+	type KS struct {
+		ID   int
+		Name string
+	}
+
+	tests := []struct {
+		name     string
+		input    []map[KS]int
+		expected []KS
+	}{
+		{"no args", nil, nil},
+		{"single nil map", []map[KS]int{nil}, []KS{}},
+		{"all nil variadic", []map[KS]int{nil, nil}, []KS{}},
+		{"single map", []map[KS]int{{{ID: 1, Name: "a"}: 1, {ID: 2, Name: "b"}: 2}}, []KS{{ID: 1, Name: "a"}, {ID: 2, Name: "b"}}},
+		{"multi maps duplicated", []map[KS]int{{{ID: 1, Name: "a"}: 1}, {{ID: 2, Name: "b"}: 2, {ID: 1, Name: "a"}: 3}}, []KS{{ID: 1, Name: "a"}, {ID: 2, Name: "b"}}},
+		{"many duplicates", []map[KS]int{{{ID: 5, Name: "x"}: 1}, {{ID: 5, Name: "x"}: 2}, {{ID: 5, Name: "x"}: 3}}, []KS{{ID: 5, Name: "x"}}},
+		{"mix empty and nil", []map[KS]int{nil, {}, {{ID: 9, Name: "k"}: 9}}, []KS{{ID: 9, Name: "k"}}},
+		{"unicode in name", []map[KS]int{{{ID: 1, Name: "こんにちは"}: 1}, {{ID: 2, Name: "世界"}: 2}}, []KS{{ID: 1, Name: "こんにちは"}, {ID: 2, Name: "世界"}}},
+		{"empty name field", []map[KS]int{{{ID: 0, Name: ""}: 1}, {{ID: 1, Name: " "}: 2}}, []KS{{ID: 0, Name: ""}, {ID: 1, Name: " "}}},
+		{"large ids", []map[KS]int{{{ID: 1000000, Name: "a"}: 1}, {{ID: 999999, Name: "b"}: 2}}, []KS{{ID: 1000000, Name: "a"}, {ID: 999999, Name: "b"}}},
+		{"negative ids", []map[KS]int{{{ID: -1, Name: "n"}: 1}, {{ID: -2, Name: "m"}: 2}}, []KS{{ID: -1, Name: "n"}, {ID: -2, Name: "m"}}},
+		{"overlapping maps", []map[KS]int{{{ID: 1, Name: "x"}: 1, {ID: 2, Name: "y"}: 2}, {{ID: 2, Name: "y"}: 3, {ID: 3, Name: "z"}: 4}}, []KS{{ID: 1, Name: "x"}, {ID: 2, Name: "y"}, {ID: 3, Name: "z"}}},
+		{"many maps combined", []map[KS]int{{{ID: 1, Name: "m1"}: 1}, {{ID: 2, Name: "m2"}: 2}, {{ID: 3, Name: "m3"}: 3}}, []KS{{ID: 1, Name: "m1"}, {ID: 2, Name: "m2"}, {ID: 3, Name: "m3"}}},
+		{"final extras", []map[KS]int{{{ID: 11, Name: "k"}: 1}, {{ID: 22, Name: "l"}: 2}}, []KS{{ID: 11, Name: "k"}, {ID: 22, Name: "l"}}},
+		{"random small", []map[KS]int{{{ID: 42, Name: "x"}: 1}, {{ID: 7, Name: "y"}: 2}}, []KS{{ID: 42, Name: "x"}, {ID: 7, Name: "y"}}},
+		{"struct with same name different id", []map[KS]int{{{ID: 1, Name: "dup"}: 1}, {{ID: 2, Name: "dup"}: 2}}, []KS{{ID: 1, Name: "dup"}, {ID: 2, Name: "dup"}}},
+		{"prefix suffix mix", []map[KS]int{{{ID: 1, Name: "pre_"}: 1}, {{ID: 2, Name: "_suf"}: 2}, {{ID: 3, Name: "pre_suf"}: 3}}, []KS{{ID: 1, Name: "pre_"}, {ID: 2, Name: "_suf"}, {ID: 3, Name: "pre_suf"}}},
+		{"special chars in name", []map[KS]int{{{ID: 7, Name: "!@#"}: 1}, {{ID: 8, Name: "$%"}: 2}}, []KS{{ID: 7, Name: "!@#"}, {ID: 8, Name: "$%"}}},
+		{"sparse dense mix", []map[KS]int{{{ID: 1, Name: "a"}: 1}, {{ID: 100, Name: "b"}: 2}, {{ID: 2, Name: "c"}: 3}}, []KS{{ID: 1, Name: "a"}, {ID: 100, Name: "b"}, {ID: 2, Name: "c"}}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxmaps.UniqKeys(tt.input...)
+
+			if tt.expected == nil {
+				if got != nil {
+					t.Fatalf("UniqKeys(%v) = %v; want nil", tt.input, got)
+				}
+				return
+			}
+
+			if got == nil {
+				t.Fatalf("UniqKeys(%v) = nil; want non-nil", tt.input)
+			}
+
+			if len(got) != len(tt.expected) {
+				t.Fatalf("UniqKeys(%v) length = %d; want %d; got=%v", tt.input, len(got), len(tt.expected), got)
+			}
+
+			if !lxslices.ContainsAll(got, tt.expected...) {
+				t.Fatalf("UniqKeys(%v) missing expected keys; got %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
