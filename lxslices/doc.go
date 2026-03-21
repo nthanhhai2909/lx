@@ -23,7 +23,7 @@
 //   - Any, All, None - Check predicates across elements
 //   - Count - Count elements matching a predicate
 //
-// 3. Inspection & Contains (contains.go, index.go)
+// 3. Inspection & Contains (contains_key.go, index.go)
 //   - Contains, ContainsAny, ContainsAll, ContainsFunc - Check for element presence
 //   - Index, LastIndex, IndexFunc - Find element indices
 //   - First, Last, Get - Safely retrieve elements
