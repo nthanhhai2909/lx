@@ -368,7 +368,7 @@ func TestLoadYML_NestedKeysNotLeakedAsTopLevel(t *testing.T) {
 	cleanupKeys(t, allBaseYMLKeys)
 
 	bareKeys := []string{"name", "host", "port", "username", "password", "secret", "enabled", "level"}
-	
+
 	// Snapshot OS environment before LoadYML to handle system variables like Windows' USERNAME
 	before := make(map[string]string)
 	for _, k := range bareKeys {
