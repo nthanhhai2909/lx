@@ -100,3 +100,50 @@ func TestUniqValues_Struct(t *testing.T) {
 		})
 	}
 }
+
+func TestUniqValues_String(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []map[string]string
+		expected []string
+	}{
+		{"no args", nil, nil},
+		{"single nil map", []map[string]string{nil}, []string{}},
+		{"all nil variadic", []map[string]string{nil, nil}, []string{}},
+		{"single map", []map[string]string{{"a": "one", "b": "two"}}, []string{"one", "two"}},
+		{"multi maps duplicated values", []map[string]string{{"a": "one", "b": "two"}, {"c": "two", "d": "three"}}, []string{"one", "two", "three"}},
+		{"many duplicates", []map[string]string{{"p": "dup"}, {"q": "dup"}, {"r": "dup"}}, []string{"dup"}},
+		{"mix empty and nil", []map[string]string{nil, {}, {"k": "v"}}, []string{"v"}},
+		{"unicode", []map[string]string{{"a": "こんにちは"}, {"b": "世界"}}, []string{"こんにちは", "世界"}},
+		{"empty string value", []map[string]string{{"a": ""}, {"b": " "}}, []string{"", " "}},
+		{"case sensitive", []map[string]string{{"a": "Go"}, {"b": "go"}}, []string{"Go", "go"}},
+		{"special chars", []map[string]string{{"x": "!@#"}, {"y": "$%^"}}, []string{"!@#", "$%^"}},
+		{"overlapping maps", []map[string]string{{"a": "x", "b": "y"}, {"b": "y", "c": "z"}, {}}, []string{"x", "y", "z"}},
+		{"final extras", []map[string]string{{"x": "alpha"}, {"y": "beta"}}, []string{"alpha", "beta"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := lxmaps.UniqValues(tt.input...)
+
+			if tt.expected == nil {
+				if got != nil {
+					t.Fatalf("UniqValues(%v) = %v; want nil", tt.input, got)
+				}
+				return
+			}
+
+			if got == nil {
+				t.Fatalf("UniqValues(%v) = nil; want non-nil", tt.input)
+			}
+
+			if len(got) != len(tt.expected) {
+				t.Fatalf("UniqValues(%v) length = %d; want %d; got=%v", tt.input, len(got), len(tt.expected), got)
+			}
+
+			if !lxslices.ContainsAll(got, tt.expected...) {
+				t.Fatalf("UniqValues(%v) missing expected values; got %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
