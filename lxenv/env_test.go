@@ -1566,44 +1566,20 @@ func TestRequire(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Save original values for all relevant keys so we can restore after the case.
-			orig := make(map[string]*string)
-			allKeys := make(map[string]struct{})
-			for _, k := range tt.keys {
-				allKeys[k] = struct{}{}
-			}
-			for k := range tt.preset {
-				allKeys[k] = struct{}{}
-			}
-			for k := range allKeys {
-				if v, ok := os.LookupEnv(k); ok {
-					val := v
-					orig[k] = &val
-				} else {
-					orig[k] = nil
+			for k := range tt.keys {
+				// Assure clean slate for keys that aren't preset
+				if _, ok := tt.preset[tt.keys[k]]; !ok {
+					os.Unsetenv(tt.keys[k])
 				}
-				// ensure clean state before setting up
-				os.Unsetenv(k)
 			}
-
+			
 			// Setup preset env vars for this case
 			for k, v := range tt.preset {
-				if err := os.Setenv(k, v); err != nil {
-					t.Fatalf("failed to set env %s: %v", k, err)
-				}
+				t.Setenv(k, v)
 			}
 
 			// Call Require
 			err := lxenv.Require(tt.keys...)
-
-			// Restore originals
-			for k, vptr := range orig {
-				if vptr == nil {
-					os.Unsetenv(k)
-				} else {
-					os.Setenv(k, *vptr)
-				}
-			}
 
 			if tt.expectsErr {
 				if err == nil {
