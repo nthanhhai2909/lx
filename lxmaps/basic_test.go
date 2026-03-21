@@ -14,8 +14,9 @@ func TestKeys_String(t *testing.T) {
 		input    []map[string]int // support multiple maps
 		expected []string
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[string]int{nil}, []string{}},
-		{"empty map", []map[string]int{map[string]int{}}, []string{}},
+		{"empty map", []map[string]int{{}}, []string{}},
 		{"single key", []map[string]int{{"a": 1}}, []string{"a"}},
 		{"multiple keys small", []map[string]int{{"a": 1, "b": 2, "c": 3}}, []string{"a", "b", "c"}},
 		{"multi maps duplicated key", []map[string]int{{"a": 1, "b": 2}, {"b": 3, "c": 4}}, []string{"a", "b", "b", "c"}},
@@ -78,6 +79,7 @@ func TestKeys_Int(t *testing.T) {
 		input    []map[int]string
 		expected []int
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[int]string{nil}, []int{}},
 		{"empty map", []map[int]string{map[int]string{}}, []int{}},
 		{"single key", []map[int]string{{1: "one"}}, []int{1}},
@@ -142,6 +144,7 @@ func TestKeys_Struct(t *testing.T) {
 		input    []map[KS]int
 		expected []KS
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[KS]int{nil}, []KS{}},
 		{"single key", []map[KS]int{{{I: 1, S: "one"}: 1}}, []KS{{I: 1, S: "one"}}},
 		{"multi maps duplicated key", []map[KS]int{{{I: 1, S: "a"}: 1}, {{I: 1, S: "a"}: 3, {I: 2, S: "b"}: 2}}, []KS{{I: 1, S: "a"}, {I: 1, S: "a"}, {I: 2, S: "b"}}},
@@ -196,6 +199,7 @@ func TestValues_String(t *testing.T) {
 		input    []map[string]int
 		expected []int
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[string]int{nil}, []int{}},
 		{"empty map", []map[string]int{{}}, []int{}},
 		{"single value", []map[string]int{{"a": 1}}, []int{1}},
@@ -252,6 +256,7 @@ func TestValues_Int(t *testing.T) {
 		input    []map[int]string
 		expected []string
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[int]string{nil}, []string{}},
 		{"empty map", []map[int]string{{}}, []string{}},
 		{"single value", []map[int]string{{1: "one"}}, []string{"one"}},
@@ -313,6 +318,7 @@ func TestValues_Struct(t *testing.T) {
 		input    []map[string]VS
 		expected []VS
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[string]VS{nil}, []VS{}},
 		{"empty map", []map[string]VS{{}}, []VS{}},
 		{"single value", []map[string]VS{{"a": {I: 1, S: "one"}}}, []VS{{I: 1, S: "one"}}},
@@ -363,6 +369,7 @@ func TestEntries_String(t *testing.T) {
 		input    []map[string]int
 		expected []lxtypes.Pair[string, int]
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[string]int{nil}, []lxtypes.Pair[string, int]{}},
 		{"single", []map[string]int{{"a": 1}}, []lxtypes.Pair[string, int]{{First: "a", Second: 1}}},
 		{"multi maps duplicated pair", []map[string]int{{"a": 1, "b": 2}, {"b": 3, "c": 4}}, []lxtypes.Pair[string, int]{{First: "a", Second: 1}, {First: "b", Second: 2}, {First: "b", Second: 3}, {First: "c", Second: 4}}},
@@ -419,6 +426,7 @@ func TestEntries_Int(t *testing.T) {
 		input    []map[int]string
 		expected []lxtypes.Pair[int, string]
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[int]string{nil}, []lxtypes.Pair[int, string]{}},
 		{"single", []map[int]string{{1: "one"}}, []lxtypes.Pair[int, string]{{First: 1, Second: "one"}}},
 		{"multi maps duplicated pair", []map[int]string{{1: "a", 2: "b"}, {2: "c", 3: "d"}}, []lxtypes.Pair[int, string]{{First: 1, Second: "a"}, {First: 2, Second: "b"}, {First: 2, Second: "c"}, {First: 3, Second: "d"}}},
@@ -475,6 +483,7 @@ func TestEntries_Struct(t *testing.T) {
 		input    []map[K]V
 		expected []lxtypes.Pair[K, V]
 	}{
+		{"no args", nil, nil},
 		{"single nil map", []map[K]V{nil}, []lxtypes.Pair[K, V]{}},
 		{"single", []map[K]V{{{I: 1, S: "a"}: {N: "one", M: 1}}}, []lxtypes.Pair[K, V]{{First: K{I: 1, S: "a"}, Second: V{N: "one", M: 1}}}},
 		{"multi maps duplicated pair", []map[K]V{{{I: 1, S: "a"}: {N: "one", M: 1}}, {{I: 1, S: "a"}: {N: "uno", M: 11}, {I: 2, S: "b"}: {N: "two", M: 2}}}, []lxtypes.Pair[K, V]{{First: K{I: 1, S: "a"}, Second: V{N: "one", M: 1}}, {First: K{I: 1, S: "a"}, Second: V{N: "uno", M: 11}}, {First: K{I: 2, S: "b"}, Second: V{N: "two", M: 2}}}},
