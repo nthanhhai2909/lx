@@ -113,9 +113,9 @@ func TestContainsAnyKey_StringInt(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxmaps.ContainsAnyKey(tt.input, tt.keys...)
+			result := lxmaps.ContainsAnyKeys(tt.input, tt.keys...)
 			if result != tt.expected {
-				t.Errorf("ContainsAnyKey() = %v, expected %v", result, tt.expected)
+				t.Errorf("ContainsAnyKeys() = %v, expected %v", result, tt.expected)
 			}
 		})
 	}
@@ -186,9 +186,9 @@ func TestContainsAnyKey_IntString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxmaps.ContainsAnyKey(tt.input, tt.keys...)
+			result := lxmaps.ContainsAnyKeys(tt.input, tt.keys...)
 			if result != tt.expected {
-				t.Errorf("ContainsAnyKey() = %v, expected %v", result, tt.expected)
+				t.Errorf("ContainsAnyKeys() = %v, expected %v", result, tt.expected)
 			}
 		})
 	}
@@ -241,9 +241,9 @@ func TestContainsAnyKey_BoolFloat64(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxmaps.ContainsAnyKey(tt.input, tt.keys...)
+			result := lxmaps.ContainsAnyKeys(tt.input, tt.keys...)
 			if result != tt.expected {
-				t.Errorf("ContainsAnyKey() = %v, expected %v", result, tt.expected)
+				t.Errorf("ContainsAnyKeys() = %v, expected %v", result, tt.expected)
 			}
 		})
 	}
