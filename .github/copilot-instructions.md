@@ -10,18 +10,19 @@
 
 **Project Name**: lx  
 **Repository**: github.com/nthanhhai2909/lx  
-**Language**: Go 1.25.6+  
-**License**: Apache 2.0  å
+**Language**: Go 1.18+  
+**License**: Apache 2.0
 **Purpose**: Small, focused extensions to Go's standard library
 
 ### Core Philosophy
 
 1. **Small & Focused**: Each package solves one problem well (no giant "utils" packages)
-2. **Generic-First**: Built with Go 1.25+ generics for type safety
-3. **Zero Dependencies**: Uses only Go standard library
-4. **Idiomatic Go**: Follows Go conventions and best practices
-5. **Well-Tested**: Comprehensive test coverage (>80% target, 90%+ ideal)
-6. **Nil-Safe**: Thoughtful handling of nil values and edge cases
+2. **Generic-First**: Built with Go 1.18+ generics for type safety
+3. **Retro-Compatibility**: Supports Go 1.18+. Always favor `lxslices` and `lxmaps` over the newer `slices` and `maps` standard library packages (introduced in Go 1.21) to ensure backwards compatibility.
+4. **Zero Dependencies**: Uses only Go standard library
+5. **Idiomatic Go**: Follows Go conventions and best practices
+6. **Well-Tested**: Comprehensive test coverage (>80% target, 90%+ ideal)
+7. **Nil-Safe**: Thoughtful handling of nil values and edge cases
 
 ---
 
@@ -523,6 +524,13 @@ func Filter[T any](slice []T, predicate func(T) bool) []T {
 6. **Use appropriate constraints** - Number, Ordered, comparable, any
 7. **Consider Or variants** - For functions returning (value, bool)
 8. **Check coverage** - Aim for 90%+ coverage
+
+### When Investigating CI Pipeline Failures
+
+1. **Verify cross-platform compatibility** - Tests that manipulate or read OS environment variables (like `os.Getenv`) or file paths may behave differently or uniquely conflict with system variables (e.g., the built-in `USERNAME` variable on Windows vs Linux). Capture snapshots of standard OS state before assertions.
+2. **Check line endings & formatting** - Differences in CRLF (`\r\n`) vs LF (`\n`) checked out by Git on Windows runners will cause strict formatters like `gofmt` to instantly fail. Ensure line-endings are normalized (e.g. via `.gitattributes`).
+3. **Reproduce strictly** - Always attempt to reproduce linting errors locally (e.g., running `golangci-lint run ./...`) and consider building/testing natively for the target OS (e.g., `GOOS=windows go build ./...`) to catch OS-specific flaws.
+4. **Isolate environment modifications** - In tests, heavily prefer using `t.Setenv` over `os.Setenv` to prevent cross-contamination and race conditions between concurrent tests.
 
 ### When Reviewing Code
 
