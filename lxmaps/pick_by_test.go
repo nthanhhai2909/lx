@@ -271,7 +271,6 @@ func TestPickBy_IntString(t *testing.T) {
 	}
 }
 
-
 func TestPickBy_StringStruct(t *testing.T) {
 	type User struct {
 		Name string
@@ -328,7 +327,7 @@ func TestPickBy_StringStruct(t *testing.T) {
 		{
 			name:      "zero value matched",
 			input:     map[string]User{"a": {Name: "a", Age: 0}, "b": {Name: "b", Age: 1}},
-			predicate: func(k string, v User) bool { return v.Age == 0 },	
+			predicate: func(k string, v User) bool { return v.Age == 0 },
 			expected:  map[string]User{"a": {Name: "a", Age: 0}},
 		},
 		{
@@ -377,7 +376,7 @@ func TestPickBy_StringStruct(t *testing.T) {
 			name:      "case sensitive keys",
 			input:     map[string]User{"A": {Name: "A", Age: 1}, "a": {Name: "a", Age: 2}},
 			predicate: func(k string, v User) bool { return k == "A" },
-			expected:  map[string]User{"A": {Name: "A", Age: 1}},	
+			expected:  map[string]User{"A": {Name: "A", Age: 1}},
 		},
 	}
 	for _, test := range tests {
