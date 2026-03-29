@@ -57,7 +57,7 @@ Think of it as the **missing pieces** of Go's stdlib - nothing more, nothing les
 | [`lxptrs`](ptrs) | Pointer helpers (ref, deref, safe operations) | ✅ Stable | [View](ptrs#examples) |
 | [`lxtypes`](types) | Functional type definitions (Predicate, Function, Optional, Result, Either, Ref, Future, Lazy, Tuples, etc.) | ✅ Stable | [View](types#examples) |
 | [`lxtuples`](./lxtuples) | Tuple types (Pair, Triple, Quad) | ✅ Stable | [View](./lxtuples#examples) |
-| [`lxsystems`](./lxsystems) | System information (OS, paths, environment) | ✅ Stable | [View](./lxsystems#examples) |
+| [`lxsystems`](systems) | System information (OS, paths, environment) | ✅ Stable | [View](systems#examples) |
 | [`lxconstraints`](constraints) | Generic type constraints | ✅ Stable | [View](constraints#examples) |
 
 ### 🚧 Coming Soon
