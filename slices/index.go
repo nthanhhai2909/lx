@@ -1,7 +1,7 @@
 package lxslices
 
 import (
-	"github.com/nthanhhai2909/lx/lxconstraints"
+	"github.com/nthanhhai2909/lx/constraints"
 	"github.com/nthanhhai2909/lx/types"
 )
 

@@ -3,7 +3,7 @@ package lxconstraints_test
 import (
 	"fmt"
 
-	"github.com/nthanhhai2909/lx/lxconstraints"
+	"github.com/nthanhhai2909/lx/constraints"
 )
 
 // Helper functions for examples

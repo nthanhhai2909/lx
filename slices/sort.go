@@ -1,6 +1,6 @@
 package lxslices
 
-import "github.com/nthanhhai2909/lx/lxconstraints"
+import "github.com/nthanhhai2909/lx/constraints"
 
 // SortAsc sorts the slice in-place in ascending order.
 func SortAsc[T lxconstraints.Ordered](slice []T) {

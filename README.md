@@ -58,7 +58,7 @@ Think of it as the **missing pieces** of Go's stdlib - nothing more, nothing les
 | [`lxtypes`](types) | Functional type definitions (Predicate, Function, Optional, Result, Either, Ref, Future, Lazy, Tuples, etc.) | ✅ Stable | [View](types#examples) |
 | [`lxtuples`](./lxtuples) | Tuple types (Pair, Triple, Quad) | ✅ Stable | [View](./lxtuples#examples) |
 | [`lxsystems`](./lxsystems) | System information (OS, paths, environment) | ✅ Stable | [View](./lxsystems#examples) |
-| [`lxconstraints`](./lxconstraints) | Generic type constraints | ✅ Stable | [View](./lxconstraints#examples) |
+| [`lxconstraints`](constraints) | Generic type constraints | ✅ Stable | [View](constraints#examples) |
 
 ### 🚧 Coming Soon
 
