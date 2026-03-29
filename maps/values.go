@@ -1,7 +1,8 @@
 package lxmaps
 
-// Values returns a slice of values from a map.
-// If the maps are nil, it returns an empty slice.
+// Values returns a slice of values from one or more maps.
+// If no maps are provided, Values returns nil.
+// If one or more maps are provided but they are nil or empty, Values returns a non-nil empty slice.
 //
 // Example:
 //

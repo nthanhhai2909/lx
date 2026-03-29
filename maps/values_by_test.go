@@ -19,7 +19,7 @@ func TestValuesBy_StringInt(t *testing.T) {
 			name:      "nil map",
 			input:     nil,
 			predicate: func(v int) bool { return true },
-			expected:  []int{},
+			expected:  nil,
 		},
 		{
 			name:      "empty map",
@@ -99,6 +99,13 @@ func TestValuesBy_StringInt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := lxmaps.ValuesBy(tt.input, tt.predicate)
 
+			if tt.expected == nil {
+				if got != nil {
+					t.Fatalf("ValuesBy() = %v, want nil", got)
+				}
+				return
+			}
+
 			if got == nil && tt.expected != nil {
 				t.Fatalf("ValuesBy() returned nil, want non-nil slice")
 			}
@@ -129,7 +136,7 @@ func TestValuesBy_IntString(t *testing.T) {
 			name:      "nil map",
 			input:     nil,
 			predicate: func(v string) bool { return true },
-			expected:  []string{},
+			expected:  nil,
 		},
 		{
 			name:      "empty map",
@@ -185,6 +192,13 @@ func TestValuesBy_IntString(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := lxmaps.ValuesBy(tt.input, tt.predicate)
 
+			if tt.expected == nil {
+				if got != nil {
+					t.Fatalf("ValuesBy() = %v, want nil", got)
+				}
+				return
+			}
+
 			if got == nil && tt.expected != nil {
 				t.Fatalf("ValuesBy() returned nil, want non-nil slice")
 			}
@@ -215,7 +229,7 @@ func TestValuesBy_BoolFloat(t *testing.T) {
 			name:      "nil map",
 			input:     nil,
 			predicate: func(v float64) bool { return true },
-			expected:  []float64{},
+			expected:  nil,
 		},
 		{
 			name:      "empty map",
@@ -283,7 +297,7 @@ func TestValuesBy_StringStruct(t *testing.T) {
 			name:      "nil map",
 			input:     nil,
 			predicate: func(v Product) bool { return true },
-			expected:  []Product{},
+			expected:  nil,
 		},
 		{
 			name:      "empty map",
@@ -401,7 +415,7 @@ func TestValuesBy_IntStruct(t *testing.T) {
 			name:      "nil map",
 			input:     nil,
 			predicate: func(v Product) bool { return true },
-			expected:  []Product{},
+			expected:  nil,
 		},
 		{
 			name:      "empty map",

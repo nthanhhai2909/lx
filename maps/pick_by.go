@@ -1,7 +1,7 @@
 package lxmaps
 
 // PickBy returns a new map containing only the entries for which the predicate returns true.
-// If the map is nil, it returns an empty (non-nil) map.
+// If the input map is nil, PickBy returns nil.
 // The order of the entries in the returned map is not guaranteed to be the same as in the original map.
 //
 // Example:

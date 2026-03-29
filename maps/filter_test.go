@@ -17,7 +17,7 @@ func TestFilter_StringInt(t *testing.T) {
 			name:      "nil map",
 			input:     nil,
 			predicate: func(k string, v int) bool { return true },
-			expected:  map[string]int{},
+			expected:  nil,
 		},
 		{
 			name:      "empty map",
@@ -115,6 +115,13 @@ func TestFilter_StringInt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := lxmaps.Filter(tt.input, tt.predicate)
 
+			if tt.expected == nil {
+				if got != nil {
+					t.Fatalf("Filter() = %v, want nil", got)
+				}
+				return
+			}
+
 			if len(got) != len(tt.expected) {
 				t.Fatalf("Filter() returned %d entries, want %d", len(got), len(tt.expected))
 			}
@@ -149,7 +156,7 @@ func TestFilter_IntString(t *testing.T) {
 			name:      "nil map",
 			input:     nil,
 			predicate: func(k int, v string) bool { return true },
-			expected:  map[int]string{},
+			expected:  nil,
 		},
 		{
 			name:      "empty map",
@@ -240,6 +247,13 @@ func TestFilter_IntString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := lxmaps.Filter(tt.input, tt.predicate)
+
+			if tt.expected == nil {
+				if got != nil {
+					t.Fatalf("Filter() = %v, want nil", got)
+				}
+				return
+			}
 
 			if len(got) != len(tt.expected) {
 				t.Fatalf("Filter() returned %d entries, want %d", len(got), len(tt.expected))
