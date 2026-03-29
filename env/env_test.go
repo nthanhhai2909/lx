@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nthanhhai2909/lx/lxenv"
+	"github.com/nthanhhai2909/lx/env"
 )
 
 func TestGet(t *testing.T) {

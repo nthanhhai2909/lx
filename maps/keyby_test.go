@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/nthanhhai2909/lx/lxslices"
 	"github.com/nthanhhai2909/lx/maps"
+	"github.com/nthanhhai2909/lx/slices"
 )
 
 func TestKeyBy_String(t *testing.T) {

@@ -3,8 +3,8 @@ package lxmaps_test
 import (
 	"testing"
 
-	"github.com/nthanhhai2909/lx/lxslices"
 	"github.com/nthanhhai2909/lx/maps"
+	"github.com/nthanhhai2909/lx/slices"
 )
 
 func TestKeys_String(t *testing.T) {

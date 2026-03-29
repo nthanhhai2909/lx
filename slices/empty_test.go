@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/nthanhhai2909/lx/lxslices"
+	"github.com/nthanhhai2909/lx/slices"
 )
 
 func TestEmpty(t *testing.T) {

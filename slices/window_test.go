@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/nthanhhai2909/lx/lxslices"
+	"github.com/nthanhhai2909/lx/slices"
 )
 
 func TestWindow_Int(t *testing.T) {

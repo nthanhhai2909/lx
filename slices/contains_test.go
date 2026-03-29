@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nthanhhai2909/lx/lxslices"
+	"github.com/nthanhhai2909/lx/slices"
 )
 
 func TestContains_Int(t *testing.T) {
