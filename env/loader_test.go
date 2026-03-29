@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/nthanhhai2909/lx/lxenv"
+	"github.com/nthanhhai2909/lx/env"
 )
 
 const (
