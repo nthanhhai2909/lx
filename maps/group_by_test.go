@@ -366,9 +366,9 @@ func TestGroupBy_IntIntByQuotient(t *testing.T) {
 			},
 			check: func(result map[int]map[int]int) bool {
 				return len(result) == 3 &&
-					len(result[0]) == 2 && // 5, 7, 3
-					len(result[1]) == 2 && // 15, 20
-					len(result[2]) == 1 // 22
+					len(result[0]) == 3 && // 5, 7, 3
+					len(result[1]) == 1 && // 15
+					len(result[2]) == 2 // 20, 22
 			},
 			checkMsg: "should group by value/10",
 		},
