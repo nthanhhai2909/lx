@@ -3,7 +3,7 @@ package lxmaps_test
 import (
 	"testing"
 
-	lxmaps "github.com/hgapdvn/lx/maps"
+	"github.com/hgapdvn/lx/maps"
 )
 
 func TestSize_StringInt(t *testing.T) {

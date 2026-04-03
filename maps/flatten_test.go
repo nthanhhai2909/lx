@@ -4,7 +4,7 @@ import (
 	"sort"
 	"testing"
 
-	lxmaps "github.com/hgapdvn/lx/maps"
+	"github.com/hgapdvn/lx/maps"
 )
 
 func TestFlatten_StringInt(t *testing.T) {
