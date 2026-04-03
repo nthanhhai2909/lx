@@ -13,7 +13,7 @@ func PickBy[K comparable, V any](m map[K]V, predicate func(K, V) bool) map[K]V {
 	if m == nil {
 		return nil
 	}
-	out := make(map[K]V, len(m))
+	out := make(map[K]V)
 	for k, v := range m {
 		if predicate(k, v) {
 			out[k] = v
