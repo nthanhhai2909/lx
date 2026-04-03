@@ -19,5 +19,9 @@ func UniqKeys[K comparable, V any](in ...map[K]V) []K {
 			seen[k] = struct{}{}
 		}
 	}
-	return Keys(seen)
+	result := make([]K, 0, len(seen))
+	for k := range seen {
+		result = append(result, k)
+	}
+	return result
 }
