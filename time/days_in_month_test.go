@@ -97,9 +97,9 @@ func TestDaysInMonth(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxtime.DaysInMonth(tt.date)
+			result := lxtime.TotalDaysInMonth(tt.date)
 			if result != tt.expected {
-				t.Errorf("DaysInMonth(%v) = %d, want %d", tt.date, result, tt.expected)
+				t.Errorf("TotalDaysInMonth(%v) = %d, want %d", tt.date, result, tt.expected)
 			}
 		})
 	}
@@ -107,12 +107,12 @@ func TestDaysInMonth(t *testing.T) {
 
 func ExampleDaysInMonth() {
 	t := time.Date(2026, 4, 15, 0, 0, 0, 0, time.UTC)
-	days := lxtime.DaysInMonth(t)
+	days := lxtime.TotalDaysInMonth(t)
 	// days: 30
 	_ = days
 
 	leapYearTime := time.Date(2024, 2, 15, 0, 0, 0, 0, time.UTC)
-	leapDays := lxtime.DaysInMonth(leapYearTime)
+	leapDays := lxtime.TotalDaysInMonth(leapYearTime)
 	// leapDays: 29
 	_ = leapDays
 }

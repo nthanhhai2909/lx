@@ -42,9 +42,9 @@ func TestDaysInYear_LeapYears(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxtime.DaysInYear(tt.date)
+			result := lxtime.TotalDaysInYear(tt.date)
 			if result != tt.expected {
-				t.Errorf("DaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
+				t.Errorf("TotalDaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
 			}
 		})
 	}
@@ -90,9 +90,9 @@ func TestDaysInYear_NonLeapYears(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxtime.DaysInYear(tt.date)
+			result := lxtime.TotalDaysInYear(tt.date)
 			if result != tt.expected {
-				t.Errorf("DaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
+				t.Errorf("TotalDaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
 			}
 		})
 	}
@@ -138,9 +138,9 @@ func TestDaysInYear_DifferentDatesInSameYear(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxtime.DaysInYear(tt.date)
+			result := lxtime.TotalDaysInYear(tt.date)
 			if result != tt.expected {
-				t.Errorf("DaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
+				t.Errorf("TotalDaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
 			}
 		})
 	}
@@ -171,9 +171,9 @@ func TestDaysInYear_TimeComponentIgnored(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxtime.DaysInYear(tt.date)
+			result := lxtime.TotalDaysInYear(tt.date)
 			if result != tt.expected {
-				t.Errorf("DaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
+				t.Errorf("TotalDaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
 			}
 		})
 	}
@@ -181,21 +181,21 @@ func TestDaysInYear_TimeComponentIgnored(t *testing.T) {
 
 func TestDaysInYear_Consistency(t *testing.T) {
 	t.Run("same_year_same_result", func(t *testing.T) {
-		d1 := lxtime.DaysInYear(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
-		d2 := lxtime.DaysInYear(time.Date(2024, 6, 15, 12, 30, 0, 0, time.UTC))
-		d3 := lxtime.DaysInYear(time.Date(2024, 12, 31, 23, 59, 59, 0, time.UTC))
+		d1 := lxtime.TotalDaysInYear(time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC))
+		d2 := lxtime.TotalDaysInYear(time.Date(2024, 6, 15, 12, 30, 0, 0, time.UTC))
+		d3 := lxtime.TotalDaysInYear(time.Date(2024, 12, 31, 23, 59, 59, 0, time.UTC))
 
 		if d1 != d2 || d2 != d3 {
-			t.Errorf("DaysInYear should return same value for all dates in same year: %d, %d, %d", d1, d2, d3)
+			t.Errorf("TotalDaysInYear should return same value for all dates in same year: %d, %d, %d", d1, d2, d3)
 		}
 	})
 
 	t.Run("different_years_different_result_leap_vs_non_leap", func(t *testing.T) {
-		d2024 := lxtime.DaysInYear(time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC))
-		d2026 := lxtime.DaysInYear(time.Date(2026, 6, 15, 0, 0, 0, 0, time.UTC))
+		d2024 := lxtime.TotalDaysInYear(time.Date(2024, 6, 15, 0, 0, 0, 0, time.UTC))
+		d2026 := lxtime.TotalDaysInYear(time.Date(2026, 6, 15, 0, 0, 0, 0, time.UTC))
 
 		if d2024 == d2026 {
-			t.Errorf("DaysInYear should differ between leap and non-leap years: %d vs %d", d2024, d2026)
+			t.Errorf("TotalDaysInYear should differ between leap and non-leap years: %d vs %d", d2024, d2026)
 		}
 
 		if d2024 != 366 || d2026 != 365 {
@@ -234,9 +234,9 @@ func TestDaysInYear_HistoricalYears(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxtime.DaysInYear(tt.date)
+			result := lxtime.TotalDaysInYear(tt.date)
 			if result != tt.expected {
-				t.Errorf("DaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
+				t.Errorf("TotalDaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
 			}
 		})
 	}
@@ -281,9 +281,9 @@ func TestDaysInYear_DifferentTimezones(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxtime.DaysInYear(tt.date)
+			result := lxtime.TotalDaysInYear(tt.date)
 			if result != tt.expected {
-				t.Errorf("DaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
+				t.Errorf("TotalDaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
 			}
 		})
 	}
@@ -309,9 +309,9 @@ func TestDaysInYear_EdgeCases(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := lxtime.DaysInYear(tt.date)
+			result := lxtime.TotalDaysInYear(tt.date)
 			if result != tt.expected {
-				t.Errorf("DaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
+				t.Errorf("TotalDaysInYear(%v) = %d, want %d", tt.date, result, tt.expected)
 			}
 		})
 	}
@@ -319,12 +319,12 @@ func TestDaysInYear_EdgeCases(t *testing.T) {
 
 func ExampleDaysInYear() {
 	t := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
-	days := lxtime.DaysInYear(t)
+	days := lxtime.TotalDaysInYear(t)
 	// days: 366
 	_ = days
 
 	t2 := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	days2 := lxtime.DaysInYear(t2)
+	days2 := lxtime.TotalDaysInYear(t2)
 	// days2: 365
 	_ = days2
 }
