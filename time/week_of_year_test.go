@@ -152,20 +152,10 @@ func TestWeekOfYear_TimeDoesNotMatter(t *testing.T) {
 
 	expectedWeek := lxtime.WeekOfYear(date)
 
-	for _, t := range times {
-		result := lxtime.WeekOfYear(t)
+	for _, testTime := range times {
+		result := lxtime.WeekOfYear(testTime)
 		if result != expectedWeek {
-			t.Errorf("WeekOfYear(%v) = %d, want %d", t, result, expectedWeek)
+			t.Errorf("WeekOfYear(%v) = %d, want %d", testTime, result, expectedWeek)
 		}
 	}
-}
-
-func ExampleWeekOfYear() {
-	t := time.Date(2026, 1, 10, 10, 30, 0, 0, time.UTC) // Saturday in week 2
-	week := lxtime.WeekOfYear(t)
-	// week: 2
-
-	t2 := time.Date(2026, 1, 5, 10, 30, 0, 0, time.UTC) // Monday, first week
-	week2 := lxtime.WeekOfYear(t2)
-	// week2: 1
 }
