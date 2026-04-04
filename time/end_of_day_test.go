@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hgapdvn/lx/time"
+	lxtime "github.com/hgapdvn/lx/time"
 )
 
 func TestEndOfDay_BasicCases(t *testing.T) {
@@ -34,6 +34,32 @@ func TestEndOfDay_BasicCases(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if !tt.check() {
 				t.Errorf("EndOfDay() check failed")
+			}
+		})
+	}
+}
+
+func TestEndOfDay_TimezoneCases(t *testing.T) {
+	tests := []struct {
+		name  string
+		check func() bool
+	}{
+		{
+			name: "EST preserves correct date",
+			check: func() bool {
+				est, _ := time.LoadLocation("America/New_York")
+				input := time.Date(2026, 4, 4, 10, 30, 0, 0, est)
+				result := lxtime.EndOfDay(input)
+				expected := time.Date(2026, 4, 4, 23, 59, 59, 999999999, est)
+				return result.Equal(expected)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.check() {
+				t.Errorf("EndOfDay() timezone check failed")
 			}
 		})
 	}

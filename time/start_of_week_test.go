@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hgapdvn/lx/time"
+	lxtime "github.com/hgapdvn/lx/time"
 )
 
 func TestStartOfWeek_BasicCases(t *testing.T) {
@@ -43,6 +43,34 @@ func TestStartOfWeek_BasicCases(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if !tt.check() {
 				t.Errorf("StartOfWeek() check failed")
+			}
+		})
+	}
+}
+
+func TestStartOfWeek_TimezoneCases(t *testing.T) {
+	tests := []struct {
+		name  string
+		check func() bool
+	}{
+		{
+			name: "EST preserves timezone",
+			check: func() bool {
+				est, _ := time.LoadLocation("America/New_York")
+				// 2026-04-08 (Wednesday) in EST
+				input := time.Date(2026, 4, 8, 10, 30, 0, 0, est)
+				result := lxtime.StartOfWeek(input)
+				// Should be Monday 2026-04-06 in EST
+				expected := time.Date(2026, 4, 6, 0, 0, 0, 0, est)
+				return result.Equal(expected)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.check() {
+				t.Errorf("StartOfWeek() timezone check failed")
 			}
 		})
 	}

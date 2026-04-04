@@ -19,9 +19,14 @@ func EndOfWeek(t time.Time) time.Time {
 	// Sunday is 0, so: (7 - 0) % 7 = 0 (already Sunday), (7 - 1) % 7 = 6 (Monday needs 6 days), etc.
 	daysForwardToSunday := (7 - int(currentWeekday)) % 7
 
-	// Truncate to midnight and add the calculated days
-	// Then subtract 1 nanosecond to get 23:59:59.999999999 instead of 00:00:00 of next day
-	startOfCurrentDay := t.Truncate(24 * time.Hour)
-	endOfDay := startOfCurrentDay.AddDate(0, 0, daysForwardToSunday).Add(24*time.Hour - 1*time.Nanosecond)
-	return endOfDay
+	// Extract date components in the time's local timezone
+	year, month, day := t.Date()
+
+	// Create start of current day, then add days to get Sunday
+	// Using Date() correctly handles non-UTC timezones
+	startOfDay := time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+	sundayStart := startOfDay.AddDate(0, 0, daysForwardToSunday)
+
+	// Subtract 1 nanosecond to get 23:59:59.999999999 instead of 00:00:00
+	return sundayStart.Add(24*time.Hour - 1*time.Nanosecond)
 }

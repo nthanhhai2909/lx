@@ -11,5 +11,10 @@ import "time"
 //	start := lxtime.StartOfDay(t)
 //	// start: 2026-04-04 00:00:00 +0000 UTC
 func StartOfDay(t time.Time) time.Time {
-	return t.Truncate(24 * time.Hour)
+	// Extract date components in the time's local timezone
+	year, month, day := t.Date()
+
+	// Reconstruct time at midnight, preserving timezone
+	// This correctly handles non-UTC timezones, unlike Truncate() which uses UTC epoch
+	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
 }

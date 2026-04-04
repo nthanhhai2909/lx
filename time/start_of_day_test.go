@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hgapdvn/lx/time"
+	lxtime "github.com/hgapdvn/lx/time"
 )
 
 func TestStartOfDay_BasicCases(t *testing.T) {
@@ -174,6 +174,42 @@ func TestStartOfDay_EdgeCases(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if !tt.check() {
 				t.Errorf("StartOfDay() check failed")
+			}
+		})
+	}
+}
+
+func TestStartOfDay_TimezoneCases(t *testing.T) {
+	tests := []struct {
+		name  string
+		check func() bool
+	}{
+		{
+			name: "EST preserves correct date",
+			check: func() bool {
+				est, _ := time.LoadLocation("America/New_York")
+				input := time.Date(2026, 4, 4, 10, 30, 0, 0, est)
+				result := lxtime.StartOfDay(input)
+				expected := time.Date(2026, 4, 4, 0, 0, 0, 0, est)
+				return result.Equal(expected)
+			},
+		},
+		{
+			name: "PST preserves correct date",
+			check: func() bool {
+				pst, _ := time.LoadLocation("America/Los_Angeles")
+				input := time.Date(2026, 4, 4, 10, 30, 0, 0, pst)
+				result := lxtime.StartOfDay(input)
+				expected := time.Date(2026, 4, 4, 0, 0, 0, 0, pst)
+				return result.Equal(expected)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if !tt.check() {
+				t.Errorf("StartOfDay() timezone check failed")
 			}
 		})
 	}

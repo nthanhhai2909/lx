@@ -25,7 +25,11 @@ func StartOfWeek(t time.Time) time.Time {
 		daysBackToMonday = 6
 	}
 
-	// Truncate to midnight and subtract the calculated days
-	startOfCurrentDay := t.Truncate(24 * time.Hour)
-	return startOfCurrentDay.AddDate(0, 0, -daysBackToMonday)
+	// Extract date components in the time's local timezone
+	year, month, day := t.Date()
+
+	// Create start of current day, then subtract days to get Monday
+	// Using Date() correctly handles non-UTC timezones
+	startOfDay := time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+	return startOfDay.AddDate(0, 0, -daysBackToMonday)
 }

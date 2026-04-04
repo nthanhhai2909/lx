@@ -11,5 +11,10 @@ import "time"
 //	end := lxtime.EndOfDay(t)
 //	// end: 2026-04-04 23:59:59.999999999 +0000 UTC
 func EndOfDay(t time.Time) time.Time {
-	return t.Truncate(24 * time.Hour).Add(24*time.Hour - 1*time.Nanosecond)
+	// Extract date components in the time's local timezone
+	year, month, day := t.Date()
+
+	// Reconstruct time at end of day (23:59:59.999999999), preserving timezone
+	// This correctly handles non-UTC timezones, unlike Truncate() which uses UTC epoch
+	return time.Date(year, month, day, 23, 59, 59, 999999999, t.Location())
 }
