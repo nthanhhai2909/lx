@@ -14,12 +14,7 @@ import "time"
 //	}
 func IsToday(t time.Time) bool {
 	now := time.Now()
-	return isSameDay(t, now)
-}
-
-// isSameDay is a helper function that checks if two times are on the same day
-func isSameDay(t1, t2 time.Time) bool {
-	y1, m1, d1 := t1.Date()
-	y2, m2, d2 := t2.Date()
+	y1, m1, d1 := t.Date()
+	y2, m2, d2 := now.Date()
 	return y1 == y2 && m1 == m2 && d1 == d2
 }

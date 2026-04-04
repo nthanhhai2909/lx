@@ -14,5 +14,7 @@ import "time"
 //	}
 func IsTomorrow(t time.Time) bool {
 	tomorrow := time.Now().AddDate(0, 0, 1)
-	return isSameDay(t, tomorrow)
+	y1, m1, d1 := t.Date()
+	y2, m2, d2 := tomorrow.Date()
+	return y1 == y2 && m1 == m2 && d1 == d2
 }
