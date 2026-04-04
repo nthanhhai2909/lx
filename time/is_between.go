@@ -11,9 +11,6 @@ import "time"
 //	if lxtime.IsBetween(t, time.Now().Add(-1*time.Hour), time.Now().Add(1*time.Hour)) {
 //		// t is between now-1h and now+1h
 //	}
-func IsBetween(time time.Time, start time.Time, end time.Time) bool {
-	if time.Equal(start) || time.Equal(end) {
-		return true
-	}
-	return time.After(start) && time.Before(end)
+func IsBetween(t, start, end time.Time) bool {
+	return (t.Equal(start) || t.After(start)) && (t.Equal(end) || t.Before(end))
 }
