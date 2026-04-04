@@ -286,7 +286,8 @@ func TestMapKeys_StringFloat(t *testing.T) {
 			},
 			fn: func(k string) int { return len(k) },
 			check: func(result map[int]float64) bool {
-				return len(result) == 1 && len(result) > 0
+				// "pi" has length 2, "e" has length 1, so we get 2 different keys
+				return len(result) == 2 && result[1] == 2.71828 && result[2] == 3.14159
 			},
 			checkMsg: "should preserve float values",
 		},
