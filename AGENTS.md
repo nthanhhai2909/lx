@@ -276,6 +276,25 @@ go tool cover -html=coverage.out        # Open HTML coverage report
 4. Start with 2-3 core functions with tests
 5. Aim for 90%+ coverage before merge
 6. Consider package-specific errors in `errs.go` if needed
+7. For complex types or rich APIs, create `*_examples_test.go` files to demonstrate usage patterns (e.g., `types/lazy_examples_test.go`, `constraints/examples_test.go`)
+
+### Creating Example Test Files
+
+Use `*_examples_test.go` files to provide runnable documentation examples:
+- Create example functions: `func ExampleFunctionName() { ... }`
+- These appear in generated documentation and can be run with `go test`
+- Use for demonstrating complex types, functional patterns, or composition
+- Showing typical workflows or patterns
+
+**When to use**:
+- Complex packages with many functions (types, constraints)
+- Demonstrating function composition or method chaining
+- Showing typical workflows or patterns
+
+**When not needed**:
+- Simple utilities with straightforward usage
+- Already well-documented with inline examples
+- Few exported functions
 
 ### Running Tests for Development
 
@@ -306,6 +325,10 @@ go test -race ./...
 | `slices/doc.go` | Example of package organization documentation |
 | `slices/filter.go` | Example of core functions pattern |
 | `slices/filter_test.go` | Example of comprehensive testing pattern |
+| `time/days.go` | Example of simple utility functions (lxtime package) |
+| `types/doc.go` | Example of complex package documentation with categories |
+| `types/lazy_examples_test.go` | Example of runnable documentation test files |
+| `constraints/examples_test.go` | Example of constraint usage patterns |
 
 ---
 
@@ -454,6 +477,5 @@ func FirstOr[T any](slice []T, defaultValue T) T {
 
 ---
 
-**Last Updated**: February 28, 2026  
+**Last Updated**: April 4, 2026  
 **For**: AI Coding Agents (Copilot, Cursor, Claude, etc.)
-
