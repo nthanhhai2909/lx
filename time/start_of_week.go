@@ -12,10 +12,20 @@ import "time"
 //	start := lxtime.StartOfWeek(t)
 //	// start: 2026-04-06 00:00:00 +0000 UTC (Monday)
 func StartOfWeek(t time.Time) time.Time {
-	weekday := t.Weekday()
-	daysToMonday := int(weekday - time.Monday)
-	if daysToMonday < 0 {
-		daysToMonday = 6
+	// Get the current day of week (0=Sunday, 1=Monday, ..., 6=Saturday)
+	currentWeekday := t.Weekday()
+
+	// Calculate how many days back to Monday
+	// Monday is always 1, so: Monday(1) - Monday(1) = 0, Tuesday(2) - Monday(1) = 1, etc.
+	daysBackToMonday := int(currentWeekday - time.Monday)
+
+	// Special case: Sunday (0) gives us 0 - 1 = -1
+	// For Sunday, we want to go back 6 days to the previous week's Monday
+	if daysBackToMonday < 0 {
+		daysBackToMonday = 6
 	}
-	return t.Truncate(24*time.Hour).AddDate(0, 0, -daysToMonday)
+
+	// Truncate to midnight and subtract the calculated days
+	startOfCurrentDay := t.Truncate(24 * time.Hour)
+	return startOfCurrentDay.AddDate(0, 0, -daysBackToMonday)
 }

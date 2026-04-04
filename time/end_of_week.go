@@ -12,7 +12,16 @@ import "time"
 //	end := lxtime.EndOfWeek(t)
 //	// end: 2026-04-12 23:59:59.999999999 +0000 UTC (Sunday)
 func EndOfWeek(t time.Time) time.Time {
-	weekday := t.Weekday()
-	daysToSunday := (7 - int(weekday)) % 7
-	return t.Truncate(24*time.Hour).AddDate(0, 0, daysToSunday).Add(24*time.Hour - 1*time.Nanosecond)
+	// Get the current day of week (0=Sunday, 1=Monday, ..., 6=Saturday)
+	currentWeekday := t.Weekday()
+
+	// Calculate how many days forward to Sunday
+	// Sunday is 0, so: (7 - 0) % 7 = 0 (already Sunday), (7 - 1) % 7 = 6 (Monday needs 6 days), etc.
+	daysForwardToSunday := (7 - int(currentWeekday)) % 7
+
+	// Truncate to midnight and add the calculated days
+	// Then subtract 1 nanosecond to get 23:59:59.999999999 instead of 00:00:00 of next day
+	startOfCurrentDay := t.Truncate(24 * time.Hour)
+	endOfDay := startOfCurrentDay.AddDate(0, 0, daysForwardToSunday).Add(24*time.Hour - 1*time.Nanosecond)
+	return endOfDay
 }

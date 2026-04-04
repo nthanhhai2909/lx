@@ -11,6 +11,10 @@ import "time"
 //	start := lxtime.StartOfMonth(t)
 //	// start: 2026-04-01 00:00:00 +0000 UTC
 func StartOfMonth(t time.Time) time.Time {
+	// Extract year, month from the input time
 	year, month, _ := t.Date()
+
+	// Create a new time for the first day of the month at midnight
+	// Preserves the original timezone
 	return time.Date(year, month, 1, 0, 0, 0, 0, t.Location())
 }
